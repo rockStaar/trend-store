@@ -285,62 +285,64 @@ function ProductGallery({
 
   return (
     <div data-testid="product-gallery" className="md:sticky md:top-24 md:self-start">
-      {/* Mobile: swipeable track */}
       <div
         role="region"
         aria-roledescription="carousel"
         aria-label={product.title}
         className="relative"
       >
-        {/* Main image */}
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-[#EFE9DE] border border-[#E2DBD0]">
+        {/* Main large display image */}
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#FAF6F0] border border-[#E2DBD0] shadow-sm">
           {activeImage ? (
             <img
               src={activeImage.url}
               alt={activeImage.altText ?? product.title}
               width={activeImage.width ?? undefined}
               height={activeImage.height ?? undefined}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-all duration-500"
               loading="eager"
               fetchPriority="high"
               data-testid="product-gallery-image"
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE]">
-              <span className="text-4xl">🌿</span>
+            <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE] text-[#7D786D]">
+              <span className="text-4xl mb-2">🌿</span>
+              <span className="text-xs">Grow &amp; Glow Product</span>
             </div>
           )}
         </div>
 
-        {/* Thumbnail strip — visible on md+ when >1 image */}
+        {/* Thumbnail gallery strip */}
         {images.length > 1 ? (
           <div
             role="group"
             aria-label="Product image thumbnails"
-            className="mt-3 flex gap-2 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: "none" }}
+            className="mt-3.5 flex gap-2.5 overflow-x-auto pb-1 scrollbar-none"
           >
-            {images.map((image, index) => (
-              <button
-                key={image.url}
-                type="button"
-                aria-label={`View image ${index + 1}`}
-                aria-pressed={index === activeIndex}
-                onClick={() => setActiveIndex(index)}
-                className={`shrink-0 size-16 rounded-md overflow-hidden border-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#B77943] ${
-                  index === activeIndex
-                    ? "border-[#B77943] opacity-100"
-                    : "border-[#E2DBD0] opacity-60 hover:opacity-100"
-                }`}
-              >
-                <img
-                  src={image.url}
-                  alt={image.altText ?? ""}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </button>
-            ))}
+            {images.map((image, index) => {
+              const isActive = index === activeIndex;
+              return (
+                <button
+                  key={image.url}
+                  type="button"
+                  aria-label={`View image ${index + 1}`}
+                  aria-pressed={isActive}
+                  onClick={() => setActiveIndex(index)}
+                  className={`shrink-0 size-16 sm:size-18 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                    isActive
+                      ? "border-[#B77943] ring-2 ring-[#B77943]/25 opacity-100 shadow-sm"
+                      : "border-[#E2DBD0] opacity-60 hover:opacity-100 bg-[#FAF6F0]"
+                  }`}
+                >
+                  <img
+                    src={image.url}
+                    alt={image.altText ?? `Product thumbnail ${index + 1}`}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
+              );
+            })}
           </div>
         ) : null}
       </div>
@@ -573,21 +575,21 @@ function QuantitySelector({
 
   return (
     <div className="shrink-0">
-      <label className="text-on-surface mb-2 block text-sm font-medium" htmlFor="quantity">
+      <label className="text-[#282720] mb-2 block text-xs uppercase tracking-wider font-bold" htmlFor="quantity">
         Quantity
       </label>
       <div
-        className="quantity-selector-outlined rounded-input inline-flex items-center"
+        className="bg-white border border-[#E2DBD0] rounded-xl inline-flex items-center p-0.5 shadow-xs"
         data-testid="quantity-stepper"
       >
         <button
           type="button"
-          className="text-on-surface-secondary hover:text-on-surface inline-flex size-11 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-[color,transform] motion-safe:active:scale-[0.90]"
+          className="text-[#282720] hover:bg-[#FAF6F0] inline-flex size-10 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-40 motion-safe:transition-all cursor-pointer"
           aria-label="Decrease quantity"
           onClick={() => setQuantity(clamp(quantity - 1))}
           disabled={quantity <= 1}
         >
-          <img src="/icons/icon-minus.svg" alt="" className="size-4" aria-hidden="true" />
+          <img src="/icons/icon-minus.svg" alt="" className="size-3.5" aria-hidden="true" />
         </button>
         <input
           type="number"
@@ -596,7 +598,7 @@ function QuantitySelector({
           min={1}
           max={99}
           step={1}
-          className="number-reset text-on-surface h-11 w-12 rounded-none border-0 bg-transparent p-0 text-center text-sm"
+          className="number-reset text-[#282720] font-bold h-10 w-11 rounded-none border-0 bg-transparent p-0 text-center text-sm"
           aria-label="Quantity"
           onChange={(event) =>
             setQuantity(clamp(Number.parseInt(event.currentTarget.value, 10) || 1))
@@ -604,12 +606,12 @@ function QuantitySelector({
         />
         <button
           type="button"
-          className="text-on-surface-secondary hover:text-on-surface inline-flex size-11 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-[color,transform] motion-safe:active:scale-[0.90]"
+          className="text-[#282720] hover:bg-[#FAF6F0] inline-flex size-10 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-40 motion-safe:transition-all cursor-pointer"
           aria-label="Increase quantity"
           onClick={() => setQuantity(clamp(quantity + 1))}
           disabled={quantity >= 99}
         >
-          <img src="/icons/icon-plus.svg" alt="" className="size-4" aria-hidden="true" />
+          <img src="/icons/icon-plus.svg" alt="" className="size-3.5" aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -629,7 +631,12 @@ function AddToCart({
 }) {
   const { options, register, formProps, errors, pending } = useProductForm();
   const addable = canAddToCart(product, options);
-  const buttonText = addable ? "Add to cart" : selectedVariant ? "Sold out" : "Select options";
+  const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
+  const buttonText = addable
+    ? `Add to Bag — ${formatPrice(price)}`
+    : selectedVariant
+      ? "Sold out"
+      : "Select options";
 
   return (
     <>
@@ -640,11 +647,11 @@ function AddToCart({
         <input type="hidden" {...register("merchandiseId", {})} />
         <button
           {...register("addToCart", {})}
-          className="rounded-lg bg-[#B77943] text-white hover:bg-[#9E6433] focus-visible:outline-accent inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 px-4 text-base font-bold shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:active:scale-[0.98]"
+          className="rounded-xl bg-[#B77943] text-white hover:bg-[#9E6433] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 px-6 text-base font-bold shadow-md hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.98]"
           disabled={!addable || pending}
           data-testid="add-to-cart"
         >
-          {pending ? "Adding to Cart…" : addable ? "🛒 Add to Cart" : buttonText}
+          {pending ? "Adding to Bag…" : buttonText}
         </button>
       </form>
       {selectedVariant ? (
@@ -653,7 +660,7 @@ function AddToCart({
             variants={[{ id: selectedVariant.id, quantity }]}
             disabled={!addable || pending}
             width="100%"
-            borderRadius="8px"
+            borderRadius="12px"
           />
         </div>
       ) : null}
@@ -852,12 +859,11 @@ function ProductInfo({
   return (
     <div className="flex flex-col gap-4 md:sticky md:top-8 md:self-start">
       <div className="pt-2 md:pt-4">
-        {product.vendor ? (
-          <p className="text-[11px] font-bold text-[#B77943] tracking-wider uppercase mb-1">
-            {product.vendor}
-          </p>
-        ) : null}
-        <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-[#282720] leading-tight">
+        <p className="text-[11px] font-bold text-[#B77943] tracking-widest uppercase mb-1.5 flex items-center gap-1.5">
+          <span>✦</span>
+          <span>{product.vendor || "GROW & GLOW EDIT"}</span>
+        </p>
+        <h1 className="font-serif text-3xl sm:text-4xl text-[#282720] font-normal leading-[1.12]">
           {product.title}
         </h1>
         <PriceBlock product={product} selectedVariant={selectedVariant} />
@@ -895,15 +901,15 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
     <nav aria-label="Breadcrumb" className="mb-6">
       <ol className="flex items-center gap-1.5 text-xs text-[#7D786D]">
         <li>
-          <a href="/" className="hover:text-[#B77943] transition-colors">
+          <Link to="/" className="hover:text-[#B77943] transition-colors">
             Home
-          </a>
+          </Link>
         </li>
         <li aria-hidden="true">/</li>
         <li>
-          <a href="/collections" className="hover:text-[#B77943] transition-colors">
+          <Link to="/collections" className="hover:text-[#B77943] transition-colors">
             Collections
-          </a>
+          </Link>
         </li>
         <li aria-hidden="true">/</li>
         <li aria-current="page" className="text-[#282720] font-medium truncate max-w-[160px]">
@@ -982,13 +988,14 @@ function RelatedProducts({ products }: { products: RelatedProduct[] }) {
       <div className="max-w-page px-margin mx-auto">
         <div className="mb-6">
           <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
-            YOU MAY ALSO LIKE
+            COMPLETE YOUR RITUAL
           </span>
           <h2
             id="related-products-heading"
-            className="font-heading text-xl sm:text-2xl font-bold text-[#282720] mt-1"
+            className="font-serif italic text-2xl sm:text-3xl font-normal text-[#282720] mt-1"
           >
-            You May Also Love          </h2>
+            You May Also Love
+          </h2>
         </div>
         <div className="contain-paint">
           <ul

@@ -1,118 +1,163 @@
 import { useState } from "react";
 import { Link } from "react-router";
 
+import type { ProductCardData } from "~/components/ProductCard";
 import type { HomeHeroData } from "~/lib/home-hero";
+import { formatPrice } from "~/lib/money";
 
-export function HomeHero({ hero }: { hero: HomeHeroData }) {
-  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
-  const image = hero.image && hero.image.url !== failedImageUrl ? hero.image : null;
+type HomeHeroProps = {
+  hero?: HomeHeroData;
+  products?: readonly ProductCardData[];
+};
+
+export function HomeHero({ hero, products = [] }: HomeHeroProps) {
+  const [bgFailed, setBgFailed] = useState(false);
+
+  // Take the first 3 products for the bottom-right floating showcase cards (just like reference)
+  const previewProducts = products.slice(0, 3);
 
   return (
-    <section className="w-full bg-[#FAF6F0] border-b border-[#E2DBD0]" aria-labelledby="hero-heading">
-      <div className="max-w-page px-margin mx-auto py-10 md:py-20 lg:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-8 lg:gap-14 items-center">
+    <section
+      className="relative w-full bg-[#1C1A17] text-[#F7F3EC] overflow-hidden min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] flex flex-col justify-between"
+      aria-labelledby="hero-heading"
+    >
+      {/* ── Background Editorial Image ── */}
+      <div className="absolute inset-0 z-0">
+        {!bgFailed ? (
+          <img
+            src="/images/hero-bg.jpg"
+            alt="Grow & Glow Ritual for Radiant Living"
+            className="w-full h-full object-cover object-center lg:object-[center_35%]"
+            loading="eager"
+            fetchPriority="high"
+            onError={() => setBgFailed(true)}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-[#282720] via-[#332A24] to-[#1C1A17]" />
+        )}
 
-          {/* ── Text Content ── */}
-          <div className="flex flex-col items-start text-left order-2 lg:order-1">
-            {/* Eyebrow badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#B77943]/12 text-[#B77943] text-xs font-semibold uppercase tracking-wider mb-5">
-              <span>🌿</span>
-              <span>Trusted by 50,000+ Indian Homes</span>
-            </div>
+        {/* Cinematic gradient overlays matching the reference mood */}
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#1C1A17]/90 via-[#1C1A17]/65 to-transparent sm:to-[#1C1A17]/20"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-[#1C1A17]/95 via-transparent to-[#1C1A17]/40"
+          aria-hidden="true"
+        />
+      </div>
 
-            {/* Headline */}
-            <h1
-              id="hero-heading"
-              className="font-heading font-extrabold text-[2rem] sm:text-5xl lg:text-5xl text-[#282720] tracking-tight leading-[1.12]"
+      {/* ── Hero Main Content ── */}
+      <div className="relative z-10 max-w-page px-margin mx-auto w-full pt-16 sm:pt-24 lg:pt-32 pb-8 flex-1 flex flex-col justify-center">
+        <div className="max-w-xl lg:max-w-2xl text-left">
+          {/* Eyebrow Label */}
+          <div className="inline-flex items-center gap-2 text-xs uppercase font-semibold tracking-widest text-[#D7A84C] mb-3">
+            <span>✦</span>
+            <span>A NEW RITUAL FOR EVERYDAY GLOW</span>
+          </div>
+
+          {/* Master Editorial Serif Headline (Matches reference) */}
+          <h1
+            id="hero-heading"
+            className="font-serif italic font-normal text-4xl sm:text-6xl lg:text-[4.5rem] text-white tracking-tight leading-[1.06] mb-5 drop-shadow-sm"
+          >
+            A New Ritual for <br />
+            <span className="font-heading not-italic font-bold text-[#F7F3EC]">
+              Radiant Living
+            </span>
+          </h1>
+
+          {/* Subhead */}
+          <p className="text-[#D7A84C] font-semibold text-sm sm:text-base uppercase tracking-wider mb-2">
+            Curated Essentials For You
+          </p>
+
+          {/* Short Supporting Copy */}
+          <p className="text-[#EFE9DE]/90 text-sm sm:text-base max-w-md leading-relaxed mb-8 font-normal">
+            Thoughtfully chosen botanicals, clean formulations, and calming lifestyle discoveries that respect your daily rhythm and keep routines simple.
+          </p>
+
+          {/* Action CTAs */}
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              to="#best-sellers"
+              className="inline-flex items-center gap-2 bg-[#D7A84C] hover:bg-[#c99a3e] text-[#282720] px-8 py-3.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all shadow-lg active:scale-95 group"
             >
-              Discover Products That Make<br />
-              Life <em className="not-italic text-[#B77943]">Better</em>{" "}
-              &amp; You <em className="not-italic text-[#B77943]">Glow</em>
-            </h1>
+              <span>Shop Now</span>
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </Link>
+            <Link
+              to="/collections"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-[#F7F3EC] border border-white/25 px-6 py-3.5 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all backdrop-blur-xs"
+            >
+              <span>Explore Edit</span>
+            </Link>
+          </div>
+        </div>
+      </div>
 
-            {/* Sub-copy */}
-            <p className="text-[#5E5B52] mt-4 text-base sm:text-lg max-w-lg leading-relaxed">
-              Curated wellness essentials, smart home gadgets, and lifestyle finds — designed to elevate your everyday routine. Delivered across India in 3–5 days.
-            </p>
+      {/* ── Bottom Right: Floating Product Preview Shelf (Matches reference picture) ── */}
+      <div className="relative z-10 w-full pb-8 pt-4">
+        <div className="max-w-page px-margin mx-auto flex flex-col md:flex-row md:items-end justify-between gap-4">
 
-            {/* Value micro-badges */}
-            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-5 mb-6">
-              {[
-                "✓ Free Delivery >₹999",
-                "✓ COD & UPI",
-                "✓ 7-Day Guarantee",
-              ].map((badge) => (
-                <span key={badge} className="text-xs font-medium text-[#282720] flex items-center gap-1.5">
-                  {badge}
-                </span>
-              ))}
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-              <Link
-                to="#trending"
-                className="text-center bg-[#B77943] text-white hover:bg-[#9E6433] px-7 py-3.5 rounded-lg text-sm font-bold tracking-wide shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
-              >
-                Shop Bestsellers →
-              </Link>
-              <Link
-                to="/collections"
-                className="text-center bg-white border border-[#E2DBD0] text-[#282720] hover:bg-[#EFE9DE] px-6 py-3.5 rounded-lg text-sm font-medium transition-colors"
-              >
-                Browse Collections
-              </Link>
-            </div>
+          {/* Left mini assurance indicators */}
+          <div className="hidden lg:flex items-center gap-6 text-xs text-[#EFE9DE]/80">
+            <span className="flex items-center gap-1.5">
+              <span className="text-[#D7A84C]">✓</span> Express Pan-India Delivery
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-[#D7A84C]">✓</span> Cash on Delivery &amp; UPI
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-[#D7A84C]">✓</span> 7-Day Easy Replacements
+            </span>
           </div>
 
-          {/* ── Hero Visual ── */}
-          <div className="order-1 lg:order-2">
-            <div className="relative rounded-2xl overflow-hidden border border-[#E2DBD0] bg-white shadow-xl p-2.5">
-              <div className="aspect-[4/3] sm:aspect-square w-full rounded-xl overflow-hidden bg-[#EFE9DE] relative">
-                {image ? (
-                  <img
-                    src={image.url}
-                    alt={image.altText ?? "Curated Lifestyle Discoveries"}
-                    className="w-full h-full object-cover"
-                    loading="eager"
-                    fetchPriority="high"
-                    ref={(img) => {
-                      if (img?.complete && img.naturalWidth === 0) setFailedImageUrl(image.url);
-                    }}
-                    onError={() => setFailedImageUrl(image.url)}
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE]">
-                    <span className="text-5xl mb-3">🌿</span>
-                    <span className="font-heading font-bold text-xl text-[#282720]">
-                      Grow&amp;Glow Picks
-                    </span>
-                    <span className="text-xs text-[#635F53] mt-2 max-w-xs leading-relaxed">
-                      Curated wellness, lifestyle, and problem-solving finds for Indian homes
-                    </span>
-                  </div>
-                )}
+          {/* Floating Product Cards Carousel / Row */}
+          {previewProducts.length > 0 ? (
+            <div
+              className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none self-end max-w-full"
+              role="region"
+              aria-label="Featured product previews"
+            >
+              {previewProducts.map((prod) => {
+                const image = prod.featuredImage ?? prod.images.nodes[0];
+                const price = prod.priceRange.minVariantPrice;
 
-                {/* Floating discovery tag */}
-                <div className="absolute bottom-3 start-3 end-3 bg-white/96 backdrop-blur-sm rounded-xl p-3 border border-[#E2DBD0] shadow-lg flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#B77943] block">
-                      TOP DISCOVERY OF THE WEEK
-                    </span>
-                    <span className="text-xs font-semibold text-[#282720] line-clamp-1 mt-0.5">
-                      {hero.heading || "Viral Smart Living Essential"}
-                    </span>
-                  </div>
+                return (
                   <Link
-                    to={hero.to}
-                    className="text-xs font-bold text-white bg-[#B77943] hover:bg-[#9E6433] px-3 py-1.5 rounded-md transition-colors shrink-0"
+                    key={prod.handle}
+                    to={`/products/${prod.handle}`}
+                    className="group shrink-0 flex items-center gap-3.5 bg-[#FAF6F0]/95 hover:bg-white text-[#282720] p-2.5 sm:p-3 rounded-2xl border border-white/40 shadow-xl transition-all duration-300 hover:-translate-y-1 w-[200px] sm:w-[220px]"
                   >
-                    View →
+                    <div className="size-14 sm:size-16 rounded-xl bg-[#EFE9DE] overflow-hidden shrink-0 border border-[#E2DBD0] flex items-center justify-center">
+                      {image ? (
+                        <img
+                          src={image.url}
+                          alt={image.altText ?? prod.title}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-xl">🌿</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-[#282720] truncate group-hover:text-[#B77943] transition-colors">
+                        {prod.title}
+                      </p>
+                      <p className="text-xs font-semibold text-[#B77943] mt-0.5">
+                        {formatPrice(price)}
+                      </p>
+                      <span className="inline-flex items-center text-[10px] font-medium text-[#7D786D] group-hover:text-[#282720] mt-1">
+                        View Details →
+                      </span>
+                    </div>
                   </Link>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          </div>
+          ) : null}
 
         </div>
       </div>

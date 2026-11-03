@@ -107,7 +107,7 @@ function CollectionHeader({ collection }: { collection: CollectionData }) {
     <div className="mb-8">
       <div className="grid gap-6 md:grid-cols-[1fr_16rem] md:items-start">
         <div>
-          <h1 className="type-display text-on-surface mb-2 font-bold">{collection.title}</h1>
+          <h1 className="font-serif italic text-3xl sm:text-5xl text-[#282720] mb-2 font-normal">{collection.title}</h1>
           {collection.description ? (
             <div className="richtext text-on-surface-secondary type-body-sm max-w-2xl">
               <p>{collection.description}</p>

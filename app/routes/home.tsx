@@ -1,6 +1,6 @@
 import { gql } from "@shopify/hydrogen";
 import { Link, useRouteLoaderData } from "react-router";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import {
   CollectionCard,
@@ -62,10 +62,10 @@ const HOME_QUERY = gql(
 export function meta({ matches }: Route.MetaArgs) {
   const shopName = getShopNameFromRootMatch(matches[0]);
   return [
-    { title: formatPageTitle("Curated Lifestyle & Wellness Discoveries", shopName) },
+    { title: formatPageTitle("Little Things. Better Living.", shopName) },
     {
       name: "description",
-      content: `Grow&Glow — curating wellness, lifestyle, and problem-solving products for Indian homes. Shop bestsellers with Pan-India delivery, COD & UPI at ${shopName}.`,
+      content: `Grow & Glow — thoughtfully chosen essentials for your everyday glow. Curated wellness rituals, artisanal home accents, and lifestyle discoveries with Pan-India delivery, COD & UPI.`,
     },
   ];
 }
@@ -90,42 +90,163 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section: Trending Finds
+// Section: Curated Best Sellers Carousel (Editorial discovery with filter pills)
 // ─────────────────────────────────────────────────────────────────────────────
-function TrendingFinds({ products }: { products: readonly ProductCardData[] }) {
-  if (products.length === 0) return null;
+function BestSellersSection({
+  products,
+  collections,
+}: {
+  products: readonly ProductCardData[];
+  collections: readonly CollectionCardData[];
+}) {
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const carouselRef = useRef<HTMLUListElement>(null);
+
+  // Generate category filter pills dynamically
+  const categoryFilters = useMemo(() => {
+    const list = ["All"];
+    collections.forEach((c) => {
+      if (c.title && !list.includes(c.title)) list.push(c.title);
+    });
+    products.forEach((p) => {
+      if (p.productType && !list.includes(p.productType)) list.push(p.productType);
+    });
+    return list.slice(0, 6);
+  }, [collections, products]);
+
+  // Filter products according to selected category pill
+  const visibleProducts = useMemo(() => {
+    if (selectedCategory === "All") return products;
+    return products.filter(
+      (p) =>
+        p.productType?.toLowerCase() === selectedCategory.toLowerCase() ||
+        p.title.toLowerCase().includes(selectedCategory.toLowerCase()),
+    );
+  }, [products, selectedCategory]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === "left" ? -330 : 330;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   return (
-    <section id="trending" className="w-full py-12 md:py-16 scroll-mt-24" aria-labelledby="trending-heading">
+    <section
+      id="best-sellers"
+      className="w-full py-16 md:py-24 bg-[#F7F3EC] border-b border-[#E2DBD0] scroll-mt-20"
+      aria-labelledby="bestsellers-heading"
+    >
       <div className="max-w-page px-margin mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <span className="text-[11px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
-              Most Popular This Week
+            <span className="text-[11px] uppercase font-bold tracking-widest text-[#B77943] block mb-1.5">
+              DISCOVER OUR EDIT
             </span>
-            <h2 id="trending-heading" className="font-heading text-2xl sm:text-3xl font-bold text-[#282720]">
-              Trending Finds
+            <h2
+              id="bestsellers-heading"
+              className="font-serif italic text-3xl sm:text-4xl lg:text-5xl font-normal text-[#282720]"
+            >
+              Our Best Sellers
             </h2>
+            <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 max-w-xl leading-relaxed">
+              Thoughtfully formulated rituals and mindful home essentials, hand-picked for your everyday glow.
+            </p>
           </div>
-          <Link
-            to="/collections"
-            className="text-sm font-semibold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group shrink-0"
-          >
-            <span>View All</span>
-            <span className="motion-safe:transition-transform motion-safe:group-hover:translate-x-0.5">→</span>
-          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/collections"
+              className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1.5 transition-colors group"
+            >
+              <span>Shop All</span>
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </Link>
+
+            {/* Desktop Navigation Chevrons */}
+            <div className="hidden sm:flex items-center gap-2 ms-4">
+              <button
+                type="button"
+                onClick={() => scroll("left")}
+                aria-label="Scroll products left"
+                className="size-9 rounded-full bg-white border border-[#E2DBD0] hover:border-[#B77943] hover:text-[#B77943] text-[#282720] flex items-center justify-center text-sm font-bold shadow-xs transition-colors cursor-pointer"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll("right")}
+                aria-label="Scroll products right"
+                className="size-9 rounded-full bg-white border border-[#E2DBD0] hover:border-[#B77943] hover:text-[#B77943] text-[#282720] flex items-center justify-center text-sm font-bold shadow-xs transition-colors cursor-pointer"
+              >
+                ›
+              </button>
+            </div>
+          </div>
         </div>
 
-        <ul
-          role="list"
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5"
+        {/* Dynamic Category Filter Pills */}
+        <div
+          className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 scrollbar-none"
+          role="tablist"
+          aria-label="Filter best sellers by category"
         >
-          {products.map((product, idx) => (
-            <li key={product.handle} className="h-full">
-              <ProductCard product={product} priority={idx < 2} />
-            </li>
-          ))}
-        </ul>
+          {categoryFilters.map((cat) => {
+            const isActive = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-[#B77943] text-white shadow-sm"
+                    : "bg-white text-[#282720] border border-[#E2DBD0] hover:border-[#B77943]/60 hover:text-[#B77943]"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Product Carousel */}
+        {visibleProducts.length > 0 ? (
+          <ul
+            ref={carouselRef}
+            role="list"
+            className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+          >
+            {visibleProducts.map((product, idx) => (
+              <li
+                key={product.handle}
+                className="w-[260px] sm:w-[280px] lg:w-[310px] shrink-0 snap-start h-full"
+              >
+                <ProductCard product={product} priority={idx < 3} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="bg-white rounded-2xl border border-[#E2DBD0] p-10 text-center">
+            <span className="text-3xl mb-2 block">🌿</span>
+            <p className="font-heading font-bold text-base text-[#282720]">
+              No products found in this category
+            </p>
+            <p className="text-xs text-[#5E5B52] mt-1 mb-4">
+              Explore our full selection of curated everyday discoveries.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("All")}
+              className="bg-[#B77943] text-white px-5 py-2 rounded-lg text-xs font-semibold cursor-pointer"
+            >
+              View All Products
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -501,8 +622,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
       ) : null}
 
-      <HomeHero hero={hero} />
-      <TrendingFinds products={trendingProducts} />
+      <HomeHero hero={hero} products={loaderData.allProducts} />
+      <BestSellersSection products={loaderData.allProducts} collections={loaderData.featuredCollections} />
       <FeaturedProductCampaign product={featuredProduct} />
       <SmartEssentials products={essentialsProducts} />
       <ShopByCategory collections={loaderData.featuredCollections} />

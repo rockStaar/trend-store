@@ -107,13 +107,13 @@ export default function CollectionsRoute({ loaderData }: Route.ComponentProps) {
         <Breadcrumb />
         <div className="mb-8 pb-4 border-b border-[#E2DBD0]">
           <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
-            DISCOVER BY CATEGORY
+            DISCOVER OUR EDITS
           </span>
-          <h1 className="font-heading text-3xl sm:text-4xl font-bold text-[#282720] mt-1">
+          <h1 className="font-serif italic text-3xl sm:text-5xl font-normal text-[#282720] mt-1">
             Shop by Category
           </h1>
           <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 max-w-xl">
-            Thoughtfully curated categories featuring practical problem solvers, smart home accessories, kitchen essentials, and festive gifts.
+            Thoughtfully curated categories featuring botanical wellness rituals, calming home living accents, and everyday lifestyle essentials.
           </p>
         </div>
         <CollectionsGrid collections={loaderData.collections.nodes} />
