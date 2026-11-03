@@ -7,7 +7,7 @@ import type { CardBrand, DigitalWallet } from "@shopify/hydrogen/storefront-api-
 import type { RootLayoutQueryResult } from "~/lib/root-layout";
 
 /** Configurable brand placeholder used when the Storefront API returns no custom shop name. */
-export const FALLBACK_SHOP_NAME = "Varenya Living";
+export const FALLBACK_SHOP_NAME = "Grow & Glow";
 
 export type StorefrontShopLogo = {
   url: string;

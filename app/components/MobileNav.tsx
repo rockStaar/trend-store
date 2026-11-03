@@ -13,17 +13,14 @@ export function MobileNav() {
     >
       <div className="flex h-full flex-col">
         <div className="min-h-touch-target relative flex shrink-0 items-center justify-between px-5 py-4 border-b border-[#E2DBD0]">
-          <div className="flex flex-col">
-            <span
-              className="font-heading font-bold text-lg text-[#282720]"
-              id="mobile-nav-title"
-            >
-              Grow&Glow
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-[#B77943] font-medium">
-              Grow Better. Glow Brighter.
-            </span>
-          </div>
+          <Link to="/" onClick={() => closeMobileNavDrawer()} className="inline-block">
+            <img
+              src="/logo.png"
+              alt="Grow & Glow"
+              className="h-8 w-auto object-contain"
+            />
+            <span className="sr-only" id="mobile-nav-title">Grow & Glow</span>
+          </Link>
           <button
             type="button"
             commandfor={MOBILE_NAV_DRAWER_ID}

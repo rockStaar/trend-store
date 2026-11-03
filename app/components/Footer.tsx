@@ -69,11 +69,15 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Column */}
           <div className="space-y-4">
-            <div className="flex flex-col">
-              <span className="font-heading font-bold text-xl text-[#282720]">
-                {shopInfo.name}
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-semibold mt-0.5">
+            <div className="flex flex-col items-start gap-1">
+              <Link to="/" className="inline-block">
+                <img
+                  src="/logo.png"
+                  alt="Grow & Glow"
+                  className="h-10 w-auto object-contain"
+                />
+              </Link>
+              <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-semibold mt-1">
                 Grow Better. Glow Brighter.
               </span>
             </div>

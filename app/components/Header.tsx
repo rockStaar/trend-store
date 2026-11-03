@@ -36,32 +36,15 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
           </div>
           <Link
             to="/"
-            aria-label={shopInfo.name}
-            title={shopInfo.name}
+            aria-label="Grow & Glow"
+            title="Grow & Glow"
             className="text-on-surface focus-visible:outline-accent inline-flex min-w-0 items-center rounded-sm text-lg font-medium no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group"
           >
-            {logo && failedLogoUrl !== logo.url ? (
-              <img
-                src={logo.url}
-                alt={logo.altText ?? shopInfo.name}
-                width={logo.width ?? undefined}
-                height={logo.height ?? undefined}
-                className="h-auto max-h-10 w-auto max-w-full object-contain"
-                ref={(img) => {
-                  if (img?.complete && img.naturalWidth === 0) setFailedLogoUrl(logo.url);
-                }}
-                onError={() => setFailedLogoUrl(logo.url)}
-              />
-            ) : (
-              <div className="flex flex-col">
-                <span className="font-heading font-bold text-lg sm:text-xl tracking-tight leading-none group-hover:text-[#B77943] transition-colors">
-                  <span className="text-[#282720]">Grow&amp;</span><span className="text-[#B77943]">Glow</span>
-                </span>
-                <span className="text-[10px] tracking-widest text-[#B77943] uppercase font-semibold mt-0.5">
-                  Grow Better. Glow Brighter.
-                </span>
-              </div>
-            )}
+            <img
+              src="/logo.png"
+              alt="Grow & Glow"
+              className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+            />
           </Link>
         </div>
 
