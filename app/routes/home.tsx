@@ -62,10 +62,10 @@ const HOME_QUERY = gql(
 export function meta({ matches }: Route.MetaArgs) {
   const shopName = getShopNameFromRootMatch(matches[0]);
   return [
-    { title: formatPageTitle("Curated Lifestyle Discoveries", shopName) },
+    { title: formatPageTitle("Curated Lifestyle & Wellness Discoveries", shopName) },
     {
       name: "description",
-      content: `Discover useful, viral, and problem-solving products for contemporary Indian homes at ${shopName}. Pan-India express delivery with Cash on Delivery & UPI.`,
+      content: `Grow&Glow — curating wellness, lifestyle, and problem-solving products for Indian homes. Shop bestsellers with Pan-India delivery, COD & UPI at ${shopName}.`,
     },
   ];
 }
@@ -96,37 +96,33 @@ function TrendingFinds({ products }: { products: readonly ProductCardData[] }) {
   if (products.length === 0) return null;
 
   return (
-    <section id="trending" className="w-full py-12 md:py-16 scroll-mt-20" aria-labelledby="trending-heading">
+    <section id="trending" className="w-full py-12 md:py-16 scroll-mt-24" aria-labelledby="trending-heading">
       <div className="max-w-page px-margin mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#B77943] uppercase tracking-wider mb-1">
-              <span>🔥</span>
-              <span>MOST POPULAR THIS WEEK</span>
-            </div>
+            <span className="text-[11px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
+              Most Popular This Week
+            </span>
             <h2 id="trending-heading" className="font-heading text-2xl sm:text-3xl font-bold text-[#282720]">
-              Trending Discoveries
+              Trending Finds
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] mt-1">
-              Hand-picked viral problem solvers loved by Indian households.
-            </p>
           </div>
           <Link
             to="/collections"
-            className="text-xs sm:text-sm font-semibold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group"
+            className="text-sm font-semibold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group shrink-0"
           >
-            <span>View All Products</span>
-            <span className="transition-transform group-hover:translate-x-1">→</span>
+            <span>View All</span>
+            <span className="motion-safe:transition-transform motion-safe:group-hover:translate-x-0.5">→</span>
           </Link>
         </div>
 
         <ul
           role="list"
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5"
         >
-          {products.map((product) => (
+          {products.map((product, idx) => (
             <li key={product.handle} className="h-full">
-              <ProductCard product={product} />
+              <ProductCard product={product} priority={idx < 2} />
             </li>
           ))}
         </ul>
@@ -201,7 +197,7 @@ function FeaturedProductCampaign({ product }: { product: ProductCardData | undef
                 <span className="text-[#5E5B52]">Cluttered spaces, messy countertops, and wasted time on daily tasks.</span>
               </div>
               <div className="flex items-start gap-2.5 text-xs text-[#282720] font-medium">
-                <span className="text-emerald-600 font-bold">✓ The Varenya Fix:</span>
+                <span className="text-emerald-600 font-bold">✓ The Grow&amp;Glow Fix:</span>
                 <span>Effortless organisation and smart convenience designed for compact modern homes.</span>
               </div>
             </div>
@@ -326,10 +322,10 @@ function BrandTrustSection() {
       <div className="max-w-page px-margin mx-auto">
         <div className="text-center max-w-xl mx-auto mb-12">
           <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
-            THE VARENYA PROMISE
+            THE GROW&amp;GLOW PROMISE
           </span>
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#282720] mt-1">
-            Why 50,000+ Indian Shoppers Trust Us
+            Why Indian Shoppers Choose Grow&amp;Glow
           </h2>
           <p className="text-xs sm:text-sm text-[#5E5B52] mt-2">
             No cheap knockoffs. No false promises. Only curated quality, tested for real Indian homes.
@@ -390,7 +386,7 @@ function FestiveGiftingEdit() {
           <div className="relative z-10 max-w-xl">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D7A84C] tracking-widest uppercase bg-white/10 px-3 py-1 rounded-full mb-4">
               <span>✨</span>
-              <span>SPECIAL FESTIVE & GIFTING SELECTION</span>
+              <span>GROW&GLOW FESTIVE COLLECTION</span>
             </span>
             <h2 className="font-heading text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
               Gifts That Spark Joy in Every Indian Home.

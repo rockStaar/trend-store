@@ -110,7 +110,7 @@ export default function CollectionsRoute({ loaderData }: Route.ComponentProps) {
             DISCOVER BY CATEGORY
           </span>
           <h1 className="font-heading text-3xl sm:text-4xl font-bold text-[#282720] mt-1">
-            All Lifestyle Collections
+            Shop by Category
           </h1>
           <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 max-w-xl">
             Thoughtfully curated categories featuring practical problem solvers, smart home accessories, kitchen essentials, and festive gifts.

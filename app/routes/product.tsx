@@ -281,61 +281,66 @@ function ProductGallery({
 
   useEffect(() => setActiveIndex(0), [primaryImageUrl]);
 
+  const activeImage = images[activeIndex] ?? images[0];
+
   return (
-    <div data-testid="product-gallery">
+    <div data-testid="product-gallery" className="md:sticky md:top-24 md:self-start">
+      {/* Mobile: swipeable track */}
       <div
         role="region"
         aria-roledescription="carousel"
         aria-label={product.title}
-        className="relative grid"
+        className="relative"
       >
-        <div
-          data-product-gallery-track
-          className="flex snap-x snap-mandatory overflow-x-auto md:grid md:grid-cols-2 md:overflow-visible"
-          style={{ scrollbarWidth: "none" }}
-          tabIndex={0}
-          onScroll={(event) => {
-            const track = event.currentTarget;
-            if (track.clientWidth > 0) {
-              setActiveIndex(Math.round(track.scrollLeft / track.clientWidth));
-            }
-          }}
-        >
-          {images.map((image, index) => (
-            <div
-              key={image.url}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`Slide ${index + 1} of ${images.length}`}
-              className="w-full shrink-0 snap-center contain-paint md:w-auto md:shrink"
-            >
-              <div className="bg-surface-secondary aspect-square overflow-hidden">
+        {/* Main image */}
+        <div className="relative aspect-square overflow-hidden rounded-xl bg-[#EFE9DE] border border-[#E2DBD0]">
+          {activeImage ? (
+            <img
+              src={activeImage.url}
+              alt={activeImage.altText ?? product.title}
+              width={activeImage.width ?? undefined}
+              height={activeImage.height ?? undefined}
+              className="h-full w-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              data-testid="product-gallery-image"
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE]">
+              <span className="text-4xl">🌿</span>
+            </div>
+          )}
+        </div>
+
+        {/* Thumbnail strip — visible on md+ when >1 image */}
+        {images.length > 1 ? (
+          <div
+            role="group"
+            aria-label="Product image thumbnails"
+            className="mt-3 flex gap-2 overflow-x-auto pb-1"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {images.map((image, index) => (
+              <button
+                key={image.url}
+                type="button"
+                aria-label={`View image ${index + 1}`}
+                aria-pressed={index === activeIndex}
+                onClick={() => setActiveIndex(index)}
+                className={`shrink-0 size-16 rounded-md overflow-hidden border-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#B77943] ${
+                  index === activeIndex
+                    ? "border-[#B77943] opacity-100"
+                    : "border-[#E2DBD0] opacity-60 hover:opacity-100"
+                }`}
+              >
                 <img
                   src={image.url}
-                  alt={image.altText ?? product.title}
-                  width={image.width ?? undefined}
-                  height={image.height ?? undefined}
+                  alt={image.altText ?? ""}
                   className="h-full w-full object-cover"
-                  loading={index === 0 ? "eager" : "lazy"}
-                  fetchPriority={index === 0 ? "high" : "auto"}
-                  data-testid={index === 0 ? "product-gallery-image" : undefined}
+                  loading="lazy"
                 />
-              </div>
-            </div>
-          ))}
-        </div>
-        {images.length > 1 ? (
-          <div className="absolute inset-x-0 bottom-4 z-10 flex items-center justify-center gap-3 md:hidden">
-            <div
-              data-slideshow-dots
-              role="group"
-              aria-label="Slideshow pagination"
-              className="flex items-center justify-center gap-2"
-            >
-              {images.map((image, index) => (
-                <span key={image.url} className={galleryDotClass(index === activeIndex)} />
-              ))}
-            </div>
+              </button>
+            ))}
           </div>
         ) : null}
       </div>
@@ -885,12 +890,37 @@ function ProductInfo({
   );
 }
 
+function ProductBreadcrumb({ product }: { product: ProductData }) {
+  return (
+    <nav aria-label="Breadcrumb" className="mb-6">
+      <ol className="flex items-center gap-1.5 text-xs text-[#7D786D]">
+        <li>
+          <a href="/" className="hover:text-[#B77943] transition-colors">
+            Home
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a href="/collections" className="hover:text-[#B77943] transition-colors">
+            Collections
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page" className="text-[#282720] font-medium truncate max-w-[160px]">
+          {product.title}
+        </li>
+      </ol>
+    </nav>
+  );
+}
+
 function ProductPageContent({ product }: { product: ProductData }) {
   const { selectedVariant } = useProductForm();
 
   return (
-    <section className="max-w-page px-margin mx-auto w-full pb-4">
-      <div className="product-grid mb-16 grid grid-cols-1 gap-6 md:gap-12">
+    <section className="max-w-page px-margin mx-auto w-full py-6 md:py-10">
+      <ProductBreadcrumb product={product} />
+      <div className="product-grid mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-14">
         <ProductGallery product={product} selectedVariant={selectedVariant} />
         <ProductInfo product={product} selectedVariant={selectedVariant} />
       </div>
@@ -958,8 +988,7 @@ function RelatedProducts({ products }: { products: RelatedProduct[] }) {
             id="related-products-heading"
             className="font-heading text-xl sm:text-2xl font-bold text-[#282720] mt-1"
           >
-            Complementary Everyday Discoveries
-          </h2>
+            You May Also Love          </h2>
         </div>
         <div className="contain-paint">
           <ul

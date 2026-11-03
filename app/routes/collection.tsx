@@ -107,7 +107,7 @@ function CollectionHeader({ collection }: { collection: CollectionData }) {
     <div className="mb-8">
       <div className="grid gap-6 md:grid-cols-[1fr_16rem] md:items-start">
         <div>
-          <h1 className="type-display text-on-surface mb-2">{collection.title}</h1>
+          <h1 className="type-display text-on-surface mb-2 font-bold">{collection.title}</h1>
           {collection.description ? (
             <div className="richtext text-on-surface-secondary type-body-sm max-w-2xl">
               <p>{collection.description}</p>
@@ -156,16 +156,15 @@ function ProductGrid({ products }: { products: readonly ProductNode[] }) {
 function EmptyState({ collectionPath }: { collectionPath: string }) {
   return (
     <div className="border-border bg-surface-secondary rounded-card border p-8 text-center">
-      <h2 className="type-heading-md text-on-surface">No products found</h2>
+      <h2 className="type-heading-md text-on-surface">Coming Soon</h2>
       <p className="text-on-surface-secondary mt-2 text-sm">
-        Try removing filters to see more products in this collection.
+        This collection is coming soon. Browse all our curated collections while we prepare this one for you.
       </p>
       <Link
-        to={collectionPath}
-        preventScrollReset
+        to="/collections"
         className="rounded-button button-primary focus-visible:outline-accent mt-6 inline-flex h-11 items-center justify-center px-4 text-sm font-medium no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-[color,background-color,border-color,transform] motion-safe:active:scale-[0.97]"
       >
-        Clear all filters
+        Explore All Collections
       </Link>
     </div>
   );

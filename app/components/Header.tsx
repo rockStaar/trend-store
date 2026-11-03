@@ -25,7 +25,7 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
   const logo = shopInfo.logo;
 
   return (
-    <header className="border-border bg-surface/95 backdrop-blur-md sticky top-0 z-40 border-b transition-colors shadow-xs">
+    <header className="border-border bg-surface/95 backdrop-blur-md sticky top-0 z-40 border-b shadow-sm transition-colors">
       <div
         className="max-w-page px-margin mx-auto flex h-16 w-full items-center justify-between"
         data-header-nav-group
@@ -54,11 +54,11 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
               />
             ) : (
               <div className="flex flex-col">
-                <span className="font-heading font-bold text-lg sm:text-xl tracking-tight text-[#282720] leading-none group-hover:text-[#B77943] transition-colors">
-                  {shopInfo.name}
+                <span className="font-heading font-bold text-lg sm:text-xl tracking-tight leading-none group-hover:text-[#B77943] transition-colors">
+                  <span className="text-[#282720]">Grow&amp;</span><span className="text-[#B77943]">Glow</span>
                 </span>
-                <span className="text-[9px] tracking-widest text-[#B77943] uppercase font-semibold mt-0.5">
-                  Smart Living • Curated
+                <span className="text-[10px] tracking-widest text-[#B77943] uppercase font-semibold mt-0.5">
+                  Grow Better. Glow Brighter.
                 </span>
               </div>
             )}
@@ -92,7 +92,7 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
             to="/#why-us"
             className="text-on-surface focus-visible:outline-accent shrink-0 rounded-sm text-sm font-normal whitespace-nowrap no-underline hover:text-[#B77943] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
           >
-            Why Varenya
+            Why Grow&amp;Glow
           </Link>
           <Link
             to="/policies/shipping-policy"

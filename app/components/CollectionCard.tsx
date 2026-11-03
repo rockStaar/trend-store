@@ -77,13 +77,13 @@ export function CollectionCard({
   return (
     <Link
       to={`/collections/${collection.handle}`}
-      className="card group rounded-card focus-visible:outline-accent relative block overflow-hidden no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="card group rounded-xl focus-visible:outline-accent relative block overflow-hidden no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 border border-[#E2DBD0] hover:border-[#B77943]/50 transition-all hover:shadow-lg"
       aria-label={collection.title}
       data-testid="collection-card"
     >
-      <div className="bg-surface-secondary relative block aspect-square overflow-hidden">
+      <div className="bg-[#EFE9DE] relative block aspect-[4/3] overflow-hidden">
         {image ? (
-          <div className="h-full w-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.04]">
+          <div className="h-full w-full motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.05]">
             <img
               src={image.url}
               alt=""
@@ -94,13 +94,18 @@ export function CollectionCard({
               fetchPriority={priority ? "high" : "auto"}
             />
           </div>
-        ) : null}
+        ) : (
+          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE]">
+            <span className="text-3xl opacity-40">🌿</span>
+          </div>
+        )}
       </div>
-      <div className="overlay-dark pointer-events-none absolute inset-0" />
-      <div className="text-interactive-text absolute inset-x-0 bottom-0 z-10 p-4 text-left">
-        <h3 className="type-body-lg font-medium">{collection.title}</h3>
-        <p className="type-body-sm mt-0.5 opacity-80">
-          {productCountText(collection, productCount)}
+      <div className="overlay-dark pointer-events-none absolute inset-0 opacity-70" />
+      <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-left">
+        <h3 className="text-white font-heading text-lg font-bold leading-tight">{collection.title}</h3>
+        <p className="text-white/75 text-xs mt-1 flex items-center gap-1">
+          <span>{productCountText(collection, productCount)}</span>
+          <span className="opacity-60">→</span>
         </p>
       </div>
     </Link>

@@ -59,18 +59,20 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
 
   return (
     <article
-      className="group card flex flex-col h-full bg-white rounded-lg border border-[#E2DBD0] overflow-hidden transition-all duration-300 hover:shadow-md hover:border-[#B77943]/40"
+      className="group card flex flex-col h-full bg-white rounded-xl border border-[#E2DBD0] overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-[#B77943]/30"
       aria-label={product.title}
       data-testid="product-card"
     >
+      {/* Image area — 4:5 portrait ratio for editorial feel */}
       <Link
         to={`/products/${product.handle}`}
-        className="relative block aspect-square w-full bg-[#EFE9DE] overflow-hidden"
+        className="relative block overflow-hidden bg-[#EFE9DE]"
+        style={{ aspectRatio: "4/5" }}
         tabIndex={-1}
         aria-hidden="true"
       >
         {primaryImage ? (
-          <div className="h-full w-full motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105">
+          <div className="h-full w-full motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.04]">
             <img
               src={primaryImage.url}
               alt={primaryImage.altText ?? product.title}
@@ -80,13 +82,14 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             />
           </div>
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-[#7D786D] text-xs">
-            No image
+          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE]">
+            <span className="text-3xl opacity-30">🌿</span>
           </div>
         )}
 
+        {/* Hover image */}
         {hoverImage ? (
-          <div className="pointer-events-none absolute inset-0 opacity-0 motion-safe:transition-opacity motion-safe:duration-300 motion-safe:group-hover:opacity-100">
+          <div className="pointer-events-none absolute inset-0 opacity-0 motion-safe:transition-opacity motion-safe:duration-400 motion-safe:group-hover:opacity-100">
             <img
               src={hoverImage.url}
               alt={hoverImage.altText ?? ""}
@@ -96,55 +99,60 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           </div>
         ) : null}
 
-        {/* Status / Discount Badges */}
+        {/* Badges row */}
         <div className="absolute start-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
           {!product.availableForSale ? (
-            <span className="bg-[#282720] text-white text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-xs">
+            <span className="bg-[#282720] text-white text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full">
               Sold out
             </span>
           ) : discountPercent ? (
-            <span className="bg-[#B77943] text-white text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full shadow-xs">
-              SAVE {discountPercent}%
+            <span className="bg-[#C2452D] text-white text-[10px] font-bold tracking-wide px-2.5 py-0.5 rounded-full">
+              -{discountPercent}%
             </span>
           ) : null}
         </div>
 
-        {/* Subtle quick indicator */}
-        <div className="absolute end-2.5 bottom-2.5 bg-white/90 backdrop-blur-xs text-[#282720] text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
-          <span className="text-[#D7A84C]">★</span>
-          <span>4.8</span>
+        {/* "View Product" overlay pill on hover */}
+        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-10 opacity-0 motion-safe:transition-opacity motion-safe:duration-200 motion-safe:group-hover:opacity-100">
+          <div className="bg-white/95 backdrop-blur-sm text-[#282720] text-xs font-semibold px-4 py-2 rounded-lg shadow-md text-center w-full">
+            View Product →
+          </div>
         </div>
       </Link>
 
+      {/* Card body */}
       <div className="flex flex-col flex-1 p-3.5 sm:p-4 text-left justify-between">
         <div>
-          <span className="text-[10px] uppercase tracking-wider text-[#B77943] font-semibold block mb-1">
-            Curated Find
-          </span>
-          <h3 className="text-sm font-semibold text-[#282720] line-clamp-2 leading-snug group-hover:text-[#B77943] transition-colors">
-            <Link to={`/products/${product.handle}`} className="card-link text-[#282720]">
+          <h3 className="text-sm font-semibold text-[#282720] line-clamp-2 leading-snug">
+            <Link to={`/products/${product.handle}`} className="card-link hover:text-[#B77943] transition-colors">
               {product.title}
             </Link>
           </h3>
         </div>
 
-        <div className="pt-3 mt-auto border-t border-[#F0EBE1] flex items-baseline justify-between gap-2">
-          <div className="flex items-baseline gap-2">
+        <div className="pt-3 mt-2 border-t border-[#F0EBE1] flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5">
             <span className="text-base font-bold text-[#282720]">
               <span className="sr-only">Price: </span>
               {formatPrice(price)}
             </span>
             {onSale && compareAt ? (
-              <s className="text-xs text-[#7D786D]">
+              <s className="text-xs text-[#9D9891]">
                 <span className="sr-only">Regular price: </span>
                 {formatPrice(compareAt)}
               </s>
             ) : null}
           </div>
 
-          <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-            Fast Dispatch
-          </span>
+          {product.availableForSale ? (
+            <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100 whitespace-nowrap">
+              In Stock
+            </span>
+          ) : (
+            <span className="text-[10px] font-medium text-[#9D9891] bg-[#F5F1EC] px-1.5 py-0.5 rounded-full whitespace-nowrap">
+              Sold Out
+            </span>
+          )}
         </div>
       </div>
     </article>

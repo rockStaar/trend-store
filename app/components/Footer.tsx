@@ -74,15 +74,15 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                 {shopInfo.name}
               </span>
               <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-semibold mt-0.5">
-                Modern Living • Curated
+                Grow Better. Glow Brighter.
               </span>
             </div>
             <p className="text-xs text-[#635F53] leading-relaxed">
-              Curating practical, aesthetic, and problem-solving discoveries for contemporary Indian homes. We bring viral, useful products to your doorstep with guaranteed reliability.
+              Curating wellness-forward, problem-solving, and lifestyle products for contemporary Indian homes. Quality-checked, swiftly delivered, backed by our 7-day replacement guarantee.
             </p>
             <div className="pt-2 text-xs text-[#635F53]">
               <p className="font-medium text-[#282720]">Customer Support (Mon–Sat, 10am–6pm IST):</p>
-              <p className="mt-1">Email: <a href="mailto:support@varenya.in" className="text-[#B77943] underline">support@varenya.in</a></p>
+              <p className="mt-1">Email: <a href="mailto:support@growandglow.in" className="text-[#B77943] underline">support@growandglow.in</a></p>
               <p className="mt-0.5">WhatsApp: <span className="text-[#282720] font-medium">+91 98765 43210</span> (Configurable)</p>
             </div>
           </div>
@@ -216,7 +216,7 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
 
         {/* Bottom Bar */}
         <div className="border-t border-[#E2DBD0] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7D786D]">
-          <p>© {currentYear} {shopInfo.name}. All rights reserved. Designed for Indian Lifestyle Commerce.</p>
+          <p>© {currentYear} {shopInfo.name}. All rights reserved. Crafted with ❤️ for Indian Homes.</p>
           <div className="flex items-center gap-4">
             <Link to="/policies/privacy-policy" className="hover:text-[#B77943] transition-colors">Privacy</Link>
             <span>•</span>

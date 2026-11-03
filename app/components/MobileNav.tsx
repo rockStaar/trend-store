@@ -18,10 +18,10 @@ export function MobileNav() {
               className="font-heading font-bold text-lg text-[#282720]"
               id="mobile-nav-title"
             >
-              Varenya Living
+              Grow&Glow
             </span>
             <span className="text-[10px] uppercase tracking-wider text-[#B77943] font-medium">
-              Curated Everyday Discoveries
+              Grow Better. Glow Brighter.
             </span>
           </div>
           <button
