@@ -98,13 +98,6 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
             <img src="/icons/icon-search.svg" alt="" className="size-5" aria-hidden="true" />
           </Link>
           <Link
-            to="/account"
-            className="text-on-surface focus-visible:outline-accent inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-[#EFE9DE] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
-            aria-label="Account"
-          >
-            <img src="/icons/icon-user.svg" alt="" className="size-5" aria-hidden="true" />
-          </Link>
-          <Link
             to="/cart"
             className="text-on-surface focus-visible:outline-accent relative inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full hover:bg-[#EFE9DE] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition motion-safe:active:scale-[0.97]"
             aria-label={cartCountLabel(totalQuantity)}
