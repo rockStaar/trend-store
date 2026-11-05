@@ -331,7 +331,7 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     <img
                       src={product.image}
                       alt=""
-                      className="size-12 rounded object-cover bg-gray-50 border border-gray-200"
+                      className="size-12 rounded object-contain p-0.5 bg-gray-50 border border-gray-200"
                     />
                   ) : (
                     <div className="size-12 rounded bg-gray-100 border border-gray-200" />

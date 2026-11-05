@@ -326,14 +326,14 @@ function ProductGallery({
         className="relative"
       >
         {/* Main large display image */}
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#FAF6F0] border border-[#E2DBD0] shadow-sm">
+        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[#FAF6F0] border border-[#E2DBD0] shadow-sm flex items-center justify-center p-2 sm:p-4">
           {activeImage ? (
             <img
               src={activeImage.url}
               alt={activeImage.altText ?? product.title}
               width={activeImage.width ?? undefined}
               height={activeImage.height ?? undefined}
-              className="h-full w-full object-cover transition-all duration-500"
+              className="h-full w-full max-h-full max-w-full object-contain object-center transition-all duration-300"
               loading="eager"
               fetchPriority="high"
               data-testid="product-gallery-image"
@@ -362,15 +362,15 @@ function ProductGallery({
                   aria-label={`View image ${index + 1}`}
                   aria-pressed={isActive}
                   onClick={() => setActiveIndex(index)}
-                  className={`shrink-0 size-16 sm:size-18 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive
-                      ? "border-[#B77943] ring-2 ring-[#B77943]/25 opacity-100 shadow-sm"
-                      : "border-[#E2DBD0] opacity-60 hover:opacity-100 bg-[#FAF6F0]"
+                  className={`shrink-0 size-16 sm:size-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-1 bg-[#FAF6F0] flex items-center justify-center ${isActive
+                      ? "border-[#B77943] ring-2 ring-[#B77943]/30 opacity-100 shadow-sm scale-[1.02]"
+                      : "border-[#E2DBD0] opacity-70 hover:opacity-100 hover:border-[#B77943]/50"
                     }`}
                 >
                   <img
                     src={image.url}
                     alt={image.altText ?? `Product thumbnail ${index + 1}`}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full max-h-full max-w-full object-contain object-center"
                     loading="lazy"
                   />
                 </button>
@@ -1418,7 +1418,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
               <img
                 src={primaryImage.url}
                 alt=""
-                className="size-10 rounded-md object-cover bg-[#EFE9DE] shrink-0 border border-[#E2DBD0]"
+                className="size-10 rounded-md object-contain p-0.5 bg-[#FAF6F0] shrink-0 border border-[#E2DBD0]"
               />
             ) : null}
             <div className="min-w-0">
