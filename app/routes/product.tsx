@@ -1142,6 +1142,7 @@ function ProductPurchaseOptions({
   setQuantity: (quantity: number) => void;
   selectedVariant: ProductVariant | null;
 }) {
+  const navigate = useNavigate();
   const { options, register, formProps, errors, pending } = useProductForm();
   const addable = canAddToCart(product, options);
   const [instantLoading, setInstantLoading] = useState<string | null>(null);
@@ -1155,6 +1156,15 @@ function ProductPurchaseOptions({
   const currency = price.currencyCode || "INR";
 
   const totalOrderPrice = baseUnitAmount * quantity;
+
+  const handleCodRedirect = () => {
+    const params = new URLSearchParams({
+      handle: product.handle,
+      variant: selectedVariant?.id || "",
+      quantity: String(quantity),
+    });
+    navigate(`/checkout/cod?${params.toString()}`);
+  };
 
   const handleDirectCheckout = async (mode: "cod" | "discount", discountCode = "") => {
     if (!selectedVariant?.id || !addable) return;
@@ -1225,25 +1235,18 @@ function ProductPurchaseOptions({
         </button>
       </form>
 
-      {/* Button 2: Full-Width Ivory ORDER NOW — CASH ON DELIVERY (With continuous copper shimmer & pulse) */}
+      {/* Button 2: Full-Width Ivory ORDER NOW — CASH ON DELIVERY (Redirects to COD Checkout) */}
       <button
         type="button"
-        onClick={() => handleDirectCheckout("cod")}
-        disabled={!addable || instantLoading !== null}
+        onClick={handleCodRedirect}
+        disabled={!addable}
         className="cod-animated-btn rounded-xl bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 px-6 text-sm sm:text-base font-extrabold tracking-wide focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all"
         data-testid="order-now-cod"
       >
-        {instantLoading === "cod" ? (
-          <span className="flex items-center gap-2">
-            <span className="inline-block size-4 animate-spin rounded-full border-2 border-[#282720] border-t-transparent" />
-            Directing to COD Checkout…
-          </span>
-        ) : (
-          <span className="flex items-center gap-2">
-            <span className="text-lg">🛒</span>
-            <span>Order Now — Cash on Delivery</span>
-          </span>
-        )}
+        <span className="flex items-center gap-2">
+          <span className="text-lg">🛒</span>
+          <span>Order Now — Cash on Delivery</span>
+        </span>
       </button>
 
       {/* Button 3: Prepaid Offers Panel */}
@@ -1577,34 +1580,19 @@ function ProductPageContent({
 }
 
 function StickyMobileBuyBar({ product }: { product: ProductData }) {
+  const navigate = useNavigate();
   const { options, formProps, register, pending, selectedVariant } = useProductForm();
   const addable = canAddToCart(product, options);
   const primaryImage = product.featuredImage ?? product.images.nodes[0];
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
-  const [instantLoading, setInstantLoading] = useState(false);
 
-  const handleInstantCod = async () => {
-    if (!selectedVariant?.id || !addable) return;
-    setInstantLoading(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          merchandiseId: selectedVariant.id,
-          quantity: 1,
-          paymentMethod: "cash_on_delivery",
-        }),
-      });
-      const data = (await res.json()) as { checkoutUrl?: string };
-      if (data?.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        setInstantLoading(false);
-      }
-    } catch {
-      setInstantLoading(false);
-    }
+  const handleCodRedirect = () => {
+    const params = new URLSearchParams({
+      handle: product.handle,
+      variant: selectedVariant?.id || "",
+      quantity: "1",
+    });
+    navigate(`/checkout/cod?${params.toString()}`);
   };
 
   return (
@@ -1643,7 +1631,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
             <button
               {...register("addToCart", {})}
               className="bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
-              disabled={!addable || pending || instantLoading}
+              disabled={!addable || pending}
               title="Add to Cart"
             >
               {pending ? "…" : "Cart"}
@@ -1652,21 +1640,12 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
 
           <button
             type="button"
-            onClick={handleInstantCod}
-            disabled={!addable || instantLoading}
+            onClick={handleCodRedirect}
+            disabled={!addable}
             className="cod-animated-btn bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
           >
-            {instantLoading ? (
-              <span className="flex items-center gap-1">
-                <span className="inline-block size-3 animate-spin rounded-full border-2 border-[#282720] border-t-transparent" />
-                Wait…
-              </span>
-            ) : (
-              <>
-                <span>🛒</span>
-                <span>COD</span>
-              </>
-            )}
+            <span>🛒</span>
+            <span>COD</span>
           </button>
         </div>
       </div>
