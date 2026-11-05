@@ -6,7 +6,6 @@ import {
   gql,
   type SelectedOption,
 } from "@shopify/hydrogen";
-import { ShopPayButton } from "@shopify/hydrogen/react";
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 
