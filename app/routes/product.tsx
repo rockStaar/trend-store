@@ -355,11 +355,10 @@ function ProductGallery({
                   aria-label={`View image ${index + 1}`}
                   aria-pressed={isActive}
                   onClick={() => setActiveIndex(index)}
-                  className={`shrink-0 size-16 sm:size-18 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                    isActive
+                  className={`shrink-0 size-16 sm:size-18 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive
                       ? "border-[#B77943] ring-2 ring-[#B77943]/25 opacity-100 shadow-sm"
                       : "border-[#E2DBD0] opacity-60 hover:opacity-100 bg-[#FAF6F0]"
-                  }`}
+                    }`}
                 >
                   <img
                     src={image.url}
@@ -569,13 +568,13 @@ function VariantOptions({ product }: { product: ProductData }) {
                       isCrossProduct
                         ? undefined
                         : (event) => {
-                            if (!isPlainActivation(event)) return;
-                            registered.onClick();
-                            // onSelect has already navigated with the provider's replace
-                            // and revalidation settings. Letting Link navigate too would
-                            // refetch the loader that a resolved selection just skipped.
-                            event.preventDefault();
-                          }
+                          if (!isPlainActivation(event)) return;
+                          registered.onClick();
+                          // onSelect has already navigated with the provider's replace
+                          // and revalidation settings. Letting Link navigate too would
+                          // refetch the loader that a resolved selection just skipped.
+                          event.preventDefault();
+                        }
                     }
                   >
                     {content}
@@ -785,20 +784,18 @@ function PackSelector({
             <div
               key={pack.qty}
               onClick={() => onSelectPack(pack.qty)}
-              className={`relative cursor-pointer rounded-xl border-2 p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${
-                isSelected
+              className={`relative cursor-pointer rounded-xl border-2 p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${isSelected
                   ? "border-[#282720] bg-[#FAF6F0] shadow-xs"
                   : "border-[#E2DBD0] bg-white hover:border-[#B77943]/60 hover:bg-[#FAF6F0]/40"
-              }`}
+                }`}
             >
               {/* Badge if present */}
               {pack.badge ? (
                 <span
-                  className={`absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-2xs ${
-                    pack.badge.includes("Best Value")
+                  className={`absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-2xs ${pack.badge.includes("Best Value")
                       ? "bg-[#282720] text-[#D7A84C]"
                       : "bg-[#282720] text-white"
-                  }`}
+                    }`}
                 >
                   {pack.badge}
                 </span>
@@ -807,9 +804,8 @@ function PackSelector({
               {/* Radio & Pack Details */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`size-4.5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
-                    isSelected ? "border-[#282720] bg-[#282720]" : "border-[#B0A99F] bg-white"
-                  }`}
+                  className={`size-4.5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? "border-[#282720] bg-[#282720]" : "border-[#B0A99F] bg-white"
+                    }`}
                 >
                   {isSelected ? <div className="size-1.5 rounded-full bg-white" /> : null}
                 </div>
@@ -920,11 +916,10 @@ function PrepaidOffersSection({
             <div
               key={offer.id}
               onClick={() => isEligible && onApplyOffer(offer.code)}
-              className={`rounded-xl border p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${
-                isEligible
+              className={`rounded-xl border p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${isEligible
                   ? "border-[#D7A84C] bg-white cursor-pointer hover:shadow-md hover:border-[#B77943]"
                   : "border-[#E2DBD0] bg-white/70 opacity-85"
-              }`}
+                }`}
             >
               {/* Offer Details */}
               <div className="space-y-0.5">
@@ -1118,9 +1113,8 @@ function ProductCompactFaq({ faqs }: { faqs?: FaqItem[] }) {
                   {item.question}
                 </span>
                 <span
-                  className={`text-[#B77943] text-xs transition-transform duration-200 shrink-0 ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
+                  className={`text-[#B77943] text-xs transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""
+                    }`}
                 >
                   ▼
                 </span>
@@ -1261,17 +1255,7 @@ function ProductPurchaseOptions({
         instantLoading={instantLoading}
       />
 
-      {/* Instant Shop Pay Accelerated Checkout */}
-      {selectedVariant ? (
-        <div className="pt-1">
-          <ShopPayButton
-            variants={[{ id: selectedVariant.id, quantity }]}
-            disabled={!addable || pending || instantLoading !== null}
-            width="100%"
-            borderRadius="12px"
-          />
-        </div>
-      ) : null}
+
 
       {/* Errors & Notifications */}
       {checkoutError ? (
