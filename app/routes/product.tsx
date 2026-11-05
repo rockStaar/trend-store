@@ -11,9 +11,14 @@ import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
+import { ProductFaq } from "~/components/ProductFaq";
+import { ProductReviews } from "~/components/ProductReviews";
 import { openCartDrawer } from "~/lib/cart-drawer";
+import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
 import { ProductProvider, useProductForm } from "~/lib/product";
+import { getProductFaqs } from "~/lib/product-faq";
+import { getProductReviews, type Review, type ReviewStats } from "~/lib/reviews";
 import { storefrontClientContext } from "~/lib/storefront";
 import { formatPageTitle, getShopNameFromRootMatch } from "~/lib/storefront-shop";
 
@@ -149,6 +154,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   if (!handle) throw new Response("Not Found", { status: 404 });
 
   const storefrontClient = context.get(storefrontClientContext);
+  const env = context.get(envContext);
   const selectedOptions = getSelectedProductOptions({
     searchParams: new URL(request.url).searchParams,
   });
@@ -158,11 +164,27 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   if (!data?.product) throw new Response("Not Found", { status: 404 });
 
+  const [{ reviews, stats: reviewStats }, faqs] = await Promise.all([
+    getProductReviews(data.product.id, env),
+    Promise.resolve(
+      getProductFaqs({
+        id: data.product.id,
+        title: data.product.title,
+        handle: data.product.handle,
+        description: data.product.description,
+        vendor: data.product.vendor,
+      }),
+    ),
+  ]);
+
   return {
     product: data.product,
     relatedProducts: data.products.nodes
       .filter((product) => product.handle !== data.product?.handle)
       .slice(0, 4),
+    reviews,
+    reviewStats,
+    faqs,
   };
 }
 
@@ -850,9 +872,11 @@ function ProductDetailsAccordion({ product }: { product: ProductData }) {
 function ProductInfo({
   product,
   selectedVariant,
+  reviewStats,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
+  reviewStats?: ReviewStats;
 }) {
   const [quantity, setQuantity] = useState(1);
 
@@ -866,6 +890,18 @@ function ProductInfo({
         <h1 className="font-serif text-3xl sm:text-4xl text-[#282720] font-normal leading-[1.12]">
           {product.title}
         </h1>
+
+        {reviewStats && reviewStats.totalReviews > 0 ? (
+          <a
+            href="#customer-reviews"
+            className="inline-flex items-center gap-1.5 text-xs text-[#7D786D] hover:text-[#B77943] transition-colors mt-1"
+          >
+            <span className="text-[#D7A84C]">★</span>
+            <span className="font-bold text-[#282720]">{reviewStats.averageRating.toFixed(1)}</span>
+            <span>({reviewStats.totalReviews} verified {reviewStats.totalReviews === 1 ? "review" : "reviews"})</span>
+          </a>
+        ) : null}
+
         <PriceBlock product={product} selectedVariant={selectedVariant} />
         <InventoryHint selectedVariant={selectedVariant} />
       </div>
@@ -920,7 +956,13 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
   );
 }
 
-function ProductPageContent({ product }: { product: ProductData }) {
+function ProductPageContent({
+  product,
+  reviewStats,
+}: {
+  product: ProductData;
+  reviewStats?: ReviewStats;
+}) {
   const { selectedVariant } = useProductForm();
 
   return (
@@ -928,7 +970,11 @@ function ProductPageContent({ product }: { product: ProductData }) {
       <ProductBreadcrumb product={product} />
       <div className="product-grid mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-14">
         <ProductGallery product={product} selectedVariant={selectedVariant} />
-        <ProductInfo product={product} selectedVariant={selectedVariant} />
+        <ProductInfo
+          product={product}
+          selectedVariant={selectedVariant}
+          reviewStats={reviewStats}
+        />
       </div>
     </section>
   );
@@ -1015,7 +1061,7 @@ function RelatedProducts({ products }: { products: RelatedProduct[] }) {
 }
 
 export default function ProductRoute({ loaderData }: Route.ComponentProps) {
-  const { product, relatedProducts } = loaderData;
+  const { product, relatedProducts, reviews, reviewStats, faqs } = loaderData;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -1040,7 +1086,19 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
     >
       <ProductViewedTracker product={product} />
       <main className="flex-1 pb-16 md:pb-0" id="main-content" tabIndex={-1}>
-        <ProductPageContent product={product} />
+        <ProductPageContent product={product} reviewStats={reviewStats} />
+        <ProductReviews
+          productId={product.id}
+          productHandle={product.handle}
+          productTitle={product.title}
+          initialReviews={reviews}
+          initialStats={reviewStats}
+          productPrice={
+            product.selectedOrFirstAvailableVariant?.price ?? product.priceRange.minVariantPrice
+          }
+          onAddToCart={() => openCartDrawer()}
+        />
+        <ProductFaq faqs={faqs} productTitle={product.title} />
         <RelatedProducts products={relatedProducts} />
         <StickyMobileBuyBar product={product} />
       </main>
