@@ -17,7 +17,7 @@ import { openCartDrawer } from "~/lib/cart-drawer";
 import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
 import { ProductProvider, useProductForm } from "~/lib/product";
-import { getProductFaqs } from "~/lib/product-faq";
+import { getProductFaqs, type FaqItem } from "~/lib/product-faq";
 import type { PublicReview, ReviewStats } from "~/lib/reviews";
 import { getReviewsForProduct } from "~/lib/reviews.server";
 import { storefrontClientContext } from "~/lib/storefront";
@@ -645,6 +645,499 @@ function QuantitySelector({
   );
 }
 
+function getProductBenefit(product: ProductData) {
+  const text = `${product.title} ${product.description || ""}`.toLowerCase();
+
+  if (text.includes("vacuum") || text.includes("cleaner") || text.includes("dust") || text.includes("car")) {
+    return {
+      title: "Powerful Cordless Cyclone Suction",
+      description: "Equipped with a high-RPM handheld motor engineered for cars, desks, tight gaps and effortless daily cleanups.",
+      badge: "Heavy Duty Motor",
+    };
+  }
+  if (text.includes("shelf") || text.includes("rack") || text.includes("corner") || text.includes("holder") || text.includes("adhesive") || text.includes("wall") || text.includes("bathroom")) {
+    return {
+      title: "Durable & Long-Lasting Build",
+      description: "Designed using durable rust-resistant materials suitable for regular, everyday bathroom and kitchen use.",
+      badge: "Heavy Duty Mount",
+    };
+  }
+  if (text.includes("serum") || text.includes("cream") || text.includes("skin") || text.includes("glow") || text.includes("oil") || text.includes("face")) {
+    return {
+      title: "Clean & Dermatologically Tested",
+      description: "Crafted with pure active botanicals to nourish and protect the delicate skin barrier without harsh chemicals.",
+      badge: "Toxin-Free Formula",
+    };
+  }
+  if (text.includes("bottle") || text.includes("flask") || text.includes("cup") || text.includes("mug")) {
+    return {
+      title: "Food-Grade & Temperature Retentive",
+      description: "BPA-free stainless steel construction engineered for long-lasting daily hydration at home or on-the-go.",
+      badge: "Grade 304 Steel",
+    };
+  }
+  if (text.includes("candle") || text.includes("diffuser") || text.includes("fragrance") || text.includes("aroma")) {
+    return {
+      title: "Pure Soy Wax & Essential Oils",
+      description: "Clean, soot-free burn with comforting aromatherapeutic scent throw for mindful relaxation and wellness.",
+      badge: "Eco-Friendly Burn",
+    };
+  }
+
+  return {
+    title: "Curated Premium Build & Craftsmanship",
+    description: "Individually batch-inspected and crafted for superior everyday functionality, durability, and modern living.",
+    badge: "Quality Inspected",
+  };
+}
+
+function ProductBenefitCard({ product }: { product: ProductData }) {
+  const benefit = getProductBenefit(product);
+  return (
+    <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-3 sm:p-3.5 my-3 shadow-2xs">
+      <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-[#282720]">
+        <span className="text-emerald-700 font-extrabold text-sm">✓</span>
+        <span>{benefit.title}</span>
+      </div>
+      <p className="text-xs text-[#5E5B52] mt-1 leading-relaxed pl-5">
+        {benefit.description}
+      </p>
+    </div>
+  );
+}
+
+function getDynamicTimelineDates() {
+  const now = new Date();
+  const formatDay = (date: Date) => {
+    const month = date.toLocaleDateString("en-US", { month: "short" });
+    const day = date.getDate();
+    const suffix =
+      day === 1 || day === 21 || day === 31
+        ? "st"
+        : day === 2 || day === 22
+          ? "nd"
+          : day === 3 || day === 23
+            ? "rd"
+            : "th";
+    return `${month} ${day}${suffix}`;
+  };
+
+  const orderDate = formatDay(now);
+
+  const dispatchStart = new Date(now);
+  dispatchStart.setDate(dispatchStart.getDate() + 1);
+  const dispatchEnd = new Date(now);
+  dispatchEnd.setDate(dispatchEnd.getDate() + 2);
+  const dispatchDate = `${formatDay(dispatchStart)} – ${formatDay(dispatchEnd)}`;
+
+  const deliveryStart = new Date(now);
+  deliveryStart.setDate(deliveryStart.getDate() + 4);
+  const deliveryEnd = new Date(now);
+  deliveryEnd.setDate(deliveryEnd.getDate() + 6);
+  const deliveryDate = `${formatDay(deliveryStart)} – ${formatDay(deliveryEnd)}`;
+
+  return { orderDate, dispatchDate, deliveryDate };
+}
+
+function PackSelector({
+  unitPrice,
+  unitCompareAt,
+  currency,
+  selectedPack,
+  onSelectPack,
+}: {
+  unitPrice: number;
+  unitCompareAt: number | null;
+  currency: string;
+  selectedPack: number;
+  onSelectPack: (packQty: number) => void;
+}) {
+  const packs = [
+    { qty: 1, label: "Buy 1 Pc", badge: null },
+    { qty: 2, label: "Buy 2 Pc", badge: null },
+    { qty: 4, label: "Buy 4 Pc", badge: "Most popular" },
+    { qty: 10, label: "Buy 10 Pc", badge: "Best Value 🔥" },
+  ];
+
+  return (
+    <div className="border border-[#282720]/25 rounded-2xl bg-white p-4 sm:p-5 shadow-2xs space-y-3.5 my-4">
+      {/* Pack header matching Reference 1 */}
+      <div>
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[#282720] tracking-wide uppercase">
+          <span className="text-base text-[#B77943]">!</span>
+          <span>Choose Your Pack &amp; Save More</span>
+        </div>
+        <p className="text-xs text-[#635F53] mt-0.5">
+          Get a lower price per piece when you choose a bigger pack.
+        </p>
+      </div>
+
+      {/* Pack Options List */}
+      <div className="space-y-2.5">
+        {packs.map((pack) => {
+          const isSelected = selectedPack === pack.qty;
+          const totalPrice = unitPrice * pack.qty;
+          const totalOriginal = unitCompareAt ? unitCompareAt * pack.qty : null;
+          const isFreeShipping = totalPrice >= 999;
+          const isBestValue = pack.qty === 10;
+
+          return (
+            <div
+              key={pack.qty}
+              onClick={() => onSelectPack(pack.qty)}
+              className={`relative cursor-pointer rounded-xl border-2 p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${
+                isSelected
+                  ? "border-[#282720] bg-[#FAF6F0] shadow-xs"
+                  : "border-[#E2DBD0] bg-white hover:border-[#B77943]/60 hover:bg-[#FAF6F0]/40"
+              }`}
+            >
+              {/* Badge if present */}
+              {pack.badge ? (
+                <span
+                  className={`absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-2xs ${
+                    pack.badge.includes("Best Value")
+                      ? "bg-[#282720] text-[#D7A84C]"
+                      : "bg-[#282720] text-white"
+                  }`}
+                >
+                  {pack.badge}
+                </span>
+              ) : null}
+
+              {/* Radio & Pack Details */}
+              <div className="flex items-center gap-3">
+                <div
+                  className={`size-4.5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
+                    isSelected ? "border-[#282720] bg-[#282720]" : "border-[#B0A99F] bg-white"
+                  }`}
+                >
+                  {isSelected ? <div className="size-1.5 rounded-full bg-white" /> : null}
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-[#282720]">{pack.label}</span>
+                    {isFreeShipping ? (
+                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                        Free Shipping
+                      </span>
+                    ) : null}
+                  </div>
+                  {isBestValue ? (
+                    <span className="text-[11px] text-[#B77943] font-semibold flex items-center gap-1">
+                      <span>Hot Selling Deal</span>
+                      <span>🔥</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-[#7D786D]">
+                      {isFreeShipping ? "Free Express Shipping" : "Standard Delivery"}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Price Details */}
+              <div className="text-right shrink-0">
+                <div className="font-extrabold text-sm sm:text-base text-[#282720]">
+                  {formatPrice({ amount: totalPrice.toFixed(2), currencyCode: currency })}
+                </div>
+                {totalOriginal && totalOriginal > totalPrice ? (
+                  <div className="text-xs text-[#8A8478] line-through">
+                    {formatPrice({ amount: totalOriginal.toFixed(2), currencyCode: currency })}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer checkmarks matching Reference 1 */}
+      <div className="pt-2 border-t border-[#E2DBD0] flex items-center justify-between text-xs text-[#5E5B52]">
+        <div className="flex items-center gap-1.5 font-medium">
+          <span className="text-emerald-700 font-bold">✓</span>
+          <span>Heavy Duty Quality</span>
+        </div>
+        <div className="flex items-center gap-1.5 font-medium">
+          <span className="text-emerald-700 font-bold">✓</span>
+          <span>7 Days Free Replacement</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrepaidOffersSection({
+  totalOrderPrice,
+  currency,
+  onApplyOffer,
+  instantLoading,
+}: {
+  totalOrderPrice: number;
+  currency: string;
+  onApplyOffer: (code: string) => void;
+  instantLoading: string | null;
+}) {
+  const offers = [
+    {
+      id: "prepaid29",
+      code: "PREPAID29",
+      title: "Pay Online & Save",
+      headline: "Get ₹29 Instant Off",
+      conditionText: "On online orders above ₹499",
+      minOrder: 499,
+      badgeText: "SAVE ₹29",
+    },
+    {
+      id: "grow10",
+      code: "GROW10",
+      title: "Pay Online & Save More",
+      headline: "Get 10% Instant Off",
+      conditionText: "On online orders above ₹899",
+      minOrder: 899,
+      badgeText: "SAVE 10%",
+    },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-[#D7A84C]/50 bg-white overflow-hidden shadow-2xs my-4">
+      {/* Header with Grow & Glow styling */}
+      <div className="bg-[#282720] text-white px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase">
+        <span className="text-[#D7A84C]">•</span>
+        <span className="flex items-center gap-1.5">
+          <span>💳</span>
+          <span>PREPAID OFFERS</span>
+        </span>
+        <span className="text-[#D7A84C]">•</span>
+      </div>
+
+      <div className="p-3.5 sm:p-4 space-y-3 bg-gradient-to-b from-[#FAF6F0] to-white">
+        {offers.map((offer) => {
+          const isEligible = totalOrderPrice >= offer.minOrder;
+          const diff = Math.max(0, offer.minOrder - totalOrderPrice);
+
+          return (
+            <div
+              key={offer.id}
+              onClick={() => isEligible && onApplyOffer(offer.code)}
+              className={`rounded-xl border p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${
+                isEligible
+                  ? "border-[#D7A84C] bg-white cursor-pointer hover:shadow-md hover:border-[#B77943]"
+                  : "border-[#E2DBD0] bg-white/70 opacity-85"
+              }`}
+            >
+              {/* Offer Details */}
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-bold text-[#B77943] uppercase tracking-wide block">
+                  {offer.title}
+                </span>
+                <span className="text-sm sm:text-base font-extrabold text-[#282720] block">
+                  {offer.headline}
+                </span>
+                <span className="text-[11px] text-[#635F53] block">
+                  {offer.conditionText}
+                </span>
+                {isEligible ? (
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
+                    <span>⚡</span>
+                    <span>Eligible on this order! Tap to apply at checkout</span>
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-[#9E6433] font-medium pt-0.5 block">
+                    Add ₹{Math.round(diff)} more to unlock this offer
+                  </span>
+                )}
+              </div>
+
+              {/* Ticket Badge */}
+              <div className="shrink-0 flex flex-col items-center justify-center">
+                <div className="bg-[#FAF0D9] border-2 border-dashed border-[#D7A84C] text-[#73510A] font-extrabold text-xs px-3 py-2 rounded-lg text-center shadow-2xs uppercase">
+                  {instantLoading === offer.code ? (
+                    <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-[#73510A] border-t-transparent" />
+                  ) : (
+                    offer.badgeText
+                  )}
+                </div>
+                {isEligible ? (
+                  <span className="text-[9px] text-[#B77943] font-bold mt-1 uppercase tracking-wider">
+                    Apply &amp; Pay
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Footer assurances */}
+        <div className="pt-2 border-t border-[#E2DBD0]/60 flex items-center justify-around text-xs text-[#635F53]">
+          <div className="flex items-center gap-1.5 font-medium">
+            <span>🛡️</span>
+            <span>Secure Payment</span>
+          </div>
+          <span className="text-[#D7A84C]">•</span>
+          <div className="flex items-center gap-1.5 font-medium">
+            <span>⚡</span>
+            <span>Quick Confirmation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrustedPaymentsAndTimeline() {
+  const { orderDate, dispatchDate, deliveryDate } = useMemo(() => getDynamicTimelineDates(), []);
+
+  return (
+    <div className="space-y-4 my-5">
+      {/* 100% Secure & Trusted Payments Panel */}
+      <div className="border border-[#E2DBD0] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#282720]">
+          <span>🔒</span>
+          <span>100% Secure &amp; Trusted Payments</span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <div className="border border-[#E2DBD0] rounded-xl p-2.5 text-center bg-[#FAF6F0]/60 flex flex-col items-center justify-center gap-1">
+            <span className="text-lg">💳</span>
+            <span className="text-[11px] font-semibold text-[#282720] leading-tight">
+              Debit / Credit Card
+            </span>
+          </div>
+          <div className="border border-[#E2DBD0] rounded-xl p-2.5 text-center bg-[#FAF6F0]/60 flex flex-col items-center justify-center gap-1">
+            <span className="text-lg">📱</span>
+            <span className="text-[11px] font-semibold text-[#282720] leading-tight">
+              UPI &amp; Wallets
+            </span>
+          </div>
+          <div className="border border-[#E2DBD0] rounded-xl p-2.5 text-center bg-[#FAF6F0]/60 flex flex-col items-center justify-center gap-1">
+            <span className="text-lg">🏛️</span>
+            <span className="text-[11px] font-semibold text-[#282720] leading-tight">
+              Net Banking
+            </span>
+          </div>
+        </div>
+
+        <p className="text-[11px] text-[#7D786D] text-center">
+          Payments secured with bank-grade encryption &amp; trusted Indian gateways
+        </p>
+      </div>
+
+      {/* 3-Stage Delivery Timeline */}
+      <div className="border border-[#E2DBD0] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="relative flex items-center justify-between">
+          {/* Connector Line */}
+          <div className="absolute top-5 left-8 right-8 h-0.5 bg-[#282720]" />
+
+          {/* Stage 1: Ordered */}
+          <div className="relative z-10 flex flex-col items-center text-center max-w-[90px]">
+            <div className="size-10 rounded-full bg-[#282720] text-white flex items-center justify-center text-base shadow-sm">
+              <span>🛒</span>
+            </div>
+            <span className="font-bold text-xs text-[#282720] mt-2 leading-tight">
+              {orderDate}
+            </span>
+            <span className="text-[11px] text-[#7D786D] mt-0.5">Ordered</span>
+          </div>
+
+          {/* Stage 2: In Transit */}
+          <div className="relative z-10 flex flex-col items-center text-center max-w-[110px]">
+            <div className="size-10 rounded-full bg-[#282720] text-white flex items-center justify-center text-base shadow-sm">
+              <span>🚚</span>
+            </div>
+            <span className="font-bold text-xs text-[#282720] mt-2 leading-tight">
+              {dispatchDate}
+            </span>
+            <span className="text-[11px] text-[#7D786D] mt-0.5">Order Ready</span>
+          </div>
+
+          {/* Stage 3: Delivered */}
+          <div className="relative z-10 flex flex-col items-center text-center max-w-[110px]">
+            <div className="size-10 rounded-full bg-[#282720] text-white flex items-center justify-center text-base shadow-sm">
+              <span>🎁</span>
+            </div>
+            <span className="font-bold text-xs text-[#282720] mt-2 leading-tight">
+              {deliveryDate}
+            </span>
+            <span className="text-[11px] text-[#7D786D] mt-0.5">Delivered</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductCompactFaq({ faqs }: { faqs?: FaqItem[] }) {
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const defaultFaqs: FaqItem[] = [
+    {
+      question: "When will my order be dispatched and delivered?",
+      answer:
+        "Orders are dispatched within 24 to 48 hours from our fulfillment hub. Metro cities typically receive deliveries within 2–3 business days, while other Indian pin codes take 3–5 business days. You will receive live tracking via SMS and WhatsApp.",
+    },
+    {
+      question: "How does Cash on Delivery (COD) work?",
+      answer:
+        "You can place your order with Cash on Delivery without paying anything in advance. When the courier arrives, you can pay via cash or scan a UPI QR code (GPay, PhonePe, Paytm).",
+    },
+    {
+      question: "What is the 7-day replacement guarantee?",
+      answer:
+        "If your product arrives damaged, defective, or different from described, notify our support within 7 days of delivery with an unboxing photo/video for an immediate, hassle-free replacement.",
+    },
+    {
+      question: "Are there any hidden shipping fees at checkout?",
+      answer:
+        "None! Orders over ₹999 qualify for 100% Free Pan-India Delivery. Orders under ₹999 have a standard flat fee of ₹49.",
+    },
+  ];
+
+  const items = faqs && faqs.length > 0 ? faqs.slice(0, 4) : defaultFaqs;
+
+  return (
+    <div className="border border-[#E2DBD0] bg-white rounded-2xl overflow-hidden shadow-2xs my-5">
+      <div className="p-4 border-b border-[#E2DBD0] bg-[#FAF6F0] flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#282720]">
+          <span>❔</span>
+          <span>Frequently Asked Questions (FAQs)</span>
+        </div>
+      </div>
+
+      <div className="divide-y divide-[#E2DBD0]">
+        {items.map((item, index) => {
+          const isOpen = openFaq === index;
+          return (
+            <div key={index} className="transition-colors hover:bg-[#FAF6F0]/30">
+              <button
+                type="button"
+                onClick={() => setOpenFaq(isOpen ? null : index)}
+                className="w-full py-3.5 px-4 text-left flex items-center justify-between gap-3 cursor-pointer focus:outline-none"
+              >
+                <span className="text-xs sm:text-sm font-semibold text-[#282720]">
+                  {item.question}
+                </span>
+                <span
+                  className={`text-[#B77943] text-xs transition-transform duration-200 shrink-0 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                >
+                  ▼
+                </span>
+              </button>
+              {isOpen ? (
+                <div className="px-4 pb-3.5 text-xs text-[#5E5B52] leading-relaxed">
+                  {item.answer}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function ProductPurchaseOptions({
   product,
   quantity,
@@ -658,20 +1151,21 @@ function ProductPurchaseOptions({
 }) {
   const { options, register, formProps, errors, pending } = useProductForm();
   const addable = canAddToCart(product, options);
-  const [instantLoading, setInstantLoading] = useState<"buyNow" | "cod" | null>(null);
+  const [instantLoading, setInstantLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
+  const compareAt = selectedVariant?.compareAtPrice;
   const baseUnitAmount = parseFloat(price.amount) || 0;
-  const discountedUnitAmount = Math.round(baseUnitAmount * 0.6); // 40% OFF
-  const totalOriginalAmount = baseUnitAmount * quantity;
-  const totalDiscountedAmount = discountedUnitAmount * quantity;
-  const totalSavings = totalOriginalAmount - totalDiscountedAmount;
+  const compareAtAmount = compareAt ? parseFloat(compareAt.amount) : null;
+  const genuineCompareAt = compareAtAmount && compareAtAmount > baseUnitAmount ? compareAtAmount : null;
   const currency = price.currencyCode || "INR";
 
-  const handleDirectCheckout = async (mode: "buyNow" | "cod") => {
+  const totalOrderPrice = baseUnitAmount * quantity;
+
+  const handleDirectCheckout = async (mode: "cod" | "discount", discountCode = "") => {
     if (!selectedVariant?.id || !addable) return;
-    setInstantLoading(mode);
+    setInstantLoading(mode === "discount" ? discountCode : "cod");
     setCheckoutError(null);
 
     try {
@@ -684,7 +1178,7 @@ function ProductPurchaseOptions({
         body: JSON.stringify({
           merchandiseId: selectedVariant.id,
           quantity,
-          discountCode: mode === "buyNow" ? "GROW40" : "",
+          discountCode: mode === "discount" ? discountCode : "",
           paymentMethod: mode === "cod" ? "cash_on_delivery" : "standard",
         }),
       });
@@ -697,134 +1191,75 @@ function ProductPurchaseOptions({
         throw new Error(result?.error || "Unable to initiate checkout. Please try again.");
       }
     } catch (err: any) {
-      setCheckoutError(err.message || "Failed to proceed to checkout. Please try Add to Bag.");
+      setCheckoutError(err.message || "Failed to proceed to checkout. Please try Add to Cart.");
       setInstantLoading(null);
     }
   };
 
   return (
-    <div className="space-y-4 my-6">
-      {/* Quantity Stepper */}
-      <div className="flex items-center gap-4">
-        <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
-        <div className="text-xs text-[#635F53]">
-          <span className="font-semibold text-[#282720] block">Special Launch Promotion</span>
-          <span>40% OFF code applied automatically at checkout</span>
-        </div>
-      </div>
+    <div className="space-y-4 my-2">
+      {/* Pack & Save More Selector */}
+      <PackSelector
+        unitPrice={baseUnitAmount}
+        unitCompareAt={genuineCompareAt}
+        currency={currency}
+        selectedPack={quantity}
+        onSelectPack={(packQty) => setQuantity(packQty)}
+      />
 
-      {/* Option 1: Prominent BUY NOW — GET 40% OFF (Copper Filled CTA) */}
-      <div className="bg-[#FAF6F0] border-2 border-[#B77943]/40 rounded-2xl p-4 shadow-sm hover:border-[#B77943] transition-all">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[#B77943] font-bold text-xs uppercase tracking-wider flex items-center gap-1">
-              <span>⚡</span>
-              <span>Fast Track Checkout</span>
-            </span>
-            <span className="bg-[#D7A84C]/25 text-[#73510A] text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
-              Save 40%
-            </span>
-          </div>
-          <span className="text-xs text-[#7D786D] line-through">
-            {formatPrice({ amount: totalOriginalAmount.toFixed(2), currencyCode: currency })}
-          </span>
-        </div>
-
+      {/* Button 1: Full-Width Solid Espresso ADD TO CART */}
+      <form {...formProps({ afterSubmit: openCartDrawer })}>
+        <input type="hidden" {...register("merchandiseId", {})} />
+        <input type="hidden" name="quantity" value={quantity} />
         <button
-          type="button"
-          onClick={() => handleDirectCheckout("buyNow")}
-          disabled={!addable || instantLoading !== null}
-          className="rounded-xl bg-[#B77943] text-white hover:bg-[#9E6433] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 px-6 text-base font-bold shadow-md hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.98]"
-          data-testid="buy-now-discount"
+          {...register("addToCart", {})}
+          className="rounded-xl bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 px-6 text-sm sm:text-base font-extrabold uppercase tracking-wider shadow-md hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.985]"
+          disabled={!addable || pending || instantLoading !== null}
+          data-testid="add-to-cart"
         >
-          {instantLoading === "buyNow" ? (
+          {pending ? (
             <span className="flex items-center gap-2">
               <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Securing 40% Off Checkout…
+              Adding to Cart…
             </span>
           ) : addable ? (
-            <span className="flex items-center justify-between w-full">
-              <span className="flex items-center gap-1.5">
-                <span className="text-lg">⚡</span>
-                <span>BUY NOW — GET 40% OFF</span>
-              </span>
-              <span className="font-extrabold text-white text-base">
-                {formatPrice({ amount: totalDiscountedAmount.toFixed(2), currencyCode: currency })}
-              </span>
-            </span>
+            "ADD TO CART"
           ) : selectedVariant ? (
             "Sold out"
           ) : (
             "Select options"
           )}
         </button>
-
-        <div className="mt-2 flex items-center justify-between text-[11px] text-[#635F53] px-1">
-          <span>Apply code <strong>GROW40</strong> at checkout</span>
-          <span className="text-emerald-700 font-bold">You save {formatPrice({ amount: totalSavings.toFixed(2), currencyCode: currency })}!</span>
-        </div>
-      </div>
-
-      {/* Option 2: Cash On Delivery Card (Distinct COD Option) */}
-      <div className="border border-[#E2DBD0] bg-white rounded-2xl p-4 shadow-2xs hover:border-[#B77943]/60 transition-all">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">💵</span>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs uppercase tracking-wide text-[#282720]">
-                  Cash On Delivery Available
-                </span>
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200">
-                  Doorstep Payment
-                </span>
-              </div>
-              <p className="text-[11px] text-[#635F53] mt-0.5">
-                Pay in cash or scan UPI (GPay/PhonePe/Paytm) directly to courier upon delivery. Verified PIN codes only.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => handleDirectCheckout("cod")}
-          disabled={!addable || instantLoading !== null}
-          className="w-full bg-[#FAF6F0] hover:bg-[#F2ECE0] text-[#282720] border border-[#D7A84C] inline-flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
-          data-testid="cod-buy-now"
-        >
-          {instantLoading === "cod" ? (
-            <span className="flex items-center gap-2">
-              <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-[#282720] border-t-transparent" />
-              Directing to COD Checkout…
-            </span>
-          ) : (
-            <span>Proceed with Cash on Delivery</span>
-          )}
-        </button>
-      </div>
-
-      {/* Option 3: Standard Add to Bag (Preserves Cart Drawer Flow) */}
-      <form {...formProps({ afterSubmit: openCartDrawer })}>
-        <input type="hidden" {...register("merchandiseId", {})} />
-        <button
-          {...register("addToCart", {})}
-          className="rounded-xl bg-[#282720] text-white hover:bg-[#3D3A32] focus-visible:outline-accent inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 px-6 text-sm font-bold shadow-sm hover:shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.98]"
-          disabled={!addable || pending || instantLoading !== null}
-          data-testid="add-to-cart"
-        >
-          <span className="text-base">🛍️</span>
-          <span>
-            {pending
-              ? "Adding to Bag…"
-              : addable
-                ? `Add to Bag — ${formatPrice({ amount: totalOriginalAmount.toFixed(2), currencyCode: currency })}`
-                : selectedVariant
-                  ? "Sold out"
-                  : "Select options"}
-          </span>
-        </button>
       </form>
+
+      {/* Button 2: Full-Width Ivory ORDER NOW — CASH ON DELIVERY (With continuous copper shimmer & pulse) */}
+      <button
+        type="button"
+        onClick={() => handleDirectCheckout("cod")}
+        disabled={!addable || instantLoading !== null}
+        className="cod-animated-btn rounded-xl bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 px-6 text-sm sm:text-base font-extrabold tracking-wide focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all"
+        data-testid="order-now-cod"
+      >
+        {instantLoading === "cod" ? (
+          <span className="flex items-center gap-2">
+            <span className="inline-block size-4 animate-spin rounded-full border-2 border-[#282720] border-t-transparent" />
+            Directing to COD Checkout…
+          </span>
+        ) : (
+          <span className="flex items-center gap-2">
+            <span className="text-lg">🛒</span>
+            <span>Order Now — Cash on Delivery</span>
+          </span>
+        )}
+      </button>
+
+      {/* Button 3: Prepaid Offers Panel */}
+      <PrepaidOffersSection
+        totalOrderPrice={totalOrderPrice}
+        currency={currency}
+        onApplyOffer={(code) => handleDirectCheckout("discount", code)}
+        instantLoading={instantLoading}
+      />
 
       {/* Instant Shop Pay Accelerated Checkout */}
       {selectedVariant ? (
@@ -1038,37 +1473,46 @@ function ProductInfo({
   product,
   selectedVariant,
   reviewStats,
+  faqs,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
   reviewStats?: ReviewStats;
+  faqs?: FaqItem[];
 }) {
   const [quantity, setQuantity] = useState(1);
 
   return (
     <div className="flex flex-col gap-4 md:sticky md:top-8 md:self-start">
       <div className="pt-2 md:pt-4">
-        <p className="text-[11px] font-bold text-[#B77943] tracking-widest uppercase mb-1.5 flex items-center gap-1.5">
-          <span>✦</span>
-          <span>{product.vendor || "GROW & GLOW EDIT"}</span>
-        </p>
+        {/* Compact Trust Line (only when genuine reviews exist) */}
+        {reviewStats && reviewStats.totalReviews > 0 ? (
+          <a
+            href="#customer-reviews"
+            className="inline-flex items-center gap-1.5 text-xs text-[#7D786D] hover:text-[#B77943] transition-colors mb-1.5"
+          >
+            <span className="text-[#D7A84C] text-sm">★★★★★</span>
+            <span className="font-extrabold text-[#282720]">
+              Excellent {reviewStats.averageRating.toFixed(1)}/5
+            </span>
+            <span className="text-[#7D786D]">
+              | {reviewStats.totalReviews} {reviewStats.totalReviews === 1 ? "Customer Review" : "Customer Reviews"}
+            </span>
+          </a>
+        ) : (
+          <p className="text-[11px] font-bold text-[#B77943] tracking-widest uppercase mb-1.5 flex items-center gap-1.5">
+            <span>✦</span>
+            <span>{product.vendor || "GROW & GLOW EDIT"}</span>
+          </p>
+        )}
+
         <h1 className="font-serif text-3xl sm:text-4xl text-[#282720] font-normal leading-[1.12]">
           {product.title}
         </h1>
 
-        {reviewStats && reviewStats.totalReviews > 0 ? (
-          <a
-            href="#customer-reviews"
-            className="inline-flex items-center gap-1.5 text-xs text-[#7D786D] hover:text-[#B77943] transition-colors mt-1"
-          >
-            <span className="text-[#D7A84C]">★</span>
-            <span className="font-bold text-[#282720]">{reviewStats.averageRating.toFixed(1)}</span>
-            <span>({reviewStats.totalReviews} verified {reviewStats.totalReviews === 1 ? "review" : "reviews"})</span>
-          </a>
-        ) : null}
-
         <PriceBlock product={product} selectedVariant={selectedVariant} />
         <InventoryHint selectedVariant={selectedVariant} />
+        <ProductBenefitCard product={product} />
       </div>
 
       <span className="sr-only" aria-live="polite" id="inventory-status" />
@@ -1091,7 +1535,8 @@ function ProductInfo({
       </div>
 
       <PincodeEstimator />
-      <ProductTrustBadges />
+      <TrustedPaymentsAndTimeline />
+      <ProductCompactFaq faqs={faqs} />
       <ProductDetailsAccordion product={product} />
     </div>
   );
@@ -1124,9 +1569,11 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
 function ProductPageContent({
   product,
   reviewStats,
+  faqs,
 }: {
   product: ProductData;
   reviewStats?: ReviewStats;
+  faqs?: FaqItem[];
 }) {
   const { selectedVariant } = useProductForm();
 
@@ -1139,6 +1586,7 @@ function ProductPageContent({
           product={product}
           selectedVariant={selectedVariant}
           reviewStats={reviewStats}
+          faqs={faqs}
         />
       </div>
     </section>
@@ -1150,12 +1598,9 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
   const addable = canAddToCart(product, options);
   const primaryImage = product.featuredImage ?? product.images.nodes[0];
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
-  const baseAmount = parseFloat(price.amount) || 0;
-  const discountedAmount = Math.round(baseAmount * 0.6);
-  const currency = price.currencyCode || "INR";
   const [instantLoading, setInstantLoading] = useState(false);
 
-  const handleInstantBuy = async () => {
+  const handleInstantCod = async () => {
     if (!selectedVariant?.id || !addable) return;
     setInstantLoading(true);
     try {
@@ -1165,7 +1610,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
         body: JSON.stringify({
           merchandiseId: selectedVariant.id,
           quantity: 1,
-          discountCode: "GROW40",
+          paymentMethod: "cash_on_delivery",
         }),
       });
       const data = (await res.json()) as { checkoutUrl?: string };
@@ -1198,14 +1643,11 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
               {product.title}
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-[#B77943]">
-                {formatPrice({ amount: discountedAmount.toFixed(2), currencyCode: currency })}
-              </span>
-              <span className="text-[10px] text-[#7D786D] line-through">
+              <span className="text-xs font-extrabold text-[#282720]">
                 {formatPrice(price)}
               </span>
-              <span className="text-[9px] font-extrabold bg-[#D7A84C]/25 text-[#73510A] px-1 rounded">
-                -40%
+              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
+                COD Ready
               </span>
             </div>
           </div>
@@ -1217,29 +1659,29 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
             <input type="hidden" name="quantity" value="1" />
             <button
               {...register("addToCart", {})}
-              className="border border-[#282720] text-[#282720] hover:bg-[#FAF6F0] px-2.5 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
+              className="bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
               disabled={!addable || pending || instantLoading}
-              title="Add to Bag"
+              title="Add to Cart"
             >
-              {pending ? "…" : "Bag"}
+              {pending ? "…" : "Cart"}
             </button>
           </form>
 
           <button
             type="button"
-            onClick={handleInstantBuy}
+            onClick={handleInstantCod}
             disabled={!addable || instantLoading}
-            className="bg-[#B77943] hover:bg-[#9E6433] text-white px-3.5 py-2 rounded-lg text-xs font-bold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
+            className="cod-animated-btn bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
           >
             {instantLoading ? (
               <span className="flex items-center gap-1">
-                <span className="inline-block size-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span className="inline-block size-3 animate-spin rounded-full border-2 border-[#282720] border-t-transparent" />
                 Wait…
               </span>
             ) : (
               <>
-                <span>⚡</span>
-                <span>Buy -40%</span>
+                <span>🛒</span>
+                <span>COD</span>
               </>
             )}
           </button>
@@ -1309,7 +1751,7 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
     >
       <ProductViewedTracker product={product} />
       <main className="flex-1 pb-16 md:pb-0" id="main-content" tabIndex={-1}>
-        <ProductPageContent product={product} reviewStats={reviewStats} />
+        <ProductPageContent product={product} reviewStats={reviewStats} faqs={faqs} />
         <ProductReviews
           productId={product.id}
           productHandle={product.handle}

@@ -94,3 +94,70 @@ body:has(.drawer-right[open]),
 body:has(.drawer-left[open]) {
   overflow: hidden;
 }
+
+/* COD Order Now Attention Animation (Grow & Glow Palette) */
+@keyframes cod-shimmer {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  50%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes cod-subtle-pulse {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(40, 39, 32, 0.08);
+  }
+  50% {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(183, 121, 67, 0.22);
+  }
+}
+
+.cod-animated-btn {
+  position: relative;
+  overflow: hidden;
+  animation: cod-subtle-pulse 3.5s ease-in-out infinite;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.cod-animated-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(183, 121, 67, 0.08) 25%,
+    rgba(215, 168, 76, 0.28) 50%,
+    rgba(183, 121, 67, 0.08) 75%,
+    transparent 100%
+  );
+  animation: cod-shimmer 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.cod-animated-btn:hover {
+  animation-play-state: paused;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 39, 32, 0.16);
+}
+
+.cod-animated-btn:active {
+  transform: scale(0.985) translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cod-animated-btn {
+    animation: none !important;
+  }
+  .cod-animated-btn::before {
+    display: none !important;
+  }
+}
+
