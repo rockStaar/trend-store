@@ -129,7 +129,7 @@ export default function CartRoute() {
               </div>
               <div className="flex items-center justify-between text-[#5E5B52]">
                 <span>Pan-India Delivery</span>
-                <span className="text-emerald-700 font-semibold">{isEligible ? "FREE" : "₹49"}</span>
+                <span className="text-emerald-700 font-semibold">{isEligible ? "FREE" : "₹49 (Free over ₹999)"}</span>
               </div>
               <div className="flex items-center justify-between text-[#5E5B52]">
                 <span>Taxes & Duties</span>

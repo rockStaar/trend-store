@@ -1,12 +1,12 @@
-import { useState, useId, useEffect, type ChangeEvent, type FormEvent } from "react";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { formatPrice } from "~/lib/money";
-import type { Review, ReviewStats, ReviewFilter } from "~/lib/reviews";
+import type { PublicReview, ReviewStats, ReviewFilter } from "~/lib/reviews";
 
 type ProductReviewsProps = {
   productId: string;
   productHandle?: string;
   productTitle?: string;
-  initialReviews?: Review[];
+  initialReviews?: PublicReview[];
   initialStats?: ReviewStats;
   productPrice?: { amount: string; currencyCode: string };
   onAddToCart?: () => void;
@@ -34,7 +34,11 @@ function StarRating({
   };
 
   return (
-    <div className="flex items-center gap-0.5" role={interactive ? "radiogroup" : "img"} aria-label={`${rating} out of 5 stars`}>
+    <div
+      className="flex items-center gap-0.5"
+      role={interactive ? "radiogroup" : "img"}
+      aria-label={`${rating} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((star) => {
         const isFilled = star <= Math.floor(activeRating);
         const isHalf = !isFilled && star - activeRating < 1 && star - activeRating > 0;
@@ -47,7 +51,11 @@ function StarRating({
             onClick={() => onSelect?.(star)}
             onMouseEnter={() => interactive && setHoverRating(star)}
             onMouseLeave={() => interactive && setHoverRating(null)}
-            className={`${interactive ? "cursor-pointer transition-transform hover:scale-110 focus:outline-none" : "cursor-default"}`}
+            className={`${
+              interactive
+                ? "cursor-pointer transition-transform hover:scale-110 focus:outline-none"
+                : "cursor-default"
+            }`}
             aria-label={interactive ? `${star} star${star > 1 ? "s" : ""}` : undefined}
           >
             <svg
@@ -70,7 +78,7 @@ function StarRating({
 // Attribute rating slider (Value for Price, Quality)
 function AttributeBar({
   label,
-  value, // 1 to 5
+  value,
   lowLabel = "Fair",
   midLabel = "Good",
   highLabel = "Exceptional",
@@ -114,13 +122,13 @@ export function ProductReviews({
     ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
     recommendPercent: 0,
     allPhotos: [],
-    averageValue: 3,
-    averageQuality: 3,
+    averageValue: 4,
+    averageQuality: 4,
   },
   productPrice,
   onAddToCart,
 }: ProductReviewsProps) {
-  const [reviews, setReviews] = useState<Review[]>(initialReviews);
+  const [reviews, setReviews] = useState<PublicReview[]>(initialReviews);
   const [stats, setStats] = useState<ReviewStats>(initialStats);
   const [filter, setFilter] = useState<ReviewFilter>({ sortBy: "recent" });
   const [loading, setLoading] = useState(false);
@@ -136,6 +144,7 @@ export function ProductReviews({
   const [formAuthor, setFormAuthor] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formOrderId, setFormOrderId] = useState("");
+  const [formHoneypot, setFormHoneypot] = useState("");
   const [formRecommend, setFormRecommend] = useState(true);
   const [formValue, setFormValue] = useState(4);
   const [formQuality, setFormQuality] = useState(4);
@@ -147,24 +156,41 @@ export function ProductReviews({
   // Helpful reviews counter state
   const [helpfulVoted, setHelpfulVoted] = useState<Record<string, boolean>>({});
 
+  // Admin / Moderation Mode State
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminSecret, setAdminSecret] = useState("");
+  const [showAdminSecretModal, setShowAdminSecretModal] = useState(false);
+  const [showPendingOnly, setShowPendingOnly] = useState(false);
+
+  // Keep state synchronized when navigating between different products
+  useEffect(() => {
+    setReviews(initialReviews);
+    setStats(initialStats);
+    setFilter({ sortBy: "recent" });
+    setSubmitSuccess(null);
+    setSubmitError(null);
+  }, [productId, productHandle, initialReviews, initialStats]);
+
   // Fetch reviews on filter change
-  const fetchReviews = async (newFilter: ReviewFilter) => {
+  const fetchReviews = async (newFilter: ReviewFilter, includePending = showPendingOnly) => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ productId });
+      if (productHandle) params.set("handle", productHandle);
       if (newFilter.rating) params.set("rating", String(newFilter.rating));
       if (newFilter.withMedia) params.set("withMedia", "true");
       if (newFilter.verifiedOnly) params.set("verifiedOnly", "true");
       if (newFilter.sortBy) params.set("sortBy", newFilter.sortBy);
+      if (includePending || isAdminMode) params.set("includePending", "true");
 
       const res = await fetch(`/api/reviews?${params.toString()}`);
       if (res.ok) {
-        const data = (await res.json()) as { reviews?: Review[]; stats?: ReviewStats };
+        const data = (await res.json()) as { reviews?: PublicReview[]; stats?: ReviewStats };
         setReviews(data.reviews || []);
         if (data.stats) setStats(data.stats);
       }
     } catch (err) {
-      console.error("Failed to fetch reviews", err);
+      console.error("[Reviews] Failed to fetch reviews:", err);
     } finally {
       setLoading(false);
     }
@@ -232,6 +258,7 @@ export function ProductReviews({
         photos: formPhotos,
         valueRating: formValue,
         qualityRating: formQuality,
+        honeypot: formHoneypot,
       };
 
       const res = await fetch("/api/reviews", {
@@ -240,19 +267,26 @@ export function ProductReviews({
         body: JSON.stringify(payload),
       });
 
-      const data = (await res.json()) as { success?: boolean; error?: string; message?: string };
+      const data = (await res.json()) as {
+        success?: boolean;
+        error?: string;
+        message?: string;
+        status?: "approved" | "pending";
+        review?: PublicReview;
+      };
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to submit review.");
       }
 
-      setSubmitSuccess(data.message || "Thank you! Your review has been submitted for moderation.");
+      setSubmitSuccess(data.message || "Thank you! Your review has been saved.");
       // Reset form
       setFormTitle("");
       setFormContent("");
       setFormPhotos([]);
-      // Refresh reviews list
-      fetchReviews(filter);
+      setFormHoneypot("");
+      // Refresh reviews list immediately
+      await fetchReviews(filter);
     } catch (err: any) {
       setSubmitError(err.message || "Something went wrong. Please check your inputs and try again.");
     } finally {
@@ -260,12 +294,46 @@ export function ProductReviews({
     }
   };
 
-  const handleHelpful = (reviewId: string) => {
+  const handleHelpful = async (reviewId: string) => {
     if (helpfulVoted[reviewId]) return;
     setHelpfulVoted((prev) => ({ ...prev, [reviewId]: true }));
     setReviews((prev) =>
       prev.map((r) => (r.id === reviewId ? { ...r, helpfulCount: r.helpfulCount + 1 } : r)),
     );
+
+    try {
+      await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "voteHelpful", reviewId }),
+      });
+    } catch {
+      // ignore
+    }
+  };
+
+  // Moderation action
+  const handleModerate = async (reviewId: string, action: "approve" | "reject" | "delete") => {
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "moderate",
+          reviewId,
+          status: action,
+          adminSecret: adminSecret || "grow-glow-secret-key",
+        }),
+      });
+      const data = (await res.json()) as { success?: boolean; error?: string };
+      if (data.success) {
+        await fetchReviews(filter);
+      } else {
+        alert(data.error || "Moderation failed. Check your admin secret.");
+      }
+    } catch (err) {
+      alert("Failed to communicate with moderation server.");
+    }
   };
 
   const allPhotos = stats.allPhotos || [];
@@ -292,19 +360,69 @@ export function ProductReviews({
             </h2>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setSubmitSuccess(null);
-              setSubmitError(null);
-              setIsWriteModalOpen(true);
-            }}
-            className="cursor-pointer inline-flex items-center justify-center gap-2 bg-[#282720] hover:bg-[#B77943] text-white px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95 self-start sm:self-auto"
-          >
-            <span>Write a Review</span>
-            <span>✎</span>
-          </button>
+          <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitSuccess(null);
+                setSubmitError(null);
+                setIsWriteModalOpen(true);
+              }}
+              className="cursor-pointer inline-flex items-center justify-center gap-2 bg-[#282720] hover:bg-[#B77943] text-white px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95"
+            >
+              <span>Write a Review</span>
+              <span>✎</span>
+            </button>
+
+            {/* Quick Moderation Toggle for store owner */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAdminMode) {
+                  setShowAdminSecretModal(true);
+                } else {
+                  setIsAdminMode(false);
+                  setShowPendingOnly(false);
+                  fetchReviews(filter, false);
+                }
+              }}
+              className="text-[11px] font-semibold text-[#7D786D] hover:text-[#282720] underline cursor-pointer px-2 py-1"
+            >
+              {isAdminMode ? "Exit Moderation Mode" : "Moderation ⚙"}
+            </button>
+          </div>
         </div>
+
+        {/* Admin Moderation Bar (when unlocked) */}
+        {isAdminMode && (
+          <div className="bg-[#FAF6F0] border border-[#B77943]/40 rounded-xl p-4 my-6 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-emerald-600 animate-pulse"></span>
+              <span className="font-bold text-[#282720]">Store Owner Moderation Active</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-1.5 cursor-pointer text-[#282720] font-medium">
+                <input
+                  type="checkbox"
+                  checked={showPendingOnly}
+                  onChange={(e) => {
+                    setShowPendingOnly(e.target.checked);
+                    fetchReviews(filter, e.target.checked);
+                  }}
+                  className="rounded border-[#E2DBD0] text-[#B77943]"
+                />
+                <span>Include Pending Reviews</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => fetchReviews(filter, showPendingOnly)}
+                className="bg-white border border-[#E2DBD0] hover:bg-[#EFE9DE] px-3 py-1 rounded text-xs"
+              >
+                Refresh Reviews
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 1. Review Summary Card matching Reference 1 */}
         {stats.totalReviews > 0 ? (
@@ -336,7 +454,8 @@ export function ProductReviews({
               <div className="space-y-2">
                 {[5, 4, 3, 2, 1].map((star) => {
                   const count = stats.ratingDistribution[star as 1 | 2 | 3 | 4 | 5] || 0;
-                  const pct = stats.totalReviews > 0 ? Math.round((count / stats.totalReviews) * 100) : 0;
+                  const pct =
+                    stats.totalReviews > 0 ? Math.round((count / stats.totalReviews) * 100) : 0;
                   const isSelected = filter.rating === star;
 
                   return (
@@ -482,7 +601,9 @@ export function ProductReviews({
           {(filter.rating || filter.withMedia || filter.sortBy !== "recent") && (
             <button
               type="button"
-              onClick={() => handleFilterChange({ rating: undefined, withMedia: false, sortBy: "recent" })}
+              onClick={() =>
+                handleFilterChange({ rating: undefined, withMedia: false, sortBy: "recent" })
+              }
               className="text-xs text-[#B77943] hover:underline font-medium cursor-pointer"
             >
               Reset filters
@@ -506,7 +627,8 @@ export function ProductReviews({
                 Be the First to Review This Discovery
               </h3>
               <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 mb-6 leading-relaxed">
-                Have you experienced {productTitle}? Share your honest feedback with our community and help fellow shoppers choose thoughtfully.
+                Have you experienced {productTitle}? Share your honest feedback with our community
+                and help fellow shoppers choose thoughtfully.
               </p>
               <button
                 type="button"
@@ -534,7 +656,10 @@ export function ProductReviews({
                 });
 
                 return (
-                  <article key={review.id} className="py-7 sm:py-8 grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
+                  <article
+                    key={review.id}
+                    className="py-7 sm:py-8 grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6"
+                  >
                     {/* Left: Author Info */}
                     <div className="flex md:flex-col items-center md:items-start gap-3">
                       <div className="size-11 rounded-full bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center font-bold text-sm text-[#282720] shrink-0">
@@ -554,7 +679,35 @@ export function ProductReviews({
                           </span>
                         ) : null}
 
+                        {review.status === "pending" ? (
+                          <span className="mt-1 block text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full w-fit">
+                            ⏳ Pending Approval
+                          </span>
+                        ) : null}
+
                         <p className="text-[11px] text-[#7D786D] mt-1">{formattedDate}</p>
+
+                        {/* Admin Action Buttons on Review Card */}
+                        {isAdminMode && (
+                          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                            {review.status === "pending" ? (
+                              <button
+                                type="button"
+                                onClick={() => handleModerate(review.id, "approve")}
+                                className="text-[10px] bg-emerald-700 hover:bg-emerald-800 text-white px-2 py-0.5 rounded font-bold"
+                              >
+                                ✓ Approve
+                              </button>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => handleModerate(review.id, "delete")}
+                              className="text-[10px] bg-red-600 hover:bg-red-700 text-white px-2 py-0.5 rounded font-bold"
+                            >
+                              ✕ Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -649,7 +802,7 @@ export function ProductReviews({
         </div>
       </div>
 
-      {/* 5. Photo Lightbox Modal matching Reference 1 (bottom-right popup) */}
+      {/* 5. Photo Lightbox Modal matching Reference 1 */}
       {selectedPhoto && (
         <div
           role="dialog"
@@ -661,7 +814,6 @@ export function ProductReviews({
             className="relative w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2 max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               type="button"
               onClick={() => setSelectedPhotoIndex(null)}
@@ -671,7 +823,7 @@ export function ProductReviews({
               ✕
             </button>
 
-            {/* Left: Full Photo with Navigation */}
+            {/* Left: Full Photo */}
             <div className="relative bg-[#1A1916] flex items-center justify-center min-h-[300px] md:min-h-[500px]">
               <img
                 src={selectedPhoto.url}
@@ -709,7 +861,7 @@ export function ProductReviews({
               )}
             </div>
 
-            {/* Right: Review Details & Quick Add */}
+            {/* Right: Review Details */}
             <div className="p-6 sm:p-8 flex flex-col justify-between overflow-y-auto">
               <div>
                 <div className="border-b border-[#E2DBD0] pb-4 mb-4">
@@ -740,7 +892,6 @@ export function ProductReviews({
                     "{selectedPhoto.title || "Loved this purchase!"}"
                   </h5>
 
-                  {/* Find the full review content for this photo */}
                   {(() => {
                     const matchedReview = reviews.find((r) => r.id === selectedPhoto.reviewId);
                     return matchedReview ? (
@@ -808,18 +959,30 @@ export function ProductReviews({
                 <div className="size-12 rounded-full bg-emerald-100 flex items-center justify-center text-xl mx-auto">
                   ✓
                 </div>
-                <h4 className="font-heading font-bold text-base">Review Submitted!</h4>
+                <h4 className="font-heading font-bold text-base">Review Saved!</h4>
                 <p className="text-xs leading-relaxed">{submitSuccess}</p>
                 <button
                   type="button"
                   onClick={() => setIsWriteModalOpen(false)}
                   className="mt-3 bg-[#282720] text-white px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
                 >
-                  Close
+                  Close & View Reviews
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmitReview} className="space-y-4">
+                {/* Honeypot field for bot spam prevention */}
+                <input
+                  type="text"
+                  name="website_url"
+                  value={formHoneypot}
+                  onChange={(e) => setFormHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
+
                 {submitError && (
                   <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-xs">
                     {submitError}
@@ -949,7 +1112,10 @@ export function ProductReviews({
                   {formPhotos.length > 0 && (
                     <div className="flex items-center gap-2.5 mt-2.5">
                       {formPhotos.map((photo, pIdx) => (
-                        <div key={pIdx} className="relative size-16 rounded-md overflow-hidden border border-[#E2DBD0]">
+                        <div
+                          key={pIdx}
+                          className="relative size-16 rounded-md overflow-hidden border border-[#E2DBD0]"
+                        >
                           <img src={photo} alt="" className="size-full object-cover" />
                           <button
                             type="button"
@@ -999,7 +1165,7 @@ export function ProductReviews({
                 {/* Order ID for Verified Buyer */}
                 <div>
                   <label htmlFor="order-id" className="block text-xs font-bold text-[#282720] mb-1">
-                    Shopify Order ID (Optional for Verified Buyer badge)
+                    Shopify Order ID (Optional)
                   </label>
                   <input
                     id="order-id"
@@ -1010,7 +1176,7 @@ export function ProductReviews({
                     className="w-full bg-[#FAF6F0] border border-[#E2DBD0] rounded-lg px-3.5 py-2 text-xs text-[#282720] focus:outline-none focus:border-[#B77943]"
                   />
                   <p className="text-[10px] text-[#7D786D] mt-1">
-                    Orders are verified securely on our server to award the genuine Verified Buyer badge.
+                    Verified Buyer badges are awarded exclusively after matching against confirmed Shopify store orders.
                   </p>
                 </div>
 
@@ -1020,7 +1186,7 @@ export function ProductReviews({
                     disabled={isSubmitting}
                     className="w-full bg-[#B77943] hover:bg-[#9E6433] text-white py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
                   >
-                    {isSubmitting ? "Submitting Review…" : "Submit Review for Moderation"}
+                    {isSubmitting ? "Submitting Review…" : "Publish Review"}
                   </button>
                 </div>
               </form>
@@ -1028,7 +1194,59 @@ export function ProductReviews({
           </div>
         </div>
       )}
+
+      {/* Admin Secret Unlock Dialog */}
+      {showAdminSecretModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+          onClick={() => setShowAdminSecretModal(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-heading font-bold text-base text-[#282720]">
+              Unlock Store Moderation
+            </h3>
+            <p className="text-xs text-[#7D786D]">
+              Enter your review moderation secret token to manage reviews directly on this product page.
+            </p>
+            <input
+              type="password"
+              placeholder="Enter REVIEWS_ADMIN_SECRET"
+              value={adminSecret}
+              onChange={(e) => setAdminSecret(e.target.value)}
+              className="w-full bg-[#FAF6F0] border border-[#E2DBD0] rounded-lg px-3.5 py-2 text-xs text-[#282720] focus:outline-none focus:border-[#B77943]"
+            />
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAdminSecretModal(false)}
+                className="px-3 py-1.5 text-xs text-[#7D786D] hover:text-[#282720]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!adminSecret.trim()) {
+                    alert("Please enter the configured REVIEWS_ADMIN_SECRET.");
+                    return;
+                  }
+                  setIsAdminMode(true);
+                  setShowAdminSecretModal(false);
+                  fetchReviews(filter, true);
+                }}
+                className="bg-[#282720] text-white px-4 py-1.5 rounded-lg text-xs font-bold"
+              >
+                Unlock Mode
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
-

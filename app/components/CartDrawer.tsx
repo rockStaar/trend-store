@@ -299,8 +299,8 @@ function CartFooter() {
         </div>
 
         <div className="flex items-center justify-between text-xs text-[#635F53] border-b border-[#E2DBD0] pb-2">
-          <span>Delivery Across India</span>
-          <span className="text-emerald-700 font-medium">Free or Flat ₹49</span>
+          <span>Pan-India Delivery</span>
+          <span className="text-emerald-700 font-medium">Free over ₹999 (Flat ₹49 under ₹999)</span>
         </div>
 
         {cart.checkoutUrl ? (

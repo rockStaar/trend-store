@@ -18,7 +18,8 @@ import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
 import { ProductProvider, useProductForm } from "~/lib/product";
 import { getProductFaqs } from "~/lib/product-faq";
-import { getProductReviews, type Review, type ReviewStats } from "~/lib/reviews";
+import type { PublicReview, ReviewStats } from "~/lib/reviews";
+import { getReviewsForProduct } from "~/lib/reviews.server";
 import { storefrontClientContext } from "~/lib/storefront";
 import { formatPageTitle, getShopNameFromRootMatch } from "~/lib/storefront-shop";
 
@@ -67,6 +68,9 @@ const PRODUCT_QUERY = gql(
         vendor
         description
         descriptionHtml
+        faqMetafield: metafield(namespace: "custom", key: "faq") {
+          value
+        }
         requiresSellingPlan
         encodedVariantExistence
         encodedVariantAvailability
@@ -165,7 +169,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   if (!data?.product) throw new Response("Not Found", { status: 404 });
 
   const [{ reviews, stats: reviewStats }, faqs] = await Promise.all([
-    getProductReviews(data.product.id, env),
+    getReviewsForProduct(data.product.id, env, { productHandle: data.product.handle }),
     Promise.resolve(
       getProductFaqs({
         id: data.product.id,
@@ -173,6 +177,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
         handle: data.product.handle,
         description: data.product.description,
         vendor: data.product.vendor,
+        metafieldFaqJson: (data.product as any).faqMetafield?.value ?? null,
       }),
     ),
   ]);
@@ -640,7 +645,7 @@ function QuantitySelector({
   );
 }
 
-function AddToCart({
+function ProductPurchaseOptions({
   product,
   quantity,
   setQuantity,
@@ -653,41 +658,195 @@ function AddToCart({
 }) {
   const { options, register, formProps, errors, pending } = useProductForm();
   const addable = canAddToCart(product, options);
+  const [instantLoading, setInstantLoading] = useState<"buyNow" | "cod" | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
-  const buttonText = addable
-    ? `Add to Bag — ${formatPrice(price)}`
-    : selectedVariant
-      ? "Sold out"
-      : "Select options";
+  const baseUnitAmount = parseFloat(price.amount) || 0;
+  const discountedUnitAmount = Math.round(baseUnitAmount * 0.6); // 40% OFF
+  const totalOriginalAmount = baseUnitAmount * quantity;
+  const totalDiscountedAmount = discountedUnitAmount * quantity;
+  const totalSavings = totalOriginalAmount - totalDiscountedAmount;
+  const currency = price.currencyCode || "INR";
+
+  const handleDirectCheckout = async (mode: "buyNow" | "cod") => {
+    if (!selectedVariant?.id || !addable) return;
+    setInstantLoading(mode);
+    setCheckoutError(null);
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          merchandiseId: selectedVariant.id,
+          quantity,
+          discountCode: mode === "buyNow" ? "GROW40" : "",
+          paymentMethod: mode === "cod" ? "cash_on_delivery" : "standard",
+        }),
+      });
+
+      const result = (await response.json()) as { checkoutUrl?: string; error?: string };
+
+      if (result?.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      } else {
+        throw new Error(result?.error || "Unable to initiate checkout. Please try again.");
+      }
+    } catch (err: any) {
+      setCheckoutError(err.message || "Failed to proceed to checkout. Please try Add to Bag.");
+      setInstantLoading(null);
+    }
+  };
 
   return (
-    <>
-      <form {...formProps({ afterSubmit: openCartDrawer })}>
-        <div className="mt-4 mb-5 flex items-center gap-4">
-          <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
+    <div className="space-y-4 my-6">
+      {/* Quantity Stepper */}
+      <div className="flex items-center gap-4">
+        <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
+        <div className="text-xs text-[#635F53]">
+          <span className="font-semibold text-[#282720] block">Special Launch Promotion</span>
+          <span>40% OFF code applied automatically at checkout</span>
         </div>
+      </div>
+
+      {/* Option 1: Prominent BUY NOW — GET 40% OFF (Copper Filled CTA) */}
+      <div className="bg-[#FAF6F0] border-2 border-[#B77943]/40 rounded-2xl p-4 shadow-sm hover:border-[#B77943] transition-all">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[#B77943] font-bold text-xs uppercase tracking-wider flex items-center gap-1">
+              <span>⚡</span>
+              <span>Fast Track Checkout</span>
+            </span>
+            <span className="bg-[#D7A84C]/25 text-[#73510A] text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              Save 40%
+            </span>
+          </div>
+          <span className="text-xs text-[#7D786D] line-through">
+            {formatPrice({ amount: totalOriginalAmount.toFixed(2), currencyCode: currency })}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleDirectCheckout("buyNow")}
+          disabled={!addable || instantLoading !== null}
+          className="rounded-xl bg-[#B77943] text-white hover:bg-[#9E6433] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 px-6 text-base font-bold shadow-md hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.98]"
+          data-testid="buy-now-discount"
+        >
+          {instantLoading === "buyNow" ? (
+            <span className="flex items-center gap-2">
+              <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Securing 40% Off Checkout…
+            </span>
+          ) : addable ? (
+            <span className="flex items-center justify-between w-full">
+              <span className="flex items-center gap-1.5">
+                <span className="text-lg">⚡</span>
+                <span>BUY NOW — GET 40% OFF</span>
+              </span>
+              <span className="font-extrabold text-white text-base">
+                {formatPrice({ amount: totalDiscountedAmount.toFixed(2), currencyCode: currency })}
+              </span>
+            </span>
+          ) : selectedVariant ? (
+            "Sold out"
+          ) : (
+            "Select options"
+          )}
+        </button>
+
+        <div className="mt-2 flex items-center justify-between text-[11px] text-[#635F53] px-1">
+          <span>Apply code <strong>GROW40</strong> at checkout</span>
+          <span className="text-emerald-700 font-bold">You save {formatPrice({ amount: totalSavings.toFixed(2), currencyCode: currency })}!</span>
+        </div>
+      </div>
+
+      {/* Option 2: Cash On Delivery Card (Distinct COD Option) */}
+      <div className="border border-[#E2DBD0] bg-white rounded-2xl p-4 shadow-2xs hover:border-[#B77943]/60 transition-all">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">💵</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xs uppercase tracking-wide text-[#282720]">
+                  Cash On Delivery Available
+                </span>
+                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200">
+                  Doorstep Payment
+                </span>
+              </div>
+              <p className="text-[11px] text-[#635F53] mt-0.5">
+                Pay in cash or scan UPI (GPay/PhonePe/Paytm) directly to courier upon delivery. Verified PIN codes only.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleDirectCheckout("cod")}
+          disabled={!addable || instantLoading !== null}
+          className="w-full bg-[#FAF6F0] hover:bg-[#F2ECE0] text-[#282720] border border-[#D7A84C] inline-flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+          data-testid="cod-buy-now"
+        >
+          {instantLoading === "cod" ? (
+            <span className="flex items-center gap-2">
+              <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-[#282720] border-t-transparent" />
+              Directing to COD Checkout…
+            </span>
+          ) : (
+            <span>Proceed with Cash on Delivery</span>
+          )}
+        </button>
+      </div>
+
+      {/* Option 3: Standard Add to Bag (Preserves Cart Drawer Flow) */}
+      <form {...formProps({ afterSubmit: openCartDrawer })}>
         <input type="hidden" {...register("merchandiseId", {})} />
         <button
           {...register("addToCart", {})}
-          className="rounded-xl bg-[#B77943] text-white hover:bg-[#9E6433] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 px-6 text-base font-bold shadow-md hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.98]"
-          disabled={!addable || pending}
+          className="rounded-xl bg-[#282720] text-white hover:bg-[#3D3A32] focus-visible:outline-accent inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 px-6 text-sm font-bold shadow-sm hover:shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.98]"
+          disabled={!addable || pending || instantLoading !== null}
           data-testid="add-to-cart"
         >
-          {pending ? "Adding to Bag…" : buttonText}
+          <span className="text-base">🛍️</span>
+          <span>
+            {pending
+              ? "Adding to Bag…"
+              : addable
+                ? `Add to Bag — ${formatPrice({ amount: totalOriginalAmount.toFixed(2), currencyCode: currency })}`
+                : selectedVariant
+                  ? "Sold out"
+                  : "Select options"}
+          </span>
         </button>
       </form>
+
+      {/* Instant Shop Pay Accelerated Checkout */}
       {selectedVariant ? (
-        <div className="mt-3">
+        <div className="pt-1">
           <ShopPayButton
             variants={[{ id: selectedVariant.id, quantity }]}
-            disabled={!addable || pending}
+            disabled={!addable || pending || instantLoading !== null}
             width="100%"
             borderRadius="12px"
           />
         </div>
       ) : null}
+
+      {/* Errors & Notifications */}
+      {checkoutError ? (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">
+          ⚠️ {checkoutError}
+        </div>
+      ) : null}
+
       {[...errors.userErrors, ...errors.warnings, ...errors.networkErrors].length ? (
-        <div className="mt-3 grid gap-1 text-sm" role="alert">
+        <div className="grid gap-1 text-sm" role="alert">
           {errors.userErrors.map((error) => (
             <p key={error.message} className="text-critical">
               {error.message}
@@ -705,7 +864,7 @@ function AddToCart({
           ))}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
 
@@ -724,15 +883,20 @@ function PincodeEstimator() {
     const days = isMetro ? "2–3 business days" : "3–5 business days";
     setStatus({
       valid: true,
-      message: `Delivers to ${clean} in ${days}. Cash on Delivery & Express Delivery Available!`,
+      message: `Delivers to ${clean} in ${days}. Free delivery over ₹999 & Cash on Delivery Available!`,
     });
   };
 
   return (
     <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-4 my-4">
-      <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-[#282720]">
-        <span>📍</span>
-        <span>Check Delivery & COD Availability:</span>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#282720]">
+          <span>📍</span>
+          <span>Delivery & COD Eligibility:</span>
+        </div>
+        <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+          FREE Shipping over ₹999
+        </span>
       </div>
       <form onSubmit={checkPincode} className="flex gap-2">
         <input
@@ -748,7 +912,7 @@ function PincodeEstimator() {
         />
         <button
           type="submit"
-          className="bg-[#282720] hover:bg-[#3D3A32] text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors"
+          className="bg-[#282720] hover:bg-[#3D3A32] text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer"
         >
           Check
         </button>
@@ -759,8 +923,9 @@ function PincodeEstimator() {
           <span>{status.message}</span>
         </div>
       ) : (
-        <p className="text-[11px] text-[#7D786D] mt-1.5">
-          Dispatches within 24 hours via BlueDart / Delhivery / Xpressbees
+        <p className="text-[11px] text-[#7D786D] mt-1.5 flex items-center justify-between">
+          <span>Dispatches within 24 hours via BlueDart / Delhivery / Xpressbees</span>
+          <span>Flat ₹49 under ₹999</span>
         </p>
       )}
     </div>
@@ -917,7 +1082,7 @@ function ProductInfo({
       <div data-product-form>
         <span className="sr-only" aria-live="polite" data-add-to-cart-status />
         <VariantOptions product={product} />
-        <AddToCart
+        <ProductPurchaseOptions
           product={product}
           quantity={quantity}
           setQuantity={setQuantity}
@@ -985,42 +1150,100 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
   const addable = canAddToCart(product, options);
   const primaryImage = product.featuredImage ?? product.images.nodes[0];
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
+  const baseAmount = parseFloat(price.amount) || 0;
+  const discountedAmount = Math.round(baseAmount * 0.6);
+  const currency = price.currencyCode || "INR";
+  const [instantLoading, setInstantLoading] = useState(false);
+
+  const handleInstantBuy = async () => {
+    if (!selectedVariant?.id || !addable) return;
+    setInstantLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchandiseId: selectedVariant.id,
+          quantity: 1,
+          discountCode: "GROW40",
+        }),
+      });
+      const data = (await res.json()) as { checkoutUrl?: string };
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        setInstantLoading(false);
+      }
+    } catch {
+      setInstantLoading(false);
+    }
+  };
 
   return (
     <aside
       aria-label="Quick purchase bar"
-      className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E2DBD0] p-3 z-30 md:hidden shadow-2xl transition-all"
+      className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E2DBD0] px-3.5 py-2.5 z-30 md:hidden shadow-2xl transition-all"
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0">
           {primaryImage ? (
             <img
               src={primaryImage.url}
               alt=""
-              className="size-11 rounded-md object-cover bg-[#EFE9DE] shrink-0 border border-[#E2DBD0]"
+              className="size-10 rounded-md object-cover bg-[#EFE9DE] shrink-0 border border-[#E2DBD0]"
             />
           ) : null}
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-[#282720] truncate">
+            <p className="text-[11px] font-semibold text-[#282720] truncate">
               {product.title}
             </p>
-            <p className="text-xs font-bold text-[#B77943]">
-              {formatPrice(price)}
-            </p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-[#B77943]">
+                {formatPrice({ amount: discountedAmount.toFixed(2), currencyCode: currency })}
+              </span>
+              <span className="text-[10px] text-[#7D786D] line-through">
+                {formatPrice(price)}
+              </span>
+              <span className="text-[9px] font-extrabold bg-[#D7A84C]/25 text-[#73510A] px-1 rounded">
+                -40%
+              </span>
+            </div>
           </div>
         </div>
 
-        <form {...formProps({ afterSubmit: openCartDrawer })} className="shrink-0">
-          <input type="hidden" {...register("merchandiseId", {})} />
-          <input type="hidden" name="quantity" value="1" />
+        <div className="flex items-center gap-1.5 shrink-0">
+          <form {...formProps({ afterSubmit: openCartDrawer })}>
+            <input type="hidden" {...register("merchandiseId", {})} />
+            <input type="hidden" name="quantity" value="1" />
+            <button
+              {...register("addToCart", {})}
+              className="border border-[#282720] text-[#282720] hover:bg-[#FAF6F0] px-2.5 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
+              disabled={!addable || pending || instantLoading}
+              title="Add to Bag"
+            >
+              {pending ? "…" : "Bag"}
+            </button>
+          </form>
+
           <button
-            {...register("addToCart", {})}
-            className="bg-[#B77943] text-white hover:bg-[#9E6433] px-5 py-2.5 rounded-lg text-xs font-bold tracking-wide shadow-sm disabled:opacity-50"
-            disabled={!addable || pending}
+            type="button"
+            onClick={handleInstantBuy}
+            disabled={!addable || instantLoading}
+            className="bg-[#B77943] hover:bg-[#9E6433] text-white px-3.5 py-2 rounded-lg text-xs font-bold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
           >
-            {pending ? "Adding…" : addable ? "Add to Cart" : "Sold out"}
+            {instantLoading ? (
+              <span className="flex items-center gap-1">
+                <span className="inline-block size-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Wait…
+              </span>
+            ) : (
+              <>
+                <span>⚡</span>
+                <span>Buy -40%</span>
+              </>
+            )}
           </button>
-        </form>
+        </div>
       </div>
     </aside>
   );

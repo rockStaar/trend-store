@@ -10,5 +10,6 @@ export default [
   route("account", "routes/account.tsx"),
   route("policies/:handle", "routes/policy.tsx"),
   route("api/reviews", "routes/api.reviews.ts"),
+  route("api/checkout", "routes/api.checkout.ts"),
   route("*", "routes/catchall.tsx"),
 ] satisfies RouteConfig;

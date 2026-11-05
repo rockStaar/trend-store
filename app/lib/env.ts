@@ -9,6 +9,13 @@ export type Env = {
   PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID?: string;
   SESSION_SECRET?: string;
   SHOP_ID?: string;
+  // Customer Reviews & Supabase Persistence
+  SUPABASE_URL?: string;
+  SUPABASE_ANON_KEY?: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+  REVIEWS_ADMIN_SECRET?: string;
+  REQUIRE_REVIEW_MODERATION?: string;
+  JUDGEME_PUBLIC_TOKEN?: string;
 };
 
 export const envContext = createContext<Env>();
