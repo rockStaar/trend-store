@@ -67,6 +67,11 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
   const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
 
+  // Unique idempotency key per checkout attempt to prevent duplicates
+  const [idempotencyKey] = useState(
+    () => `cod_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+  );
+
   // Submission & Confirmed state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -181,6 +186,7 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
           Accept: "application/json",
         },
         body: JSON.stringify({
+          variantId: product.id,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           name: `${firstName.trim()} ${lastName.trim()}`,
@@ -197,27 +203,16 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
           quantity: product.quantity,
           totalAmount: totalPayable,
           deliveryFee: shippingFee,
+          idempotencyKey,
         }),
       });
 
       const result = (await response.json()) as any;
 
-      if (response.ok && result.success) {
-        setConfirmedOrder(
-          result.order || {
-            orderNumber: result.orderId,
-            firstName,
-            lastName,
-            phone: cleanPhone,
-            address,
-            landmark,
-            city,
-            state,
-            pincode,
-          },
-        );
+      if (response.ok && result.success && result.order?.shopifyOrderId) {
+        setConfirmedOrder(result.order);
       } else {
-        throw new Error(result.error || "Failed to confirm order. Please try again.");
+        throw new Error(result?.error || "Failed to create order in Shopify. Please try again.");
       }
     } catch (err: any) {
       setErrorMessage(err.message || "An unexpected error occurred. Please try again.");
@@ -273,16 +268,23 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
             </div>
 
             <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-2.5 inline-block text-xs font-bold text-[#282720]">
-              Order ID: <span className="text-[#B77943]">{confirmedOrder.orderNumber}</span>
+              Shopify Order: <span className="text-[#B77943]">{confirmedOrder.orderNumber}</span>
+              {confirmedOrder.shopifyOrderId ? (
+                <span className="text-[10px] text-[#7D786D] block font-normal mt-0.5">
+                  Shopify Admin ID: #{confirmedOrder.shopifyOrderId}
+                </span>
+              ) : null}
             </div>
 
             {/* Order summary card */}
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-left text-xs space-y-2">
               <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                 <span className="font-bold text-gray-800 truncate max-w-[240px]">
-                  {product.title} (Qty: {product.quantity})
+                  {confirmedOrder.productTitle || product.title} (Qty: {confirmedOrder.quantity || product.quantity})
                 </span>
-                <span className="font-extrabold text-black">Rs. {totalPayable.toFixed(2)}</span>
+                <span className="font-extrabold text-black">
+                  Rs. {parseFloat(confirmedOrder.totalAmount || String(totalPayable)).toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Payment Mode:</span>
