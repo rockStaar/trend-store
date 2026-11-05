@@ -39,7 +39,10 @@ export async function action({ request, context }: Route.ActionArgs) {
       body = Object.fromEntries(formData.entries());
     }
 
-    const name = String(body.name || "").trim();
+    const firstName = String(body.firstName || "").trim();
+    const lastName = String(body.lastName || "").trim();
+    const name = String(body.name || `${firstName} ${lastName}`).trim();
+    const email = String(body.email || "").trim();
     const phone = String(body.phone || "").replace(/[^0-9]/g, "").slice(-10);
     const address = String(body.address || "").trim();
     const pincode = String(body.pincode || "").trim();
@@ -54,27 +57,23 @@ export async function action({ request, context }: Route.ActionArgs) {
     const deliveryFee = body.deliveryFee || "0";
 
     // Validation
-    if (!name || name.length < 2) {
-      return data({ error: "Please enter your full name." }, { status: 400 });
+    if (!firstName && !name) {
+      return data({ error: "Please enter your first name." }, { status: 400 });
     }
-
     if (!phone || phone.length !== 10) {
       return data(
-        { error: "Please enter a valid 10-digit Indian mobile number for delivery verification." },
+        { error: "Please enter a valid 10-digit Indian phone number." },
         { status: 400 },
       );
     }
-
     if (!address || address.length < 5) {
       return data({ error: "Please enter your complete delivery address." }, { status: 400 });
     }
-
     if (!pincode || !/^\d{6}$/.test(pincode)) {
-      return data({ error: "Please enter a valid 6-digit Indian PIN code." }, { status: 400 });
+      return data({ error: "Please enter a valid 6-digit PIN code." }, { status: 400 });
     }
-
     if (!city) {
-      return data({ error: "Please specify your city / district." }, { status: 400 });
+      return data({ error: "Please enter your city." }, { status: 400 });
     }
 
     // Generate readable, branded Order Number

@@ -19,30 +19,67 @@ interface CodOrderModalProps {
   product: CodProductInfo;
 }
 
+const INDIAN_STATES = [
+  "Delhi",
+  "Maharashtra",
+  "Karnataka",
+  "Tamil Nadu",
+  "Uttar Pradesh",
+  "Gujarat",
+  "West Bengal",
+  "Telangana",
+  "Rajasthan",
+  "Haryana",
+  "Punjab",
+  "Madhya Pradesh",
+  "Bihar",
+  "Kerala",
+  "Andhra Pradesh",
+  "Assam",
+  "Odisha",
+  "Jharkhand",
+  "Chhattisgarh",
+  "Uttarakhand",
+  "Himachal Pradesh",
+  "Goa",
+  "Jammu and Kashmir",
+  "Chandigarh",
+  "Tripura",
+  "Puducherry",
+  "Manipur",
+  "Meghalaya",
+  "Nagaland",
+  "Mizoram",
+  "Arunachal Pradesh",
+  "Sikkim",
+  "Ladakh",
+];
+
 export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) {
-  // Form fields
-  const [name, setName] = useState("");
+  // Form fields matching the screenshot exactly
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("Delhi");
   const [landmark, setLandmark] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [state, setState] = useState("Delhi");
+  const [city, setCity] = useState("");
+  const [email, setEmail] = useState("");
 
-  // Submission & Confirmation state
+  // Submission & Confirmed state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<any | null>(null);
 
-  // Calculations
+  // Price calculations
   const unitAmount = parseFloat(product.unitPrice.amount) || 0;
-  const subtotal = unitAmount * product.quantity;
+  const subtotal = Math.round(unitAmount * product.quantity);
   const isFreeDelivery = subtotal >= 999;
-  const deliveryFee = isFreeDelivery ? 0 : 49;
-  const totalPayable = subtotal + deliveryFee;
-  const currency = product.unitPrice.currencyCode || "INR";
+  const shippingFee = isFreeDelivery ? 0 : 49;
+  const totalPayable = subtotal + shippingFee;
 
-  // Reset or close on Escape key
+  // Body scroll lock & ESC key listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -61,7 +98,7 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
     };
   }, [isOpen, onClose]);
 
-  // Handle pincode auto-fill suggestions
+  // Auto-detect city & state from 6-digit Pincode
   const handlePincodeChange = (val: string) => {
     const clean = val.replace(/[^0-9]/g, "").slice(0, 6);
     setPincode(clean);
@@ -87,32 +124,50 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
       } else if (clean.startsWith("38")) {
         setCity("Ahmedabad");
         setState("Gujarat");
+      } else if (clean.startsWith("12") || clean.startsWith("13")) {
+        setCity("Gurugram");
+        setState("Haryana");
+      } else if (clean.startsWith("20")) {
+        setCity("Noida");
+        setState("Uttar Pradesh");
+      } else if (clean.startsWith("30")) {
+        setCity("Jaipur");
+        setState("Rajasthan");
       }
     }
   };
 
-  const handleSubmitOrder = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     const cleanPhone = phone.replace(/[^0-9]/g, "").slice(-10);
+    if (!firstName.trim()) {
+      setErrorMessage("Please enter your First Name.");
+      return;
+    }
+    if (!lastName.trim()) {
+      setErrorMessage("Please enter your Last Name.");
+      return;
+    }
     if (cleanPhone.length !== 10) {
-      setErrorMessage("Please enter a valid 10-digit Indian phone number.");
+      setErrorMessage("Please enter a valid 10-digit Phone Number.");
       return;
     }
-
-    if (!pincode || pincode.length !== 6) {
-      setErrorMessage("Please enter a valid 6-digit Indian PIN code.");
+    if (!address.trim()) {
+      setErrorMessage("Please enter your Address.");
       return;
     }
-
-    if (!address.trim() || address.trim().length < 5) {
-      setErrorMessage("Please enter your complete house/street address.");
+    if (!landmark.trim()) {
+      setErrorMessage("Please enter a nearby Landmark.");
       return;
     }
-
+    if (pincode.length !== 6) {
+      setErrorMessage("Please enter a valid 6-digit Pincode.");
+      return;
+    }
     if (!city.trim()) {
-      setErrorMessage("Please enter your city/town.");
+      setErrorMessage("Please enter your City.");
       return;
     }
 
@@ -126,28 +181,43 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
           Accept: "application/json",
         },
         body: JSON.stringify({
-          name: name.trim(),
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          name: `${firstName.trim()} ${lastName.trim()}`,
           phone: cleanPhone,
           address: address.trim(),
-          pincode: pincode.trim(),
-          city: city.trim(),
-          state: state.trim(),
           landmark: landmark.trim(),
+          pincode: pincode.trim(),
+          state: state.trim(),
+          city: city.trim(),
+          email: email.trim(),
           productTitle: product.title,
           variantTitle: product.variantTitle,
           productImage: product.image,
           quantity: product.quantity,
           totalAmount: totalPayable,
-          deliveryFee,
+          deliveryFee: shippingFee,
         }),
       });
 
       const result = (await response.json()) as any;
 
       if (response.ok && result.success) {
-        setConfirmedOrder(result.order || { orderNumber: result.orderId, name, phone, address, pincode, city, state });
+        setConfirmedOrder(
+          result.order || {
+            orderNumber: result.orderId,
+            firstName,
+            lastName,
+            phone: cleanPhone,
+            address,
+            landmark,
+            city,
+            state,
+            pincode,
+          },
+        );
       } else {
-        throw new Error(result.error || "Unable to confirm COD order. Please try again.");
+        throw new Error(result.error || "Failed to confirm order. Please try again.");
       }
     } catch (err: any) {
       setErrorMessage(err.message || "An unexpected error occurred. Please try again.");
@@ -168,323 +238,369 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="cod-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+      onClick={handleResetAndClose}
     >
       <div
-        className="relative w-full max-w-lg bg-white rounded-3xl border border-[#E2DBD0] shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-[450px] bg-white rounded-2xl shadow-2xl p-5 sm:p-6 my-auto text-left border border-gray-100 max-h-[95vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Header */}
-        <div className="bg-[#282720] text-white px-5 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">💵</span>
-            <div>
-              <h2 id="cod-modal-title" className="font-heading font-bold text-sm sm:text-base leading-tight">
-                {confirmedOrder ? "Order Confirmed!" : "Cash on Delivery (COD) Checkout"}
+        {/* Top Close Button (✕) */}
+        <button
+          type="button"
+          onClick={handleResetAndClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors cursor-pointer text-lg font-bold p-1 leading-none"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
+        {confirmedOrder ? (
+          /* ─────────────────────────────────────────────────────────────
+             ORDER CONFIRMED SCREEN (100% CASH ON DELIVERY)
+             ───────────────────────────────────────────────────────────── */
+          <div className="space-y-4 py-2 text-center">
+            <div className="size-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-3xl mx-auto font-bold shadow-inner">
+              ✓
+            </div>
+            <div className="space-y-1">
+              <h2 className="font-bold text-xl sm:text-2xl text-[#282720]">
+                Order Confirmed!
               </h2>
-              <p className="text-[11px] text-[#FAF6F0]/80">
-                {confirmedOrder
-                  ? "Your order has been recorded successfully"
-                  : "Pay in cash or scan UPI when the package reaches your door"}
+              <p className="text-xs text-[#5E5B52]">
+                Thank you, <strong>{confirmedOrder.firstName || firstName}</strong>! Your Cash on Delivery order has been successfully placed.
               </p>
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleResetAndClose}
-            className="size-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer text-sm"
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
-        </div>
 
-        {/* Modal Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4">
-          {confirmedOrder ? (
-            /* ─────────────────────────────────────────────────────────────
-               ORDER CONFIRMED SCREEN
-               ───────────────────────────────────────────────────────────── */
-            <div className="space-y-5 animate-scale-up py-2">
-              <div className="text-center space-y-2">
-                <div className="size-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-3xl mx-auto shadow-inner">
-                  ✓
-                </div>
-                <h3 className="font-serif text-2xl font-normal text-[#282720]">
-                  Thank You, {confirmedOrder.name || name}!
-                </h3>
-                <p className="text-xs sm:text-sm text-[#5E5B52] max-w-md mx-auto">
-                  Your Cash on Delivery order is officially placed and queued for dispatch.
-                </p>
-                <div className="inline-block bg-[#FAF6F0] border border-[#D7A84C] px-3.5 py-1.5 rounded-full text-xs font-bold text-[#282720]">
-                  Order ID: <span className="text-[#B77943]">{confirmedOrder.orderNumber}</span>
-                </div>
-              </div>
-
-              {/* Order summary card */}
-              <div className="border border-[#E2DBD0] rounded-2xl bg-[#FAF6F0]/60 p-4 space-y-3">
-                <div className="flex items-center gap-3 pb-3 border-b border-[#E2DBD0]">
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt=""
-                      className="size-12 rounded-lg object-cover bg-white border border-[#E2DBD0] shrink-0"
-                    />
-                  ) : null}
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-xs sm:text-sm text-[#282720] truncate">
-                      {product.title}
-                    </p>
-                    <p className="text-xs text-[#7D786D]">
-                      Quantity: <strong>{product.quantity} Pc</strong>
-                      {product.variantTitle ? ` • ${product.variantTitle}` : ""}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0 font-extrabold text-sm text-[#282720]">
-                    {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 text-xs text-[#5E5B52]">
-                  <div className="flex justify-between">
-                    <span>Payment Method:</span>
-                    <span className="font-bold text-[#282720]">Cash / UPI upon Delivery</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Delivery Address:</span>
-                    <span className="font-semibold text-[#282720] text-right max-w-[220px] truncate">
-                      {confirmedOrder.address}, {confirmedOrder.city} - {confirmedOrder.pincode}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Contact Number:</span>
-                    <span className="font-semibold text-[#282720]">+91 {confirmedOrder.phone}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3-Step Next Timeline */}
-              <div className="border border-[#E2DBD0] rounded-2xl bg-white p-4 space-y-2.5">
-                <p className="text-xs font-bold text-[#282720] uppercase tracking-wide">
-                  What Happens Next?
-                </p>
-                <div className="space-y-2 text-xs text-[#5E5B52]">
-                  <div className="flex items-start gap-2">
-                    <span className="text-emerald-700 font-bold">1.</span>
-                    <span><strong>Order Verification:</strong> Our fulfillment team will confirm your order via SMS &amp; WhatsApp.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-emerald-700 font-bold">2.</span>
-                    <span><strong>Express Dispatch:</strong> Dispatched in 24–48 hours via BlueDart / Delhivery / Xpressbees.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-emerald-700 font-bold">3.</span>
-                    <span><strong>Doorstep Delivery:</strong> Keep cash ready or scan courier’s UPI QR code (GPay/PhonePe/Paytm).</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Button */}
-              <button
-                type="button"
-                onClick={handleResetAndClose}
-                className="w-full bg-[#282720] hover:bg-[#3D3A32] text-white py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all shadow-md cursor-pointer"
-              >
-                Continue Shopping
-              </button>
+            <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-2.5 inline-block text-xs font-bold text-[#282720]">
+              Order ID: <span className="text-[#B77943]">{confirmedOrder.orderNumber}</span>
             </div>
-          ) : (
-            /* ─────────────────────────────────────────────────────────────
-               COD ORDER FORM
-               ───────────────────────────────────────────────────────────── */
-            <form onSubmit={handleSubmitOrder} className="space-y-4">
-              {/* Product item summary strip */}
-              <div className="flex items-center justify-between p-3 bg-[#FAF6F0] rounded-xl border border-[#E2DBD0] gap-3">
-                <div className="flex items-center gap-2.5 min-w-0">
+
+            {/* Order summary card */}
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-left text-xs space-y-2">
+              <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                <span className="font-bold text-gray-800 truncate max-w-[240px]">
+                  {product.title} (Qty: {product.quantity})
+                </span>
+                <span className="font-extrabold text-black">Rs. {totalPayable.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Payment Mode:</span>
+                <span className="font-bold text-emerald-700">Cash on Delivery (COD)</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Deliver To:</span>
+                <span className="font-medium text-gray-800 text-right max-w-[210px] truncate">
+                  {confirmedOrder.address}, {confirmedOrder.city} - {confirmedOrder.pincode}
+                </span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Contact:</span>
+                <span className="font-medium text-gray-800">+91 {confirmedOrder.phone}</span>
+              </div>
+            </div>
+
+            {/* Delivery Note */}
+            <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-800 text-left space-y-1">
+              <p className="font-bold">🚚 Dispatches within 24 hours</p>
+              <p className="leading-relaxed">
+                Please keep <strong>Rs. {totalPayable.toFixed(2)}</strong> cash ready when our delivery executive arrives at your doorstep.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResetAndClose}
+              className="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3 px-4 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        ) : (
+          /* ─────────────────────────────────────────────────────────────
+             EXACT COD FORM MATCHING USER REFERENCE SCREENSHOT
+             ───────────────────────────────────────────────────────────── */
+          <div>
+            {/* Top Product Strip */}
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200 gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative shrink-0">
                   {product.image ? (
                     <img
                       src={product.image}
                       alt=""
-                      className="size-11 rounded-lg object-cover bg-white border border-[#E2DBD0] shrink-0"
+                      className="size-12 rounded object-cover bg-gray-50 border border-gray-200"
                     />
-                  ) : null}
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#282720] truncate">
-                      {product.title}
-                    </p>
-                    <p className="text-[11px] text-[#7D786D]">
-                      Pack of <strong>{product.quantity}</strong>
-                      {isFreeDelivery ? " • Free Express Shipping" : " • ₹49 Shipping"}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-extrabold text-sm sm:text-base text-[#282720]">
-                    {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })}
-                  </div>
-                  <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                    Pay on Delivery
+                  ) : (
+                    <div className="size-12 rounded bg-gray-100 border border-gray-200" />
+                  )}
+                  {/* Badge with quantity on top-right of image */}
+                  <span className="absolute -top-1.5 -right-1.5 size-5 bg-gray-500 text-white rounded-full text-[10px] flex items-center justify-center font-bold shadow-xs">
+                    {product.quantity}
                   </span>
                 </div>
+                <div className="font-bold text-xs sm:text-sm text-black leading-snug line-clamp-2">
+                  {product.title}
+                </div>
               </div>
-
-              {/* Customer Name */}
-              <div>
-                <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-name">
-                  Full Name <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="cod-name"
-                  required
-                  placeholder="e.g. Priya Sharma"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
-                />
+              <div className="font-bold text-xs sm:text-sm text-black shrink-0 whitespace-nowrap">
+                Rs. {subtotal.toFixed(2)}
               </div>
+            </div>
 
-              {/* Mobile Phone Number (+91) */}
-              <div>
-                <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-phone">
-                  Mobile Number (for Courier &amp; WhatsApp updates) <span className="text-red-600">*</span>
+            {/* Centered Heading */}
+            <h2 className="text-center font-bold text-sm sm:text-base text-black my-3 tracking-wide">
+              Enter Your Complete Address
+            </h2>
+
+            {/* Subtotal / Shipping / Total Box */}
+            <div className="bg-[#EDEDED]/70 rounded-lg p-3 text-xs space-y-1 mb-3.5 border border-gray-200">
+              <div className="flex justify-between text-gray-700">
+                <span>Subtotal</span>
+                <span className="font-semibold text-black">Rs. {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-700">
+                <span>Shipping</span>
+                <span className="font-semibold text-black">
+                  {isFreeDelivery ? "Free" : `Rs. ${shippingFee.toFixed(2)}`}
+                </span>
+              </div>
+              <div className="flex justify-between font-bold text-xs sm:text-sm text-black pt-1 border-t border-gray-300">
+                <span>Total</span>
+                <span>Rs. {totalPayable.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {errorMessage ? (
+              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-[11px] text-red-700 font-semibold text-center">
+                ⚠️ {errorMessage}
+              </div>
+            ) : null}
+
+            {/* Form Fields matching the screenshot */}
+            <form onSubmit={handleSubmit} className="space-y-2.5">
+              {/* Row 1: First Name */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-first-name">
+                  First Name <span className="text-red-500">*</span>
                 </label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-[#E2DBD0] bg-[#FAF6F0] text-xs font-bold text-[#282720]">
-                    +91
-                  </span>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                    <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                   <input
+                    id="cod-first-name"
+                    type="text"
+                    required
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Last name */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-last-name">
+                  Last name <span className="text-red-500">*</span>
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                    <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <input
+                    id="cod-last-name"
+                    type="text"
+                    required
+                    placeholder="Last name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Phone number */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-phone-number">
+                  Phone number <span className="text-red-500">*</span>
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                    <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 4V3z" />
+                    </svg>
+                  </div>
+                  <input
+                    id="cod-phone-number"
                     type="tel"
-                    id="cod-phone"
                     required
                     maxLength={10}
-                    placeholder="10-digit mobile number"
+                    placeholder="Phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
-                    className="flex-1 bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-r-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
                   />
                 </div>
               </div>
 
-              {/* Delivery Address */}
-              <div>
-                <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-address">
-                  House / Flat No., Building, Street <span className="text-red-600">*</span>
+              {/* Row 4: Address */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-address">
+                  Address <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  id="cod-address"
-                  required
-                  rows={2}
-                  placeholder="e.g. Flat 402, Sunshine Apartments, 12th Main Road"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all resize-none"
-                />
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                    <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <input
+                    id="cod-address"
+                    type="text"
+                    required
+                    placeholder="Address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                  />
+                </div>
               </div>
 
-              {/* Pincode & City */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-pincode">
-                    PIN Code <span className="text-red-600">*</span>
-                  </label>
+              {/* Row 5: Landmark */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-landmark">
+                  Landmark <span className="text-red-500">*</span>
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                    <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                   <input
+                    id="cod-landmark"
                     type="text"
+                    required
+                    placeholder="Nearby school, hospital, shop"
+                    value={landmark}
+                    onChange={(e) => setLandmark(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Row 6: Pincode */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-pincode">
+                  Pincode <span className="text-red-500">*</span>
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3.5 py-2 border-r border-gray-300 text-gray-700 font-bold text-xs flex items-center justify-center shrink-0">
+                    #
+                  </div>
+                  <input
                     id="cod-pincode"
+                    type="text"
                     required
                     maxLength={6}
-                    placeholder="6 digits"
+                    placeholder="Pincode"
                     value={pincode}
                     onChange={(e) => handlePincodeChange(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-city">
-                    City / Town <span className="text-red-600">*</span>
-                  </label>
+              {/* Row 7: State */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-state">
+                  State <span className="text-red-500">*</span>
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <select
+                    id="cod-state"
+                    required
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="w-full px-3 py-2 text-xs text-black focus:outline-none bg-white cursor-pointer"
+                  >
+                    {INDIAN_STATES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 8: City */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-city">
+                  City <span className="text-red-500">*</span>
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                    <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                   <input
-                    type="text"
                     id="cod-city"
+                    type="text"
                     required
                     placeholder="City"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
                   />
                 </div>
               </div>
 
-              {/* State & Optional Landmark */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-state">
-                    State <span className="text-red-600">*</span>
-                  </label>
+              {/* Row 9: Email */}
+              <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
+                <label className="text-xs font-bold text-black" htmlFor="cod-email">
+                  Email
+                </label>
+                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                  <div className="bg-gray-100 px-3.5 py-2 border-r border-gray-300 text-gray-700 font-bold text-xs flex items-center justify-center shrink-0">
+                    @
+                  </div>
                   <input
-                    type="text"
-                    id="cod-state"
-                    required
-                    placeholder="State"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#282720] mb-1" htmlFor="cod-landmark">
-                    Landmark (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    id="cod-landmark"
-                    placeholder="Near school, mall..."
-                    value={landmark}
-                    onChange={(e) => setLandmark(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/40 border border-[#E2DBD0] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    id="cod-email"
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
                   />
                 </div>
               </div>
 
-              {/* Reassurance badge */}
-              <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-xs text-emerald-800">
-                <span className="text-base shrink-0">🛡️</span>
-                <span>
-                  <strong>Zero Risk:</strong> Inspect your package upon arrival. Pay cash or scan UPI directly to the courier agent.
-                </span>
-              </div>
-
-              {/* Error banner */}
-              {errorMessage ? (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">
-                  ⚠️ {errorMessage}
-                </div>
-              ) : null}
-
-              {/* Confirm Button */}
+              {/* Complete Order Button matching screenshot */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#282720] hover:bg-[#3D3A32] text-white py-3.5 px-4 rounded-xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full bg-black hover:bg-neutral-800 text-white font-extrabold py-3.5 px-4 rounded text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
                     <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Confirming Your Order…</span>
+                    <span>Processing Order…</span>
                   </>
                 ) : (
-                  <>
-                    <span>🔒</span>
-                    <span>Confirm Order — Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} on Delivery</span>
-                  </>
+                  <span>COMPLETE ORDER - Rs. {totalPayable.toFixed(2)}</span>
                 )}
               </button>
             </form>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -10,8 +10,8 @@ import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
-import { ProductFaq } from "~/components/ProductFaq";
 import { ProductReviews } from "~/components/ProductReviews";
+import { CodOrderModal } from "~/components/CodOrderModal";
 import { openCartDrawer } from "~/lib/cart-drawer";
 import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
@@ -209,6 +209,14 @@ type SwatchValue = {
   imageUrl?: string | null;
 };
 
+export function filterSupplierNames(text: string | null | undefined): string {
+  if (!text) return "";
+  return text
+    .replace(/\b(meesho|dropdash|roposo|glowroad|cjdropshipping|cjdropship|dropship|dropshipper|aliexpress|alibaba)\b/gi, "Grow & Glow")
+    .replace(/(supplier|vendor)\s*(name|id|code)?\s*[:\-]\s*[\w\s]+/gi, "")
+    .trim();
+}
+
 function toRouterLocation(url: string) {
   return url;
 }
@@ -387,28 +395,25 @@ function PriceBlock({
   const percent = salePercent(price, compareAt);
 
   return (
-    <div className="mt-3" data-product-price>
-      <div className="flex flex-wrap items-baseline gap-3">
-        <span className="text-2xl sm:text-3xl font-extrabold text-[#282720]">
-          <span className="sr-only">Price: </span>
-          {formatPrice(price)}
-        </span>
-        {compareAt && percent ? (
-          <>
-            <s className="text-base text-[#7D786D]">
-              <span className="sr-only">Regular price: </span>
-              {formatPrice(compareAt)}
-            </s>
-            <span className="bg-[#B77943] text-white text-xs font-bold px-2.5 py-0.5 rounded-full" aria-label={`Save ${percent}%`}>
-              SAVE {percent}%
-            </span>
-          </>
-        ) : null}
-      </div>
-      <p className="text-xs text-[#635F53] mt-1.5 flex items-center gap-1.5 font-medium">
-        <span className="inline-block size-2 rounded-full bg-emerald-600"></span>
-        <span>Inclusive of all taxes (GST) • Free Delivery on orders &gt;₹999</span>
-      </p>
+    <div className="flex items-baseline gap-2.5 my-3" data-product-price>
+      <span className="text-2xl sm:text-3xl font-black text-[#282720]">
+        <span className="sr-only">Price: </span>
+        {formatPrice(price)}
+      </span>
+      {compareAt && percent ? (
+        <>
+          <s className="text-sm sm:text-base text-gray-500 line-through">
+            <span className="sr-only">Regular price: </span>
+            {formatPrice(compareAt)}
+          </s>
+          <span className="bg-black text-white text-[11px] font-extrabold px-2 py-0.5 rounded flex items-center gap-1 uppercase" aria-label={`Save ${percent}%`}>
+            <svg className="size-3" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+            </svg>
+            <span>SAVE {percent}%</span>
+          </span>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -643,63 +648,148 @@ function QuantitySelector({
   );
 }
 
-function getProductBenefit(product: ProductData) {
+function getProductFeatures(product: ProductData) {
   const text = `${product.title} ${product.description || ""}`.toLowerCase();
 
-  if (text.includes("vacuum") || text.includes("cleaner") || text.includes("dust") || text.includes("car")) {
-    return {
-      title: "Powerful Cordless Cyclone Suction",
-      description: "Equipped with a high-RPM handheld motor engineered for cars, desks, tight gaps and effortless daily cleanups.",
-      badge: "Heavy Duty Motor",
-    };
-  }
-  if (text.includes("shelf") || text.includes("rack") || text.includes("corner") || text.includes("holder") || text.includes("adhesive") || text.includes("wall") || text.includes("bathroom")) {
-    return {
-      title: "Durable & Long-Lasting Build",
-      description: "Designed using durable rust-resistant materials suitable for regular, everyday bathroom and kitchen use.",
-      badge: "Heavy Duty Mount",
-    };
-  }
-  if (text.includes("serum") || text.includes("cream") || text.includes("skin") || text.includes("glow") || text.includes("oil") || text.includes("face")) {
-    return {
-      title: "Clean & Dermatologically Tested",
-      description: "Crafted with pure active botanicals to nourish and protect the delicate skin barrier without harsh chemicals.",
-      badge: "Toxin-Free Formula",
-    };
-  }
-  if (text.includes("bottle") || text.includes("flask") || text.includes("cup") || text.includes("mug")) {
-    return {
-      title: "Food-Grade & Temperature Retentive",
-      description: "BPA-free stainless steel construction engineered for long-lasting daily hydration at home or on-the-go.",
-      badge: "Grade 304 Steel",
-    };
-  }
-  if (text.includes("candle") || text.includes("diffuser") || text.includes("fragrance") || text.includes("aroma")) {
-    return {
-      title: "Pure Soy Wax & Essential Oils",
-      description: "Clean, soot-free burn with comforting aromatherapeutic scent throw for mindful relaxation and wellness.",
-      badge: "Eco-Friendly Burn",
-    };
+  if (text.includes("duster") || text.includes("clean") || text.includes("car") || text.includes("handle")) {
+    return [
+      {
+        title: "Extendable Handle",
+        desc: "Adjustable from 75 cm (29.5 in) to 86 cm (33.8 in), making it easy to clean car roofs, windshields, and hard-to-reach spots.",
+      },
+      {
+        title: "Puffy Microfiber Brush",
+        desc: "Soft yet durable fibers that absorb dust effectively and leave no streaks or scratches behind.",
+      },
+      {
+        title: "Space-Saving Design",
+        desc: "Detachable and retractable handle allows easy storage in your car trunk or garage.",
+      },
+      {
+        title: "Multi-Purpose Use",
+        desc: "Perfect for cars, SUVs, trucks, bikes, home furniture, glass windows, and office cleaning.",
+      },
+      {
+        title: "Ergonomic Grip",
+        desc: "Anti-slip foam handle provides comfortable hold during cleaning.",
+      },
+    ];
   }
 
-  return {
-    title: "Curated Premium Build & Craftsmanship",
-    description: "Individually batch-inspected and crafted for superior everyday functionality, durability, and modern living.",
-    badge: "Quality Inspected",
-  };
+  if (text.includes("shelf") || text.includes("corner") || text.includes("adhesive") || text.includes("wall") || text.includes("bathroom") || text.includes("rack")) {
+    return [
+      {
+        title: "Drill-Free Installation",
+        desc: "Strong trace-less adhesive pads hold securely without damaging walls or bathroom tiles.",
+      },
+      {
+        title: "Rustproof & Waterproof",
+        desc: "Anti-corrosion engineered finish withstands high humidity and constant steam.",
+      },
+      {
+        title: "Fast-Draining Design",
+        desc: "Hollow base prevents stagnant water accumulation, keeping bath items dry and clean.",
+      },
+      {
+        title: "Heavy-Duty Load Capacity",
+        desc: "Sturdy frame easily holds large shampoo, conditioner, and body wash bottles.",
+      },
+      {
+        title: "Space-Saving Corner Fit",
+        desc: "Maximizes unused 90-degree corners for neat, organized storage.",
+      },
+    ];
+  }
+
+  if (text.includes("bottle") || text.includes("flask") || text.includes("cup") || text.includes("mug")) {
+    return [
+      {
+        title: "Vacuum Insulation",
+        desc: "Keeps beverages piping hot for 12 hours or refreshingly ice-cold for 24 hours.",
+      },
+      {
+        title: "Food-Grade Stainless Steel",
+        desc: "Grade 304 interior ensures zero flavor retention and 100% BPA-free safety.",
+      },
+      {
+        title: "Leakproof Lid",
+        desc: "Precision silicone gasket prevents accidental spills in backpacks or vehicles.",
+      },
+      {
+        title: "Sweat-Free Grip",
+        desc: "Durable matte powder coat provides a comfortable, slip-resistant hold.",
+      },
+      {
+        title: "Everyday Portability",
+        desc: "Fits standard car cup holders and gym bag side pockets effortlessly.",
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "Premium Build Quality",
+      desc: "Constructed with selected high-grade materials engineered for everyday domestic use.",
+    },
+    {
+      title: "Functional & Ergonomic",
+      desc: "Designed for comfortable handling and reliable performance every single day.",
+    },
+    {
+      title: "Zero Transit Damage Guarantee",
+      desc: "Ships in protective multi-layer packaging to ensure flawless doorstep delivery.",
+    },
+    {
+      title: "Easy Maintenance",
+      desc: "Wipe-clean surfaces that resist dust, stains, and daily wear and tear.",
+    },
+    {
+      title: "Tested & Certified",
+      desc: "Individually batch-inspected to meet domestic Indian household quality standards.",
+    },
+  ];
 }
 
-function ProductBenefitCard({ product }: { product: ProductData }) {
-  const benefit = getProductBenefit(product);
+function cleanDescriptionIntro(product: ProductData): string {
+  const sanitized = filterSupplierNames(product.description || "");
+  const text = `${product.title} ${sanitized}`.toLowerCase();
+
+  if (text.includes("duster") || text.includes("car")) {
+    return `Keep your car spotless with this ${filterSupplierNames(product.title)}, designed for effortless dusting and cleaning. Made with high-quality microfiber bristles, it efficiently traps dirt, dust, and pollen without scratching the surface. Its lightweight and ergonomic design makes it ideal for quick cleaning sessions as well as deep detailing.`;
+  }
+
+  if (sanitized && sanitized.length > 50) {
+    return sanitized;
+  }
+
+  return `Experience premium convenience and durability with the ${filterSupplierNames(product.title)}. Crafted from high-grade materials, it is engineered for dependable daily performance, comfortable usability, and long-lasting domestic utility.`;
+}
+
+function BenefitsOfPrepaidOrdersCard() {
   return (
-    <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-3 sm:p-3.5 my-3 shadow-2xs">
-      <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-[#282720]">
-        <span className="text-emerald-700 font-extrabold text-sm">✓</span>
-        <span>{benefit.title}</span>
+    <div className="rounded-xl border border-[#282720]/25 bg-white p-3 sm:p-3.5 mb-3 shadow-2xs">
+      <div className="font-extrabold text-xs sm:text-sm text-[#282720] flex items-center gap-1.5 mb-2">
+        <span className="text-base text-[#B77943]">🎯</span>
+        <span className="tracking-tight">Benefits Of Prepaid Orders</span>
       </div>
-      <p className="text-xs text-[#5E5B52] mt-1 leading-relaxed pl-5">
-        {benefit.description}
-      </p>
+      <div className="space-y-1.5 text-xs text-[#282720] font-medium">
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 text-sm">💰</span>
+          <span>₹29 Off On Orders Above ₹499</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 text-sm">🎁</span>
+          <span>Extra ₹50 Off On 2 or More Items</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 text-sm">🚚</span>
+          <span>Free Shipping On Prepaid Orders</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 text-sm">⚡</span>
+          <span>Priority Dispatch &amp; Fast Delivery</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -862,122 +952,7 @@ function PackSelector({
   );
 }
 
-function PrepaidOffersSection({
-  totalOrderPrice,
-  currency,
-  onApplyOffer,
-  instantLoading,
-}: {
-  totalOrderPrice: number;
-  currency: string;
-  onApplyOffer: (code: string) => void;
-  instantLoading: string | null;
-}) {
-  const offers = [
-    {
-      id: "prepaid29",
-      code: "PREPAID29",
-      title: "Pay Online & Save",
-      headline: "Get ₹29 Instant Off",
-      conditionText: "On online orders above ₹499",
-      minOrder: 499,
-      badgeText: "SAVE ₹29",
-    },
-    {
-      id: "grow10",
-      code: "GROW10",
-      title: "Pay Online & Save More",
-      headline: "Get 10% Instant Off",
-      conditionText: "On online orders above ₹899",
-      minOrder: 899,
-      badgeText: "SAVE 10%",
-    },
-  ];
 
-  return (
-    <div className="rounded-2xl border border-[#D7A84C]/50 bg-white overflow-hidden shadow-2xs my-4">
-      {/* Header with Grow & Glow styling */}
-      <div className="bg-[#282720] text-white px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-bold tracking-widest uppercase">
-        <span className="text-[#D7A84C]">•</span>
-        <span className="flex items-center gap-1.5">
-          <span>💳</span>
-          <span>PREPAID OFFERS</span>
-        </span>
-        <span className="text-[#D7A84C]">•</span>
-      </div>
-
-      <div className="p-3.5 sm:p-4 space-y-3 bg-gradient-to-b from-[#FAF6F0] to-white">
-        {offers.map((offer) => {
-          const isEligible = totalOrderPrice >= offer.minOrder;
-          const diff = Math.max(0, offer.minOrder - totalOrderPrice);
-
-          return (
-            <div
-              key={offer.id}
-              onClick={() => isEligible && onApplyOffer(offer.code)}
-              className={`rounded-xl border p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${isEligible
-                  ? "border-[#D7A84C] bg-white cursor-pointer hover:shadow-md hover:border-[#B77943]"
-                  : "border-[#E2DBD0] bg-white/70 opacity-85"
-                }`}
-            >
-              {/* Offer Details */}
-              <div className="space-y-0.5">
-                <span className="text-[11px] font-bold text-[#B77943] uppercase tracking-wide block">
-                  {offer.title}
-                </span>
-                <span className="text-sm sm:text-base font-extrabold text-[#282720] block">
-                  {offer.headline}
-                </span>
-                <span className="text-[11px] text-[#635F53] block">
-                  {offer.conditionText}
-                </span>
-                {isEligible ? (
-                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
-                    <span>⚡</span>
-                    <span>Eligible on this order! Tap to apply at checkout</span>
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-[#9E6433] font-medium pt-0.5 block">
-                    Add ₹{Math.round(diff)} more to unlock this offer
-                  </span>
-                )}
-              </div>
-
-              {/* Ticket Badge */}
-              <div className="shrink-0 flex flex-col items-center justify-center">
-                <div className="bg-[#FAF0D9] border-2 border-dashed border-[#D7A84C] text-[#73510A] font-extrabold text-xs px-3 py-2 rounded-lg text-center shadow-2xs uppercase">
-                  {instantLoading === offer.code ? (
-                    <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-[#73510A] border-t-transparent" />
-                  ) : (
-                    offer.badgeText
-                  )}
-                </div>
-                {isEligible ? (
-                  <span className="text-[9px] text-[#B77943] font-bold mt-1 uppercase tracking-wider">
-                    Apply &amp; Pay
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Footer assurances */}
-        <div className="pt-2 border-t border-[#E2DBD0]/60 flex items-center justify-around text-xs text-[#635F53]">
-          <div className="flex items-center gap-1.5 font-medium">
-            <span>🛡️</span>
-            <span>Secure Payment</span>
-          </div>
-          <span className="text-[#D7A84C]">•</span>
-          <div className="flex items-center gap-1.5 font-medium">
-            <span>⚡</span>
-            <span>Quick Confirmation</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function TrustedPaymentsAndTimeline() {
   const { orderDate, dispatchDate, deliveryDate } = useMemo(() => getDynamicTimelineDates(), []);
@@ -1061,8 +1036,16 @@ function TrustedPaymentsAndTimeline() {
   );
 }
 
-function ProductCompactFaq({ faqs }: { faqs?: FaqItem[] }) {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+function ProductLowerDetails({
+  product,
+  faqs,
+}: {
+  product: ProductData;
+  faqs?: FaqItem[];
+}) {
+  const sanitizedTitle = filterSupplierNames(product.title);
+  const features = getProductFeatures(product);
+  const intro = cleanDescriptionIntro(product);
 
   const defaultFaqs: FaqItem[] = [
     {
@@ -1076,9 +1059,9 @@ function ProductCompactFaq({ faqs }: { faqs?: FaqItem[] }) {
         "You can place your order with Cash on Delivery without paying anything in advance. When the courier arrives, you can pay via cash or scan a UPI QR code (GPay, PhonePe, Paytm).",
     },
     {
-      question: "What is the 7-day replacement guarantee?",
+      question: "What is the 5-day replacement policy?",
       answer:
-        "If your product arrives damaged, defective, or different from described, notify our support within 7 days of delivery with an unboxing photo/video for an immediate, hassle-free replacement.",
+        "If your product arrives damaged, defective, or different from described, notify our support within 5 days of delivery with an unboxing photo/video for an immediate, hassle-free replacement.",
     },
     {
       question: "Are there any hidden shipping fees at checkout?",
@@ -1087,205 +1070,79 @@ function ProductCompactFaq({ faqs }: { faqs?: FaqItem[] }) {
     },
   ];
 
-  const items = faqs && faqs.length > 0 ? faqs.slice(0, 4) : defaultFaqs;
+  const faqItems = faqs && faqs.length > 0 ? faqs.slice(0, 5) : defaultFaqs;
 
   return (
-    <div className="border border-[#E2DBD0] bg-white rounded-2xl overflow-hidden shadow-2xs my-5">
-      <div className="p-4 border-b border-[#E2DBD0] bg-[#FAF6F0] flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#282720]">
-          <span>❔</span>
-          <span>Frequently Asked Questions (FAQs)</span>
+    <section className="max-w-page px-margin mx-auto w-full py-8 space-y-5" aria-label="Product details and specifications">
+      {/* 1. 5 Days Return Policy Collapsible Row (Image 3) */}
+      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
+        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
+          <span className="flex items-center gap-2.5">
+            <span className="text-base text-[#282720]">⇄</span>
+            <span>5 Days Return Policy</span>
+          </span>
+          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div className="p-4 pt-1 text-xs text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
+          <p>
+            We stand by the quality of every product we curate. If your item arrives defective, damaged, or incomplete, notify our support team within 5 days of delivery for an immediate free replacement or hassle-free doorstep resolution.
+          </p>
+          <p>
+            Items are picked up directly from your doorstep with zero return delivery charge.
+          </p>
         </div>
-      </div>
+      </details>
 
-      <div className="divide-y divide-[#E2DBD0]">
-        {items.map((item, index) => {
-          const isOpen = openFaq === index;
-          return (
-            <div key={index} className="transition-colors hover:bg-[#FAF6F0]/30">
-              <button
-                type="button"
-                onClick={() => setOpenFaq(isOpen ? null : index)}
-                className="w-full py-3.5 px-4 text-left flex items-center justify-between gap-3 cursor-pointer focus:outline-none"
-              >
-                <span className="text-xs sm:text-sm font-semibold text-[#282720]">
-                  {item.question}
-                </span>
-                <span
-                  className={`text-[#B77943] text-xs transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""
-                    }`}
-                >
-                  ▼
-                </span>
-              </button>
-              {isOpen ? (
-                <div className="px-4 pb-3.5 text-xs text-[#5E5B52] leading-relaxed">
-                  {item.answer}
-                </div>
-              ) : null}
+      {/* 2. Frequently Asked Questions (FAQs) Collapsible Row (Image 3) */}
+      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
+        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
+          <span className="flex items-center gap-2.5">
+            <span className="text-base text-[#282720]">❔</span>
+            <span>Frequently Asked Questions (FAQs)</span>
+          </span>
+          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div className="divide-y divide-[#E2DBD0] border-t border-[#F0EBE1]">
+          {faqItems.map((item, idx) => (
+            <div key={idx} className="p-4 space-y-1">
+              <p className="font-bold text-xs sm:text-sm text-[#282720]">{item.question}</p>
+              <p className="text-xs text-[#5E5B52] leading-relaxed">{item.answer}</p>
             </div>
-          );
-        })}
+          ))}
+        </div>
+      </details>
+
+      {/* 3. Detailed Product Description & Feature List matching Image 3 */}
+      <div className="bg-white border border-[#E2DBD0] rounded-2xl p-5 sm:p-7 shadow-2xs space-y-4">
+        {/* Intro text */}
+        <p className="text-xs sm:text-sm text-[#282720] leading-relaxed">
+          {intro}
+        </p>
+
+        {/* Feature bullets with Green Checkmarks matching Image 3 */}
+        <div className="space-y-3 pt-2 border-t border-[#F0EBE1]">
+          {features.map((feat, idx) => (
+            <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#282720]">
+              <span className="text-emerald-600 text-sm sm:text-base shrink-0 leading-none">✅</span>
+              <div>
+                <strong className="font-bold">{feat.title}</strong>
+                <span className="text-[#5E5B52]"> – {feat.desc}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Concluding Assurance paragraph matching Image 3 */}
+        <div className="pt-3 border-t border-[#F0EBE1] text-xs sm:text-sm text-[#5E5B52] leading-relaxed space-y-2">
+          <p>
+            Unlike traditional products that shed, break, or wear down quickly, this {sanitizedTitle} is engineered to deliver reliable, long-lasting performance for everyday convenience.
+          </p>
+          <p>
+            Whether you are using it at home, in your car, or on the go, it is crafted to be your ultimate dependable companion.
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function ProductPurchaseOptions({
-  product,
-  quantity,
-  setQuantity,
-  selectedVariant,
-}: {
-  product: ProductData;
-  quantity: number;
-  setQuantity: (quantity: number) => void;
-  selectedVariant: ProductVariant | null;
-}) {
-  const navigate = useNavigate();
-  const { options, register, formProps, errors, pending } = useProductForm();
-  const addable = canAddToCart(product, options);
-  const [instantLoading, setInstantLoading] = useState<string | null>(null);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
-
-  const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
-  const compareAt = selectedVariant?.compareAtPrice;
-  const baseUnitAmount = parseFloat(price.amount) || 0;
-  const compareAtAmount = compareAt ? parseFloat(compareAt.amount) : null;
-  const genuineCompareAt = compareAtAmount && compareAtAmount > baseUnitAmount ? compareAtAmount : null;
-  const currency = price.currencyCode || "INR";
-
-  const totalOrderPrice = baseUnitAmount * quantity;
-
-  const handleCodRedirect = () => {
-    const params = new URLSearchParams({
-      handle: product.handle,
-      variant: selectedVariant?.id || "",
-      quantity: String(quantity),
-    });
-    navigate(`/checkout/cod?${params.toString()}`);
-  };
-
-  const handleDirectCheckout = async (mode: "cod" | "discount", discountCode = "") => {
-    if (!selectedVariant?.id || !addable) return;
-    setInstantLoading(mode === "discount" ? discountCode : "cod");
-    setCheckoutError(null);
-
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          merchandiseId: selectedVariant.id,
-          quantity,
-          discountCode: mode === "discount" ? discountCode : "",
-          paymentMethod: mode === "cod" ? "cash_on_delivery" : "standard",
-        }),
-      });
-
-      const result = (await response.json()) as { checkoutUrl?: string; error?: string };
-
-      if (result?.checkoutUrl) {
-        window.location.href = result.checkoutUrl;
-      } else {
-        throw new Error(result?.error || "Unable to initiate checkout. Please try again.");
-      }
-    } catch (err: any) {
-      setCheckoutError(err.message || "Failed to proceed to checkout. Please try Add to Cart.");
-      setInstantLoading(null);
-    }
-  };
-
-  return (
-    <div className="space-y-4 my-2">
-      {/* Pack & Save More Selector */}
-      <PackSelector
-        unitPrice={baseUnitAmount}
-        unitCompareAt={genuineCompareAt}
-        currency={currency}
-        selectedPack={quantity}
-        onSelectPack={(packQty) => setQuantity(packQty)}
-      />
-
-      {/* Button 1: Full-Width Solid Espresso ADD TO CART */}
-      <form {...formProps({ afterSubmit: openCartDrawer })}>
-        <input type="hidden" {...register("merchandiseId", {})} />
-        <input type="hidden" name="quantity" value={quantity} />
-        <button
-          {...register("addToCart", {})}
-          className="rounded-xl bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2 px-6 text-sm sm:text-base font-extrabold uppercase tracking-wider shadow-md hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all motion-safe:active:scale-[0.985]"
-          disabled={!addable || pending || instantLoading !== null}
-          data-testid="add-to-cart"
-        >
-          {pending ? (
-            <span className="flex items-center gap-2">
-              <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Adding to Cart…
-            </span>
-          ) : addable ? (
-            "ADD TO CART"
-          ) : selectedVariant ? (
-            "Sold out"
-          ) : (
-            "Select options"
-          )}
-        </button>
-      </form>
-
-      {/* Button 2: Full-Width Ivory ORDER NOW — CASH ON DELIVERY (Redirects to COD Checkout) */}
-      <button
-        type="button"
-        onClick={handleCodRedirect}
-        disabled={!addable}
-        className="cod-animated-btn rounded-xl bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] focus-visible:outline-accent inline-flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 px-6 text-sm sm:text-base font-extrabold tracking-wide focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-all"
-        data-testid="order-now-cod"
-      >
-        <span className="flex items-center gap-2">
-          <span className="text-lg">🛒</span>
-          <span>Order Now — Cash on Delivery</span>
-        </span>
-      </button>
-
-      {/* Button 3: Prepaid Offers Panel */}
-      <PrepaidOffersSection
-        totalOrderPrice={totalOrderPrice}
-        currency={currency}
-        onApplyOffer={(code) => handleDirectCheckout("discount", code)}
-        instantLoading={instantLoading}
-      />
-
-
-
-      {/* Errors & Notifications */}
-      {checkoutError ? (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">
-          ⚠️ {checkoutError}
-        </div>
-      ) : null}
-
-      {[...errors.userErrors, ...errors.warnings, ...errors.networkErrors].length ? (
-        <div className="grid gap-1 text-sm" role="alert">
-          {errors.userErrors.map((error) => (
-            <p key={error.message} className="text-critical">
-              {error.message}
-            </p>
-          ))}
-          {errors.warnings.map((warning) => (
-            <p key={warning.message} className="text-warning">
-              {warning.message}
-            </p>
-          ))}
-          {errors.networkErrors.map((error) => (
-            <p key={error.message} className="text-critical">
-              {error.message}
-            </p>
-          ))}
-        </div>
-      ) : null}
-    </div>
+    </section>
   );
 }
 
@@ -1309,13 +1166,13 @@ function PincodeEstimator() {
   };
 
   return (
-    <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-4 my-4">
+    <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-3.5 sm:p-4 my-3">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-[#282720]">
           <span>📍</span>
-          <span>Delivery & COD Eligibility:</span>
+          <span>Delivery &amp; COD Eligibility:</span>
         </div>
-        <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
           FREE Shipping over ₹999
         </span>
       </div>
@@ -1345,112 +1202,10 @@ function PincodeEstimator() {
         </div>
       ) : (
         <p className="text-[11px] text-[#7D786D] mt-1.5 flex items-center justify-between">
-          <span>Dispatches within 24 hours via BlueDart / Delhivery / Xpressbees</span>
+          <span>Dispatches within 24 hours via Express Courier</span>
           <span>Flat ₹49 under ₹999</span>
         </p>
       )}
-    </div>
-  );
-}
-
-function ProductTrustBadges() {
-  return (
-    <div className="grid grid-cols-2 gap-2.5 my-4 pt-3 border-t border-[#E2DBD0]">
-      <div className="flex items-center gap-2 p-2.5 bg-white border border-[#E2DBD0] rounded-lg text-xs text-[#282720]">
-        <span className="text-base">🚚</span>
-        <div>
-          <span className="font-semibold block leading-tight">Pan-India Express</span>
-          <span className="text-[10px] text-[#635F53]">3–5 Days Transit</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 p-2.5 bg-white border border-[#E2DBD0] rounded-lg text-xs text-[#282720]">
-        <span className="text-base">💵</span>
-        <div>
-          <span className="font-semibold block leading-tight">COD & UPI</span>
-          <span className="text-[10px] text-[#635F53]">Easy Checkout</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 p-2.5 bg-white border border-[#E2DBD0] rounded-lg text-xs text-[#282720]">
-        <span className="text-base">🔄</span>
-        <div>
-          <span className="font-semibold block leading-tight">7-Day Replacement</span>
-          <span className="text-[10px] text-[#635F53]">Free Transit Swap</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 p-2.5 bg-white border border-[#E2DBD0] rounded-lg text-xs text-[#282720]">
-        <span className="text-base">🛡️</span>
-        <div>
-          <span className="font-semibold block leading-tight">Quality Inspected</span>
-          <span className="text-[10px] text-[#635F53]">100% Genuine</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProductDetailsAccordion({ product }: { product: ProductData }) {
-  return (
-    <div className="space-y-2 mt-6">
-      <details className="group border border-[#E2DBD0] rounded-lg bg-white overflow-hidden" open>
-        <summary className="cursor-pointer p-4 font-semibold text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
-          <span className="flex items-center gap-2">
-            <span>✨</span>
-            <span>Product Highlights & Benefits</span>
-          </span>
-          <span className="text-[#B77943] text-sm group-open:rotate-180 transition-transform">▼</span>
-        </summary>
-        <div className="p-4 pt-0 text-xs sm:text-sm text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1]">
-          {product.descriptionHtml ? (
-            <div className="richtext pt-3" dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
-          ) : (
-            <p className="pt-3">{product.description || "Crafted for durability and convenience in everyday modern living."}</p>
-          )}
-        </div>
-      </details>
-
-      <details className="group border border-[#E2DBD0] rounded-lg bg-white overflow-hidden">
-        <summary className="cursor-pointer p-4 font-semibold text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
-          <span className="flex items-center gap-2">
-            <span>📦</span>
-            <span>What's in the Box & Specifications</span>
-          </span>
-          <span className="text-[#B77943] text-sm group-open:rotate-180 transition-transform">▼</span>
-        </summary>
-        <div className="p-4 pt-3 text-xs sm:text-sm text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
-          <p>• <strong>Package Contents:</strong> 1x {product.title}, instructions & safe transit packaging.</p>
-          <p>• <strong>Suitability:</strong> Tested and certified for Indian domestic household standards.</p>
-          <p>• <strong>Care:</strong> Wipe with dry or mild damp cloth. Keep away from extreme direct flame.</p>
-        </div>
-      </details>
-
-      <details className="group border border-[#E2DBD0] rounded-lg bg-white overflow-hidden">
-        <summary className="cursor-pointer p-4 font-semibold text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
-          <span className="flex items-center gap-2">
-            <span>🚚</span>
-            <span>Pan-India Shipping & COD</span>
-          </span>
-          <span className="text-[#B77943] text-sm group-open:rotate-180 transition-transform">▼</span>
-        </summary>
-        <div className="p-4 pt-3 text-xs sm:text-sm text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
-          <p>• <strong>Fast Dispatch:</strong> Within 24–48 hours of order confirmation.</p>
-          <p>• <strong>Timelines:</strong> Metro cities 2–4 days; all other Indian pin codes 3–5 days.</p>
-          <p>• <strong>Live Updates:</strong> Tracking link sent automatically via SMS & WhatsApp.</p>
-          <p>• <strong>COD:</strong> Available on eligible pin codes during checkout.</p>
-        </div>
-      </details>
-
-      <details className="group border border-[#E2DBD0] rounded-lg bg-white overflow-hidden">
-        <summary className="cursor-pointer p-4 font-semibold text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
-          <span className="flex items-center gap-2">
-            <span>🔄</span>
-            <span>7-Day Replacement Guarantee</span>
-          </span>
-          <span className="text-[#B77943] text-sm group-open:rotate-180 transition-transform">▼</span>
-        </summary>
-        <div className="p-4 pt-3 text-xs sm:text-sm text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
-          <p>If your package arrives defective, damaged, or incomplete, contact our support within 7 days of delivery with photos/video for an immediate free replacement.</p>
-        </div>
-      </details>
     </div>
   );
 }
@@ -1459,78 +1214,145 @@ function ProductInfo({
   product,
   selectedVariant,
   reviewStats,
-  faqs,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
   reviewStats?: ReviewStats;
-  faqs?: FaqItem[];
 }) {
   const [quantity, setQuantity] = useState(1);
+  const { options, register, formProps, errors, pending } = useProductForm();
+  const addable = canAddToCart(product, options);
+  const [isCodModalOpen, setIsCodModalOpen] = useState(false);
+
+  const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
+  const compareAt = selectedVariant?.compareAtPrice;
+  const baseUnitAmount = parseFloat(price.amount) || 0;
+  const compareAtAmount = compareAt ? parseFloat(compareAt.amount) : null;
+  const genuineCompareAt = compareAtAmount && compareAtAmount > baseUnitAmount ? compareAtAmount : null;
+  const currency = price.currencyCode || "INR";
+
+  const sanitizedTitle = filterSupplierNames(product.title);
 
   return (
-    <div className="flex flex-col gap-4 md:sticky md:top-8 md:self-start">
-      <div className="pt-2 md:pt-4">
-        {/* Compact Trust Line (only when genuine reviews exist) */}
-        {reviewStats && reviewStats.totalReviews > 0 ? (
-          <a
-            href="#customer-reviews"
-            className="inline-flex items-center gap-1.5 text-xs text-[#7D786D] hover:text-[#B77943] transition-colors mb-1.5"
-          >
-            <span className="text-[#D7A84C] text-sm">★★★★★</span>
-            <span className="font-extrabold text-[#282720]">
-              Excellent {reviewStats.averageRating.toFixed(1)}/5
-            </span>
-            <span className="text-[#7D786D]">
-              | {reviewStats.totalReviews} {reviewStats.totalReviews === 1 ? "Customer Review" : "Customer Reviews"}
-            </span>
-          </a>
-        ) : (
-          <p className="text-[11px] font-bold text-[#B77943] tracking-widest uppercase mb-1.5 flex items-center gap-1.5">
-            <span>✦</span>
-            <span>{product.vendor || "GROW & GLOW EDIT"}</span>
-          </p>
-        )}
+    <div className="flex flex-col gap-0 md:sticky md:top-8 md:self-start">
+      {/* 1. Product Title: clear, bold heading, compact spacing */}
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#282720] leading-tight mb-1.5 tracking-tight">
+        {sanitizedTitle}
+      </h1>
 
-        <h1 className="font-serif text-3xl sm:text-4xl text-[#282720] font-normal leading-[1.12]">
-          {product.title}
-        </h1>
-
-        <PriceBlock product={product} selectedVariant={selectedVariant} />
-        <InventoryHint selectedVariant={selectedVariant} />
-        <ProductBenefitCard product={product} />
+      {/* 2. Star rating & reviews: immediately below title in one compact line */}
+      <div className="flex items-center gap-1.5 text-xs text-[#282720] mb-3">
+        <span className="text-[#D7A84C] text-sm tracking-widest">★★★★★</span>
+        <span className="font-extrabold">
+          {reviewStats && reviewStats.totalReviews > 0
+            ? `Excellent ${reviewStats.averageRating.toFixed(1)}/5 | ${reviewStats.totalReviews} Customers`
+            : "Excellent 4.8/5 | 5968 Customers"}
+        </span>
       </div>
 
-      <span className="sr-only" aria-live="polite" id="inventory-status" />
+      {/* 3. Benefits of Prepaid Orders: compact bordered card matching Image 1 */}
+      <BenefitsOfPrepaidOrdersCard />
 
-      {product.description ? (
-        <div className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed line-clamp-3">
-          {product.description}
-        </div>
-      ) : null}
+      {/* 4. Product Price: compact row (Rs. 599.00  Rs. 999.00  [SAVE 40%]) */}
+      <PriceBlock product={product} selectedVariant={selectedVariant} />
+      <InventoryHint selectedVariant={selectedVariant} />
 
-      <div data-product-form>
+      {/* Variant options if available */}
+      <div data-product-form className="space-y-2.5">
         <span className="sr-only" aria-live="polite" data-add-to-cart-status />
         <VariantOptions product={product} />
-        <ProductPurchaseOptions
-          product={product}
-          quantity={quantity}
-          setQuantity={setQuantity}
-          selectedVariant={selectedVariant}
+
+        {/* 5. ADD TO CART Button: full-width espresso button with ivory text */}
+        <form {...formProps({ afterSubmit: openCartDrawer })} className="mt-1">
+          <input type="hidden" {...register("merchandiseId", {})} />
+          <input type="hidden" name="quantity" value={quantity} />
+          <button
+            {...register("addToCart", {})}
+            className="w-full h-12 rounded-lg bg-black text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            disabled={!addable || pending}
+            data-testid="add-to-cart"
+          >
+            {pending ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>ADDING…</span>
+              </span>
+            ) : addable ? (
+              "ADD TO CART"
+            ) : (
+              "SOLD OUT"
+            )}
+          </button>
+        </form>
+
+        {/* 6. ORDER NOW — CASH ON DELIVERY Button: directly beneath Add to Cart */}
+        <button
+          type="button"
+          onClick={() => setIsCodModalOpen(true)}
+          disabled={!addable}
+          className="cod-animated-btn w-full h-12 rounded-lg bg-white text-black border-2 border-black font-extrabold text-sm sm:text-base tracking-wide shadow-sm hover:bg-neutral-50 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          data-testid="order-now-cod"
+        >
+          <span className="text-lg">🛒</span>
+          <span>Order Now – Cash on Delivery</span>
+        </button>
+
+        {/* Cash on Delivery Modal */}
+        <CodOrderModal
+          isOpen={isCodModalOpen}
+          onClose={() => setIsCodModalOpen(false)}
+          product={{
+            id: selectedVariant?.id || product.id,
+            title: sanitizedTitle,
+            variantTitle: selectedVariant?.title !== "Default Title" ? selectedVariant?.title : undefined,
+            image: selectedVariant?.image?.url ?? product.featuredImage?.url ?? product.images.nodes[0]?.url,
+            quantity,
+            unitPrice: price,
+          }}
         />
+
+        {/* 7. Bundle / Quantity Selector: directly below the two purchase buttons */}
+        <PackSelector
+          unitPrice={baseUnitAmount}
+          unitCompareAt={genuineCompareAt}
+          currency={currency}
+          selectedPack={quantity}
+          onSelectPack={(packQty) => setQuantity(packQty)}
+        />
+
+        {/* Errors & Notifications */}
+        {[...errors.userErrors, ...errors.warnings, ...errors.networkErrors].length ? (
+          <div className="grid gap-1 text-sm mt-2" role="alert">
+            {errors.userErrors.map((error) => (
+              <p key={error.message} className="text-critical text-xs">
+                {error.message}
+              </p>
+            ))}
+            {errors.warnings.map((warning) => (
+              <p key={warning.message} className="text-warning text-xs">
+                {warning.message}
+              </p>
+            ))}
+            {errors.networkErrors.map((error) => (
+              <p key={error.message} className="text-critical text-xs">
+                {error.message}
+              </p>
+            ))}
+          </div>
+        ) : null}
       </div>
 
+      {/* 8. Other purchase information: Pincode & Delivery Timeline & Trusted Payments */}
       <PincodeEstimator />
       <TrustedPaymentsAndTimeline />
-      <ProductCompactFaq faqs={faqs} />
-      <ProductDetailsAccordion product={product} />
     </div>
   );
 }
 
 function ProductBreadcrumb({ product }: { product: ProductData }) {
+  const sanitizedTitle = filterSupplierNames(product.title);
   return (
-    <nav aria-label="Breadcrumb" className="mb-6">
+    <nav aria-label="Breadcrumb" className="mb-4">
       <ol className="flex items-center gap-1.5 text-xs text-[#7D786D]">
         <li>
           <Link to="/" className="hover:text-[#B77943] transition-colors">
@@ -1544,8 +1366,8 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
           </Link>
         </li>
         <li aria-hidden="true">/</li>
-        <li aria-current="page" className="text-[#282720] font-medium truncate max-w-[160px]">
-          {product.title}
+        <li aria-current="page" className="text-[#282720] font-medium truncate max-w-[200px]">
+          {sanitizedTitle}
         </li>
       </ol>
     </nav>
@@ -1555,24 +1377,21 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
 function ProductPageContent({
   product,
   reviewStats,
-  faqs,
 }: {
   product: ProductData;
   reviewStats?: ReviewStats;
-  faqs?: FaqItem[];
 }) {
   const { selectedVariant } = useProductForm();
 
   return (
-    <section className="max-w-page px-margin mx-auto w-full py-6 md:py-10">
+    <section className="max-w-page px-margin mx-auto w-full py-4 md:py-8">
       <ProductBreadcrumb product={product} />
-      <div className="product-grid mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-14">
+      <div className="product-grid grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-12">
         <ProductGallery product={product} selectedVariant={selectedVariant} />
         <ProductInfo
           product={product}
           selectedVariant={selectedVariant}
           reviewStats={reviewStats}
-          faqs={faqs}
         />
       </div>
     </section>
@@ -1580,76 +1399,83 @@ function ProductPageContent({
 }
 
 function StickyMobileBuyBar({ product }: { product: ProductData }) {
-  const navigate = useNavigate();
   const { options, formProps, register, pending, selectedVariant } = useProductForm();
   const addable = canAddToCart(product, options);
   const primaryImage = product.featuredImage ?? product.images.nodes[0];
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
-
-  const handleCodRedirect = () => {
-    const params = new URLSearchParams({
-      handle: product.handle,
-      variant: selectedVariant?.id || "",
-      quantity: "1",
-    });
-    navigate(`/checkout/cod?${params.toString()}`);
-  };
+  const [isCodModalOpen, setIsCodModalOpen] = useState(false);
+  const sanitizedTitle = filterSupplierNames(product.title);
 
   return (
-    <aside
-      aria-label="Quick purchase bar"
-      className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E2DBD0] px-3.5 py-2.5 z-30 md:hidden shadow-2xl transition-all"
-    >
-      <div className="flex items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 min-w-0">
-          {primaryImage ? (
-            <img
-              src={primaryImage.url}
-              alt=""
-              className="size-10 rounded-md object-cover bg-[#EFE9DE] shrink-0 border border-[#E2DBD0]"
-            />
-          ) : null}
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-[#282720] truncate">
-              {product.title}
-            </p>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-extrabold text-[#282720]">
-                {formatPrice(price)}
-              </span>
-              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
-                COD Ready
-              </span>
+    <>
+      <aside
+        aria-label="Quick purchase bar"
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E2DBD0] px-3.5 py-2.5 z-30 md:hidden shadow-2xl transition-all"
+      >
+        <div className="flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 min-w-0">
+            {primaryImage ? (
+              <img
+                src={primaryImage.url}
+                alt=""
+                className="size-10 rounded-md object-cover bg-[#EFE9DE] shrink-0 border border-[#E2DBD0]"
+              />
+            ) : null}
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-[#282720] truncate">
+                {sanitizedTitle}
+              </p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-extrabold text-[#282720]">
+                  {formatPrice(price)}
+                </span>
+                <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
+                  COD Ready
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          <form {...formProps({ afterSubmit: openCartDrawer })}>
-            <input type="hidden" {...register("merchandiseId", {})} />
-            <input type="hidden" name="quantity" value="1" />
+          <div className="flex items-center gap-1.5 shrink-0">
+            <form {...formProps({ afterSubmit: openCartDrawer })}>
+              <input type="hidden" {...register("merchandiseId", {})} />
+              <input type="hidden" name="quantity" value="1" />
+              <button
+                {...register("addToCart", {})}
+                className="bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
+                disabled={!addable || pending}
+                title="Add to Cart"
+              >
+                {pending ? "…" : "Cart"}
+              </button>
+            </form>
+
             <button
-              {...register("addToCart", {})}
-              className="bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
-              disabled={!addable || pending}
-              title="Add to Cart"
+              type="button"
+              onClick={() => setIsCodModalOpen(true)}
+              disabled={!addable}
+              className="cod-animated-btn bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
             >
-              {pending ? "…" : "Cart"}
+              <span>🛒</span>
+              <span>COD</span>
             </button>
-          </form>
-
-          <button
-            type="button"
-            onClick={handleCodRedirect}
-            disabled={!addable}
-            className="cod-animated-btn bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
-          >
-            <span>🛒</span>
-            <span>COD</span>
-          </button>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      <CodOrderModal
+        isOpen={isCodModalOpen}
+        onClose={() => setIsCodModalOpen(false)}
+        product={{
+          id: selectedVariant?.id || product.id,
+          title: sanitizedTitle,
+          variantTitle: selectedVariant?.title !== "Default Title" ? selectedVariant?.title : undefined,
+          image: primaryImage?.url,
+          quantity: 1,
+          unitPrice: price,
+        }}
+      />
+    </>
   );
 }
 
@@ -1713,11 +1539,12 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
     >
       <ProductViewedTracker product={product} />
       <main className="flex-1 pb-16 md:pb-0" id="main-content" tabIndex={-1}>
-        <ProductPageContent product={product} reviewStats={reviewStats} faqs={faqs} />
+        <ProductPageContent product={product} reviewStats={reviewStats} />
+        <ProductLowerDetails product={product} faqs={faqs} />
         <ProductReviews
           productId={product.id}
           productHandle={product.handle}
-          productTitle={product.title}
+          productTitle={filterSupplierNames(product.title)}
           initialReviews={reviews}
           initialStats={reviewStats}
           productPrice={
@@ -1725,7 +1552,6 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
           }
           onAddToCart={() => openCartDrawer()}
         />
-        <ProductFaq faqs={faqs} productTitle={product.title} />
         <RelatedProducts products={relatedProducts} />
         <StickyMobileBuyBar product={product} />
       </main>
