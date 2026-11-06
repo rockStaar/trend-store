@@ -1074,45 +1074,7 @@ function ProductLowerDetails({
 
   return (
     <section className="max-w-page px-margin mx-auto w-full py-8 space-y-5" aria-label="Product details and specifications">
-      {/* 1. 5 Days Return Policy Collapsible Row (Image 3) */}
-      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
-        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
-          <span className="flex items-center gap-2.5">
-            <span className="text-base text-[#282720]">⇄</span>
-            <span>5 Days Return Policy</span>
-          </span>
-          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
-        </summary>
-        <div className="p-4 pt-1 text-xs text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
-          <p>
-            We stand by the quality of every product we curate. If your item arrives defective, damaged, or incomplete, notify our support team within 5 days of delivery for an immediate free replacement or hassle-free doorstep resolution.
-          </p>
-          <p>
-            Items are picked up directly from your doorstep with zero return delivery charge.
-          </p>
-        </div>
-      </details>
-
-      {/* 2. Frequently Asked Questions (FAQs) Collapsible Row (Image 3) */}
-      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
-        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
-          <span className="flex items-center gap-2.5">
-            <span className="text-base text-[#282720]">❔</span>
-            <span>Frequently Asked Questions (FAQs)</span>
-          </span>
-          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
-        </summary>
-        <div className="divide-y divide-[#E2DBD0] border-t border-[#F0EBE1]">
-          {faqItems.map((item, idx) => (
-            <div key={idx} className="p-4 space-y-1">
-              <p className="font-bold text-xs sm:text-sm text-[#282720]">{item.question}</p>
-              <p className="text-xs text-[#5E5B52] leading-relaxed">{item.answer}</p>
-            </div>
-          ))}
-        </div>
-      </details>
-
-      {/* 3. Detailed Product Description & Feature List matching Image 3 */}
+      {/* 1. Detailed Product Description & Feature List */}
       <div className="bg-white border border-[#E2DBD0] rounded-2xl p-5 sm:p-7 shadow-2xs space-y-4">
         {/* Intro text */}
         <p className="text-xs sm:text-sm text-[#282720] leading-relaxed">
@@ -1142,6 +1104,44 @@ function ProductLowerDetails({
           </p>
         </div>
       </div>
+
+      {/* 2. 5 Days Return Policy Collapsible Row */}
+      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
+        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
+          <span className="flex items-center gap-2.5">
+            <span className="text-base text-[#282720]">⇄</span>
+            <span>5 Days Return Policy</span>
+          </span>
+          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div className="p-4 pt-1 text-xs text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
+          <p>
+            We stand by the quality of every product we curate. If your item arrives defective, damaged, or incomplete, notify our support team within 5 days of delivery for an immediate free replacement or hassle-free doorstep resolution.
+          </p>
+          <p>
+            Items are picked up directly from your doorstep with zero return delivery charge.
+          </p>
+        </div>
+      </details>
+
+      {/* 3. Frequently Asked Questions (FAQs) Collapsible Row */}
+      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
+        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
+          <span className="flex items-center gap-2.5">
+            <span className="text-base text-[#282720]">❔</span>
+            <span>Frequently Asked Questions (FAQs)</span>
+          </span>
+          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div className="divide-y divide-[#E2DBD0] border-t border-[#F0EBE1]">
+          {faqItems.map((item, idx) => (
+            <div key={idx} className="p-4 space-y-1">
+              <p className="font-bold text-xs sm:text-sm text-[#282720]">{item.question}</p>
+              <p className="text-xs text-[#5E5B52] leading-relaxed">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </details>
     </section>
   );
 }
