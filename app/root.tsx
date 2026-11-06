@@ -12,7 +12,11 @@ import {
   useRouteLoaderData,
 } from "react-router";
 
-import { CartAnalyticsTracker, PageViewedTracker } from "~/components/AnalyticsTrackers";
+import {
+  CartAnalyticsTracker,
+  MetaPixelScript,
+  PageViewedTracker,
+} from "~/components/AnalyticsTrackers";
 import { AnnouncementBar } from "~/components/AnnouncementBar";
 import { CartDrawer } from "~/components/CartDrawer";
 import { Footer } from "~/components/Footer";
@@ -136,6 +140,7 @@ export function Layout({ children }: { children: ReactNode }) {
         ) : null}
         <Meta />
         <Links />
+        <MetaPixelScript />
       </head>
       <body className="bg-surface text-on-surface font-body flex min-h-svh flex-col antialiased">
         <a

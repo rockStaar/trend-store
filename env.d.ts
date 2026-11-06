@@ -19,4 +19,14 @@ declare module "react-router" {
 
 declare global {
   interface Env extends AppEnv {}
+
+  interface Window {
+    fbq?: {
+      (...args: unknown[]): void;
+      q?: unknown[];
+      loaded?: boolean;
+      version?: string;
+    };
+    _fbq?: unknown;
+  }
 }
