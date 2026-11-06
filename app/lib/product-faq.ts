@@ -102,11 +102,11 @@ export function getProductFaqs(product: ProductFaqInput): FaqItem[] {
     {
       question: "What is your replacement and warranty policy?",
       answer:
-        "Grow & Glow provides a 7-Day Hassle-Free Free Replacement Guarantee. If your order arrives damaged, defective, or not working as expected, simply contact our WhatsApp support team with a short unboxing video or photo, and we will dispatch a brand-new replacement promptly.",
+        "HypeeeCart provides a 7-Day Hassle-Free Free Replacement Guarantee. If your order arrives damaged, defective, or not working as expected, simply contact our WhatsApp support team with a short unboxing video or photo, and we will dispatch a brand-new replacement promptly.",
       category: "warranty",
     },
     {
-      question: "How can I contact Grow & Glow customer care?",
+      question: "How can I contact HypeeeCart customer care?",
       answer:
         "You can chat with our customer support directly via WhatsApp or email us at support@growandglow.in. Our dedicated team is available Monday to Saturday from 10:00 AM to 6:00 PM IST to assist with orders, tracking, and product queries.",
       category: "warranty",

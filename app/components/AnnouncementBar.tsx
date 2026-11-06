@@ -6,12 +6,12 @@ interface Announcement {
   highlight?: string;
 }
 
-// Grow&Glow promotional and shipping announcements
+// Store promotional and shipping announcements
 const ANNOUNCEMENTS: Announcement[] = [
   {
     id: "shipping",
-    text: "🚚 Free Express Delivery across India on orders above",
-    highlight: "₹999",
+    text: "🚚 100% Free Express Delivery across India on",
+    highlight: "ALL Orders",
   },
   {
     id: "dispatch",
@@ -21,7 +21,7 @@ const ANNOUNCEMENTS: Announcement[] = [
   {
     id: "discount",
     text: "✨ Flat ₹150 OFF on your first prepaid order — use code",
-    highlight: "GROWGLOW150",
+    highlight: "HYPE150",
   },
 ];
 

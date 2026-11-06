@@ -36,7 +36,7 @@ export function MobileNav() {
         <div className="flex-1 overflow-y-auto px-5 py-6">
           <nav aria-label="Mobile navigation">
             <p className="text-xs uppercase font-semibold text-[#B77943] tracking-wider mb-3">
-              Explore Collections
+              Explore HypeeeCart
             </p>
             <ul role="list" className="flex flex-col space-y-1">
               <li>
@@ -64,6 +64,26 @@ export function MobileNav() {
               </li>
               <li>
                 <Link
+                  to="/#essentials"
+                  className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
+                  onClick={() => closeMobileNavDrawer()}
+                >
+                  <span>Home Essentials</span>
+                  <span className="text-xs text-[#7D786D]">Practical</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/#problem-solvers"
+                  className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
+                  onClick={() => closeMobileNavDrawer()}
+                >
+                  <span>Gadgets &amp; Accessories</span>
+                  <span className="text-xs text-[#7D786D]">Viral Finds</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/collections"
                   className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
                   onClick={() => closeMobileNavDrawer()}
@@ -74,12 +94,12 @@ export function MobileNav() {
               </li>
               <li>
                 <Link
-                  to="/#problem-solvers"
+                  to="/#why-us"
                   className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
                   onClick={() => closeMobileNavDrawer()}
                 >
-                  <span>Smart Problem Solvers</span>
-                  <span className="text-xs text-[#7D786D]">Viral Finds</span>
+                  <span>Why HypeeeCart</span>
+                  <span className="text-xs text-[#7D786D]">Our Promise</span>
                 </Link>
               </li>
             </ul>

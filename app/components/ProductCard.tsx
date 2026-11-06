@@ -83,7 +83,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           </div>
         ) : (
           <div className="h-full w-full flex items-center justify-center bg-[#FAF6F0] text-[#7D786D] text-sm">
-            <span>🌿 Grow &amp; Glow</span>
+            <span>⚡ HypeeeCart</span>
           </div>
         )}
 

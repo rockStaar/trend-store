@@ -62,10 +62,10 @@ const HOME_QUERY = gql(
 export function meta({ matches }: Route.MetaArgs) {
   const shopName = getShopNameFromRootMatch(matches[0]);
   return [
-    { title: formatPageTitle("Little Things. Better Living.", shopName) },
+    { title: formatPageTitle("Trending Finds. Everyday Wins.", shopName || "HypeeeCart") },
     {
       name: "description",
-      content: `Grow & Glow — thoughtfully chosen essentials for your everyday glow. Curated wellness rituals, artisanal home accents, and lifestyle discoveries with Pan-India delivery, COD & UPI.`,
+      content: `HypeeeCart — Trending Finds. Everyday Wins. Explore clever home essentials, practical everyday upgrades, and trending gadgets with Pan-India delivery and Cash on Delivery.`,
     },
   ];
 }
@@ -90,7 +90,58 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section: Curated Best Sellers Carousel (Editorial discovery with filter pills)
+// Section: Benefits & Assurance Strip (Pan-India, COD, Replacements, Quality)
+// ─────────────────────────────────────────────────────────────────────────────
+function BenefitsStrip() {
+  return (
+    <div className="w-full bg-white border-b border-[#E2DBD0] py-4 sm:py-5 shadow-2xs">
+      <div className="max-w-page px-margin mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-full bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center text-lg text-[#B77943] shrink-0">
+            🚚
+          </div>
+          <div>
+            <p className="text-xs sm:text-sm font-bold text-[#282720]">Pan-India Delivery</p>
+            <p className="text-[11px] text-[#5E5B52]">Dispatches in 24h • 3–5 days transit</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-full bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center text-lg text-[#B77943] shrink-0">
+            💵
+          </div>
+          <div>
+            <p className="text-xs sm:text-sm font-bold text-[#282720]">Cash on Delivery</p>
+            <p className="text-[11px] text-[#5E5B52]">Pay at your doorstep with Cash or UPI</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-full bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center text-lg text-[#B77943] shrink-0">
+            🔄
+          </div>
+          <div>
+            <p className="text-xs sm:text-sm font-bold text-[#282720]">Easy Returns</p>
+            <p className="text-[11px] text-[#5E5B52]">7-Day hassle-free replacement</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-full bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center text-lg text-[#B77943] shrink-0">
+            🛡️
+          </div>
+          <div>
+            <p className="text-xs sm:text-sm font-bold text-[#282720]">100% Quality Checked</p>
+            <p className="text-[11px] text-[#5E5B52]">Inspected before packaging</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section: Curated Trending Finds Carousel (Editorial discovery with filter pills)
 // ─────────────────────────────────────────────────────────────────────────────
 function BestSellersSection({
   products,
@@ -133,25 +184,25 @@ function BestSellersSection({
 
   return (
     <section
-      id="best-sellers"
+      id="trending"
       className="w-full py-16 md:py-24 bg-[#F7F3EC] border-b border-[#E2DBD0] scroll-mt-20"
-      aria-labelledby="bestsellers-heading"
+      aria-labelledby="trending-heading"
     >
       <div className="max-w-page px-margin mx-auto">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-[11px] uppercase font-bold tracking-widest text-[#B77943] block mb-1.5">
-              DISCOVER OUR EDIT
+              TOP TRENDING IN INDIA
             </span>
             <h2
-              id="bestsellers-heading"
-              className="font-serif italic text-3xl sm:text-4xl lg:text-5xl font-normal text-[#282720]"
+              id="trending-heading"
+              className="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#282720] tracking-tight"
             >
-              Our Best Sellers
+              Trending Finds
             </h2>
             <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 max-w-xl leading-relaxed">
-              Thoughtfully formulated rituals and mindful home essentials, hand-picked for your everyday glow.
+              Clever problem-solvers and practical everyday essentials hand-picked to make life smoother.
             </p>
           </div>
 
@@ -160,7 +211,7 @@ function BestSellersSection({
               to="/collections"
               className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1.5 transition-colors group"
             >
-              <span>Shop All</span>
+              <span>Shop All Finds</span>
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </Link>
 
@@ -190,7 +241,7 @@ function BestSellersSection({
         <div
           className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 scrollbar-none"
           role="tablist"
-          aria-label="Filter best sellers by category"
+          aria-label="Filter trending finds by category"
         >
           {categoryFilters.map((cat) => {
             const isActive = selectedCategory === cat;
@@ -231,7 +282,7 @@ function BestSellersSection({
           </ul>
         ) : (
           <div className="bg-white rounded-2xl border border-[#E2DBD0] p-10 text-center">
-            <span className="text-3xl mb-2 block">🌿</span>
+            <span className="text-3xl mb-2 block">⚡</span>
             <p className="font-heading font-bold text-base text-[#282720]">
               No products found in this category
             </p>
@@ -243,7 +294,7 @@ function BestSellersSection({
               onClick={() => setSelectedCategory("All")}
               className="bg-[#B77943] text-white px-5 py-2 rounded-lg text-xs font-semibold cursor-pointer"
             >
-              View All Products
+              View All Finds
             </button>
           </div>
         )}
@@ -253,7 +304,7 @@ function BestSellersSection({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section: Configurable Featured Problem-Solver Showcase (Meta Ads Focus)
+// Section: Configurable Featured Problem-Solver Showcase
 // ─────────────────────────────────────────────────────────────────────────────
 function FeaturedProductCampaign({ product }: { product: ProductCardData | undefined }) {
   if (!product) return null;
@@ -269,12 +320,12 @@ function FeaturedProductCampaign({ product }: { product: ProductCardData | undef
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white rounded-2xl border border-[#E2DBD0] p-6 sm:p-10 shadow-sm">
           {/* Visual Showcase */}
           <div className="lg:col-span-5">
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-[#EFE9DE] border border-[#E2DBD0]">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center p-4">
               {image ? (
                 <img
                   src={image.url}
                   alt={image.altText ?? product.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               ) : null}
               {discount ? (
@@ -315,11 +366,11 @@ function FeaturedProductCampaign({ product }: { product: ProductCardData | undef
             <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-4 my-4 w-full space-y-2">
               <div className="flex items-start gap-2.5 text-xs text-[#282720]">
                 <span className="text-red-500 font-bold">✕ The Old Way:</span>
-                <span className="text-[#5E5B52]">Cluttered spaces, messy countertops, and wasted time on daily tasks.</span>
+                <span className="text-[#5E5B52]">Clumsy tools, lint-covered surfaces, and wasted time on basic chores.</span>
               </div>
               <div className="flex items-start gap-2.5 text-xs text-[#282720] font-medium">
-                <span className="text-emerald-600 font-bold">✓ The Grow&amp;Glow Fix:</span>
-                <span>Effortless organisation and smart convenience designed for compact modern homes.</span>
+                <span className="text-emerald-600 font-bold">✓ The HypeeeCart Fix:</span>
+                <span>Telescopic reach, scratch-free microfiber, and smart convenience designed for modern homes.</span>
               </div>
             </div>
 
@@ -363,7 +414,7 @@ function SmartEssentials({ products }: { products: readonly ProductCardData[] })
   if (products.length === 0) return null;
 
   return (
-    <section className="w-full py-12 md:py-16" aria-labelledby="essentials-heading">
+    <section id="essentials" className="w-full py-12 md:py-16 scroll-mt-20" aria-labelledby="essentials-heading">
       <div className="max-w-page px-margin mx-auto">
         <div className="text-center max-w-xl mx-auto mb-10">
           <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
@@ -373,7 +424,7 @@ function SmartEssentials({ products }: { products: readonly ProductCardData[] })
             Smart Everyday Essentials
           </h2>
           <p className="text-xs sm:text-sm text-[#5E5B52] mt-2">
-            Useful accessories and gadgets engineered to add ease and elegance to your daily routine.
+            Useful tools, clever gadgets, and time-saving home accessories hand-picked for quality.
           </p>
         </div>
 
@@ -404,13 +455,13 @@ function ShopByCategory({ collections }: { collections: readonly CollectionCardD
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
-              CURATED CORNERS
+              CURATED COLLECTIONS
             </span>
             <h2 id="category-heading" className="font-heading text-2xl sm:text-3xl font-bold text-[#282720] mt-1">
               Shop by Category
             </h2>
             <p className="text-xs sm:text-sm text-[#5E5B52] mt-1">
-              Explore thoughtfully assembled lifestyle collections for your space.
+              Explore practical lifestyle collections designed for contemporary Indian homes.
             </p>
           </div>
           <Link
@@ -443,13 +494,13 @@ function BrandTrustSection() {
       <div className="max-w-page px-margin mx-auto">
         <div className="text-center max-w-xl mx-auto mb-12">
           <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
-            THE GROW&amp;GLOW PROMISE
+            THE HYPEEECART PROMISE
           </span>
           <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#282720] mt-1">
-            Why Indian Shoppers Choose Grow&amp;Glow
+            Why Indian Shoppers Choose HypeeeCart
           </h2>
           <p className="text-xs sm:text-sm text-[#5E5B52] mt-2">
-            No cheap knockoffs. No false promises. Only curated quality, tested for real Indian homes.
+            No cheap knockoffs. No false promises. Only tested, practical products engineered for real everyday convenience.
           </p>
         </div>
 
@@ -462,7 +513,7 @@ function BrandTrustSection() {
               Rigorous Quality Verification
             </h3>
             <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
-              We vet every supplier and test functionality before listing. You receive products that look, feel, and perform exactly as promised.
+              We test functionality, build quality, and materials before listing. You receive products that look, feel, and perform reliably.
             </p>
           </div>
 
@@ -474,7 +525,7 @@ function BrandTrustSection() {
               Pan-India Express Logistics
             </h3>
             <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
-              Dispatched within 24 hours from local fulfillment hubs. Track your parcel live with WhatsApp and SMS status notifications.
+              Dispatched within 24 hours from regional fulfillment hubs with live SMS & WhatsApp tracking notifications.
             </p>
           </div>
 
@@ -486,7 +537,7 @@ function BrandTrustSection() {
               7-Day Replacement & Friendly Care
             </h3>
             <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
-              Damaged in transit? Doesn't fit? We offer seamless 7-day replacements with zero friction. Human support on email & WhatsApp.
+              Damaged in transit? Defective unit? We offer seamless 7-day replacements with zero friction and helpful human support.
             </p>
           </div>
         </div>
@@ -496,31 +547,30 @@ function BrandTrustSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section: Festive & Gifting Campaign Block (Configurable)
+// Section: Curated Edit Campaign Block
 // ─────────────────────────────────────────────────────────────────────────────
 function FestiveGiftingEdit() {
   return (
     <section id="festive" className="w-full bg-[#FAF3E3] border-t border-[#D7A84C]/30 py-12 md:py-16 scroll-mt-20">
       <div className="max-w-page px-margin mx-auto">
         <div className="bg-gradient-to-r from-[#282720] to-[#3D3A32] text-white rounded-2xl p-8 sm:p-12 relative overflow-hidden shadow-md">
-          {/* Decorative gold badge */}
           <div className="relative z-10 max-w-xl">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D7A84C] tracking-widest uppercase bg-white/10 px-3 py-1 rounded-full mb-4">
               <span>✨</span>
-              <span>GROW&GLOW FESTIVE COLLECTION</span>
+              <span>HYPEEECART CURATED FINDS</span>
             </span>
             <h2 className="font-heading text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-              Gifts That Spark Joy in Every Indian Home.
+              Trending Finds That Bring Everyday Wins.
             </h2>
             <p className="text-sm sm:text-base text-stone-300 mt-3 leading-relaxed">
-              Thoughtful, attractive, and genuinely useful finds designed for housewarmings, family celebrations, and everyday surprises.
+              Thoughtful, attractive, and genuinely useful finds designed for modern households, thoughtful gifts, and everyday convenience.
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <Link
                 to="/collections"
                 className="bg-[#D7A84C] text-[#282720] hover:bg-[#e0b45a] px-6 py-3 rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-all shadow-sm"
               >
-                Explore Festive Gifting →
+                Explore All Finds →
               </Link>
             </div>
           </div>
@@ -539,7 +589,7 @@ function HomeFAQ() {
   const faqs = [
     {
       q: "How fast is delivery to my city or town?",
-      a: "We ship via premium express couriers (BlueDart, Delhivery, Xpressbees). Metro destinations receive delivery within 2–4 business days; tier-2/3 cities and other pin codes arrive in 3–5 business days.",
+      a: "We ship via premium express logistics partners (BlueDart, Delhivery, Xpressbees). Metro destinations receive delivery within 2–4 business days; other pin codes arrive in 3–5 business days.",
     },
     {
       q: "Can I pay using Cash on Delivery (COD)?",
@@ -547,7 +597,7 @@ function HomeFAQ() {
     },
     {
       q: "What if the product arrives damaged or defective?",
-      a: "You are fully covered by our 7-Day Replacement Guarantee. Just message our support team with your order ID and a quick photo/video, and we will send a brand new unit without hassle.",
+      a: "You are fully covered by our 7-Day Replacement Guarantee. Simply message our support team with your order ID and a quick photo/video, and we will dispatch a brand-new unit promptly.",
     },
     {
       q: "How do I track my shipment?",
@@ -610,9 +660,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     rootData?.shopInfo.name ?? FALLBACK_SHOP_NAME,
   );
 
-  const trendingProducts = loaderData.allProducts.slice(0, 4);
-  const featuredProduct = loaderData.allProducts[4] || loaderData.allProducts[0];
-  const essentialsProducts = loaderData.allProducts.slice(5, 13);
+  const featuredProduct = loaderData.allProducts[0] || loaderData.allProducts[4];
+  const essentialsProducts = loaderData.allProducts.slice(1, 9);
 
   return (
     <main className="flex-1" id="main-content" tabIndex={-1}>
@@ -623,6 +672,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       ) : null}
 
       <HomeHero hero={hero} products={loaderData.allProducts} />
+      <BenefitsStrip />
       <BestSellersSection products={loaderData.allProducts} collections={loaderData.featuredCollections} />
       <FeaturedProductCampaign product={featuredProduct} />
       <SmartEssentials products={essentialsProducts} />

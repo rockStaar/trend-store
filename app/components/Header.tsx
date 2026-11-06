@@ -66,6 +66,18 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
             Trending Finds
           </Link>
           <Link
+            to="/#essentials"
+            className="text-on-surface focus-visible:outline-accent shrink-0 rounded-sm text-sm font-normal whitespace-nowrap no-underline hover:text-[#B77943] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
+          >
+            Home Essentials
+          </Link>
+          <Link
+            to="/#problem-solvers"
+            className="text-on-surface focus-visible:outline-accent shrink-0 rounded-sm text-sm font-normal whitespace-nowrap no-underline hover:text-[#B77943] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
+          >
+            Gadgets &amp; Accessories
+          </Link>
+          <Link
             to="/collections"
             className="text-on-surface focus-visible:outline-accent shrink-0 rounded-sm text-sm font-normal whitespace-nowrap no-underline hover:text-[#B77943] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
           >
@@ -75,13 +87,7 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
             to="/#why-us"
             className="text-on-surface focus-visible:outline-accent shrink-0 rounded-sm text-sm font-normal whitespace-nowrap no-underline hover:text-[#B77943] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
           >
-            Why Grow&amp;Glow
-          </Link>
-          <Link
-            to="/policies/shipping-policy"
-            className="text-[#635F53] focus-visible:outline-accent shrink-0 rounded-sm text-xs font-normal whitespace-nowrap no-underline hover:text-[#B77943] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors"
-          >
-            🚚 Pan-India Delivery
+            Why HypeeeCart
           </Link>
         </nav>
 

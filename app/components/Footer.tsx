@@ -78,16 +78,16 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                 />
               </Link>
               <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-semibold mt-1">
-                Grow Better. Glow Brighter.
+                Trending Finds. Everyday Wins.
               </span>
             </div>
             <p className="text-xs text-[#635F53] leading-relaxed">
-              Curating wellness-forward, problem-solving, and lifestyle products for contemporary Indian homes. Quality-checked, swiftly delivered, backed by our 7-day replacement guarantee.
+              Curating clever home essentials, trending gadgets, and practical everyday problem-solvers for modern Indian homes. Quality-checked, swiftly delivered, backed by our 7-day replacement guarantee.
             </p>
             <div className="pt-2 text-xs text-[#635F53]">
               <p className="font-medium text-[#282720]">Customer Support (Mon–Sat, 10am–6pm IST):</p>
-              <p className="mt-1">Email: <a href="mailto:support@growandglow.in" className="text-[#B77943] underline">support@growandglow.in</a></p>
-              <p className="mt-0.5">WhatsApp: <span className="text-[#282720] font-medium">+91 98765 43210</span> (Configurable)</p>
+              <p className="mt-1">Email: <a href="mailto:support@hypeeecart.in" className="text-[#B77943] underline">support@hypeeecart.in</a></p>
+              <p className="mt-0.5">WhatsApp: <span className="text-[#282720] font-medium">+91 98765 43210</span> (Mon–Sat)</p>
             </div>
           </div>
 
@@ -104,7 +104,17 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
               </li>
               <li>
                 <Link to="/#trending" className={linkClass}>
-                  Trending Bestsellers
+                  Trending Finds
+                </Link>
+              </li>
+              <li>
+                <Link to="/#essentials" className={linkClass}>
+                  Home Essentials
+                </Link>
+              </li>
+              <li>
+                <Link to="/#problem-solvers" className={linkClass}>
+                  Gadgets &amp; Accessories
                 </Link>
               </li>
               <li>
@@ -113,18 +123,8 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                 </Link>
               </li>
               <li>
-                <Link to="/#problem-solvers" className={linkClass}>
-                  Smart Everyday Essentials
-                </Link>
-              </li>
-              <li>
-                <Link to="/#festive" className={linkClass}>
-                  The Festive & Gifting Edit
-                </Link>
-              </li>
-              <li>
-                <Link to="/search" className={linkClass}>
-                  Search Catalog
+                <Link to="/#why-us" className={linkClass}>
+                  Why HypeeeCart
                 </Link>
               </li>
             </ul>

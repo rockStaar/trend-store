@@ -40,9 +40,8 @@ const POLICIES: Record<string, PolicyContent> = {
       {
         heading: "3. Shipping Charges & Cash on Delivery (COD)",
         paragraphs: [
-          "We offer FREE Express Shipping on all prepaid orders above ₹999.",
-          "For orders below ₹999, a nominal flat shipping fee of ₹49 is applied at checkout.",
-          "Cash on Delivery (COD) is available on eligible pin codes across India. A nominal handling fee of ₹50 may apply to cover logistics costs for cash verification.",
+          "We offer 100% FREE Express Shipping on all orders across India — with zero delivery fees, zero handling charges, and no minimum order value required.",
+          "Cash on Delivery (COD) is available with 100% Free Delivery. You pay only the product price upon delivery at your doorstep.",
         ],
       },
       {

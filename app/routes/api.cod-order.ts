@@ -26,7 +26,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     const city = String(body.city || "").trim();
     const state = String(body.state || "").trim();
     const landmark = String(body.landmark || "").trim();
-    const productTitle = String(body.productTitle || "Grow & Glow Discovery").trim();
+    const productTitle = String(body.productTitle || "HypeeeCart Find").trim();
     const variantTitle = String(body.variantTitle || "").trim();
     const productImage = String(body.productImage || "").trim();
     const quantity = Math.max(1, parseInt(String(body.quantity || "1"), 10));

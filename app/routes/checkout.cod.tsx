@@ -49,8 +49,8 @@ const COD_CHECKOUT_QUERY = gql(`
 
 export function meta() {
   return [
-    { title: "Cash on Delivery Checkout | Grow & Glow" },
-    { name: "description", content: "Fast and secure Cash on Delivery checkout for your Grow & Glow order." },
+    { title: "Cash on Delivery Checkout | HypeeeCart" },
+    { name: "description", content: "Fast and secure Cash on Delivery checkout for your HypeeeCart order." },
   ];
 }
 
@@ -84,7 +84,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     }
   }
 
-  const title = product?.title || url.searchParams.get("title") || "Grow & Glow Discovery";
+  const title = product?.title || url.searchParams.get("title") || "HypeeeCart Find";
   const image =
     selectedVariant?.image?.url ||
     product?.featuredImage?.url ||
@@ -128,7 +128,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const city = String(formData.get("city") || "").trim();
   const state = String(formData.get("state") || "Delhi").trim();
   const landmark = String(formData.get("landmark") || "").trim();
-  const productTitle = String(formData.get("productTitle") || "Grow & Glow Item").trim();
+  const productTitle = String(formData.get("productTitle") || "HypeeeCart Item").trim();
   const variantTitle = String(formData.get("variantTitle") || "").trim();
   const rawVariantId = String(formData.get("variantId") || "").trim();
   const quantity = Math.max(1, parseInt(String(formData.get("quantity") || "1"), 10));
@@ -253,9 +253,9 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
 
   const unitAmount = parseFloat(unitPrice.amount) || 0;
   const subtotal = unitAmount * quantity;
-  const isFreeDelivery = subtotal >= 999;
-  const deliveryFee = isFreeDelivery ? 0 : 49;
-  const totalPayable = subtotal + deliveryFee;
+  const isFreeDelivery = true;
+  const deliveryFee = 0;
+  const totalPayable = subtotal;
   const currency = unitPrice.currencyCode || "INR";
 
   const handlePincodeChange = (val: string) => {
@@ -533,7 +533,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
               <div className="flex justify-between">
                 <span>Pan-India Delivery:</span>
                 <span className="font-bold text-emerald-700">
-                  {isFreeDelivery ? "FREE (Orders over ₹999)" : "₹49"}
+                  FREE (All Orders)
                 </span>
               </div>
               <div className="flex justify-between">

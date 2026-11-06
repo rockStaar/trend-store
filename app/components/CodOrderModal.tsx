@@ -80,9 +80,9 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
   // Price calculations
   const unitAmount = parseFloat(product.unitPrice.amount) || 0;
   const subtotal = Math.round(unitAmount * product.quantity);
-  const isFreeDelivery = subtotal >= 999;
-  const shippingFee = isFreeDelivery ? 0 : 49;
-  const totalPayable = subtotal + shippingFee;
+  const isFreeDelivery = true;
+  const shippingFee = 0;
+  const totalPayable = subtotal;
 
   // Body scroll lock & ESC key listener
   useEffect(() => {
@@ -364,9 +364,7 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
               </div>
               <div className="flex justify-between text-gray-700">
                 <span>Shipping</span>
-                <span className="font-semibold text-black">
-                  {isFreeDelivery ? "Free" : `Rs. ${shippingFee.toFixed(2)}`}
-                </span>
+                <span className="font-semibold text-emerald-700">Free</span>
               </div>
               <div className="flex justify-between font-bold text-xs sm:text-sm text-black pt-1 border-t border-gray-300">
                 <span>Total</span>

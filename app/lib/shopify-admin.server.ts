@@ -316,13 +316,8 @@ export async function createShopifyCodOrder(
     };
   }
 
-  // 4. Build Shopify Admin Order Payload
-  const shippingCharge =
-    input.deliveryFee > 0
-      ? input.deliveryFee
-      : input.clientTotal >= 999
-        ? 0
-        : 49;
+  // 4. Build Shopify Admin Order Payload (100% Free Shipping on All Orders)
+  const shippingCharge = 0;
 
   const lineItemObj: any = {
     variant_id: parsedVariantId,
@@ -367,21 +362,18 @@ export async function createShopifyCodOrder(
       },
       shipping_lines: [
         {
-          title:
-            shippingCharge === 0
-              ? "Free Pan-India Delivery"
-              : "Standard COD Express Delivery",
-          price: shippingCharge.toFixed(2),
-          code: shippingCharge === 0 ? "FREE_DELIVERY" : "STANDARD_COD",
+          title: "Free Pan-India Express Delivery",
+          price: "0.00",
+          code: "FREE_DELIVERY",
         },
       ],
       // Financial status for Cash on Delivery must remain pending until delivery & collection
       financial_status: "pending",
       payment_gateway_names: ["Cash on Delivery (COD)"],
       note: input.landmark
-        ? `Landmark: ${input.landmark} | Ordered via Grow & Glow Direct Cash on Delivery Form`
-        : "Ordered via Grow & Glow Direct Cash on Delivery Form",
-      tags: "Cash on Delivery, COD, Direct Form, Grow & Glow",
+        ? `Landmark: ${input.landmark} | Ordered via HypeeeCart Direct Cash on Delivery Form`
+        : "Ordered via HypeeeCart Direct Cash on Delivery Form",
+      tags: "Cash on Delivery, COD, Direct Form, HypeeeCart",
       note_attributes: [
         { name: "idempotency_key", value: input.idempotencyKey },
         { name: "payment_method", value: "Cash on Delivery" },

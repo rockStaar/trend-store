@@ -4,8 +4,8 @@ import type { Route } from "./+types/order-confirmed";
 
 export function meta() {
   return [
-    { title: "Order Confirmed! | Grow & Glow" },
-    { name: "description", content: "Your Grow & Glow Cash on Delivery order is confirmed." },
+    { title: "Order Confirmed! | HypeeeCart" },
+    { name: "description", content: "Your HypeeeCart Cash on Delivery order is confirmed." },
   ];
 }
 
@@ -20,7 +20,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const state = url.searchParams.get("state") || "India";
   const pincode = url.searchParams.get("pincode") || "";
   const total = url.searchParams.get("total") || "699";
-  const product = url.searchParams.get("product") || "Grow & Glow Discovery";
+  const product = url.searchParams.get("product") || "HypeeeCart Find";
   const qty = url.searchParams.get("qty") || "1";
   const image = url.searchParams.get("image") || "";
 

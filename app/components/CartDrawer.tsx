@@ -77,38 +77,21 @@ type CartLineView = {
   } | null;
 };
 
-// Free Shipping Threshold in INR
-const FREE_SHIPPING_THRESHOLD = 999;
 
 function FreeShippingProgressBar() {
-  const cart = useCart((state) => state.data);
-  const subtotal = Number.parseFloat(cart.cost?.subtotalAmount?.amount ?? "0");
-  const isEligible = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const percentage = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
-
   return (
     <div className="bg-[#FAF6F0] border-b border-[#E2DBD0] px-5 py-3">
-      <div className="flex items-center justify-between text-xs mb-1.5 font-medium text-[#282720]">
-        {isEligible ? (
-          <span className="text-emerald-700 font-semibold flex items-center gap-1">
-            <span>🎉</span>
-            <span>You unlocked FREE Express Pan-India Delivery!</span>
-          </span>
-        ) : (
-          <span>
-            Add <strong className="text-[#B77943]">₹{Math.round(remaining)}</strong> more for <strong>FREE Delivery</strong>
-          </span>
-        )}
-        <span className="text-[11px] text-[#7D786D]">{percentage}%</span>
+      <div className="flex items-center justify-between text-xs font-medium text-[#282720]">
+        <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
+          <span>🎉</span>
+          <span>100% FREE Pan-India Express Delivery on All Orders!</span>
+        </span>
+        <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+          FREE
+        </span>
       </div>
-      <div className="w-full bg-[#E2DBD0] h-2 rounded-full overflow-hidden">
-        <div
-          className={`h-full transition-all duration-500 rounded-full ${
-            isEligible ? "bg-emerald-600" : "bg-[#B77943]"
-          }`}
-          style={{ width: `${percentage}%` }}
-        />
+      <div className="w-full bg-[#E2DBD0] h-1.5 rounded-full overflow-hidden mt-1.5">
+        <div className="h-full bg-emerald-600 rounded-full w-full" />
       </div>
     </div>
   );
@@ -300,7 +283,7 @@ function CartFooter() {
 
         <div className="flex items-center justify-between text-xs text-[#635F53] border-b border-[#E2DBD0] pb-2">
           <span>Pan-India Delivery</span>
-          <span className="text-emerald-700 font-medium">Free over ₹999 (Flat ₹49 under ₹999)</span>
+          <span className="text-emerald-700 font-bold">FREE Delivery on All Orders</span>
         </div>
 
         {cart.checkoutUrl ? (

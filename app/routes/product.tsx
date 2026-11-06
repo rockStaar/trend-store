@@ -212,7 +212,7 @@ type SwatchValue = {
 export function filterSupplierNames(text: string | null | undefined): string {
   if (!text) return "";
   return text
-    .replace(/\b(meesho|dropdash|roposo|glowroad|cjdropshipping|cjdropship|dropship|dropshipper|aliexpress|alibaba)\b/gi, "Grow & Glow")
+    .replace(/\b(meesho|dropdash|roposo|glowroad|cjdropshipping|cjdropship|dropship|dropshipper|aliexpress|alibaba)\b/gi, "HypeeeCart")
     .replace(/(supplier|vendor)\s*(name|id|code)?\s*[:\-]\s*[\w\s]+/gi, "")
     .trim();
 }
@@ -783,7 +783,7 @@ function BenefitsOfPrepaidOrdersCard() {
         </div>
         <div className="flex items-center gap-2">
           <span className="shrink-0 text-sm">🚚</span>
-          <span>Free Shipping On Prepaid Orders</span>
+          <span>Free Shipping On All Orders</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="shrink-0 text-sm">⚡</span>
@@ -866,7 +866,6 @@ function PackSelector({
           const isSelected = selectedPack === pack.qty;
           const totalPrice = unitPrice * pack.qty;
           const totalOriginal = unitCompareAt ? unitCompareAt * pack.qty : null;
-          const isFreeShipping = totalPrice >= 999;
           const isBestValue = pack.qty === 10;
 
           return (
@@ -902,20 +901,18 @@ function PackSelector({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-[#282720]">{pack.label}</span>
-                    {isFreeShipping ? (
-                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                        Free Shipping
-                      </span>
-                    ) : null}
+                    <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                      Free Shipping
+                    </span>
                   </div>
                   {isBestValue ? (
                     <span className="text-[11px] text-[#B77943] font-semibold flex items-center gap-1">
-                      <span>Hot Selling Deal</span>
+                      <span>Hot Selling Deal • Free Shipping</span>
                       <span>🔥</span>
                     </span>
                   ) : (
                     <span className="text-[11px] text-[#7D786D]">
-                      {isFreeShipping ? "Free Express Shipping" : "Standard Delivery"}
+                      Free Express Delivery
                     </span>
                   )}
                 </div>
@@ -1066,7 +1063,7 @@ function ProductLowerDetails({
     {
       question: "Are there any hidden shipping fees at checkout?",
       answer:
-        "None! Orders over ₹999 qualify for 100% Free Pan-India Delivery. Orders under ₹999 have a standard flat fee of ₹49.",
+        "None at all! We offer 100% Free Express Pan-India Delivery on all orders, with zero hidden shipping fees or surprise delivery charges.",
     },
   ];
 
@@ -1173,7 +1170,7 @@ function PincodeEstimator() {
           <span>Delivery &amp; COD Eligibility:</span>
         </div>
         <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-          FREE Shipping over ₹999
+          FREE Shipping on All Orders
         </span>
       </div>
       <form onSubmit={checkPincode} className="flex gap-2">
@@ -1203,7 +1200,7 @@ function PincodeEstimator() {
       ) : (
         <p className="text-[11px] text-[#7D786D] mt-1.5 flex items-center justify-between">
           <span>Dispatches within 24 hours via Express Courier</span>
-          <span>Flat ₹49 under ₹999</span>
+          <span className="text-emerald-700 font-semibold">100% Free Shipping</span>
         </p>
       )}
     </div>
