@@ -1302,7 +1302,7 @@ function ProductInfo({
           isOpen={isCodModalOpen}
           onClose={() => setIsCodModalOpen(false)}
           product={{
-            id: selectedVariant?.id || product.id,
+            id: selectedVariant?.id ?? product.selectedOrFirstAvailableVariant?.id ?? product.id,
             title: sanitizedTitle,
             variantTitle: selectedVariant?.title !== "Default Title" ? selectedVariant?.title : undefined,
             image: selectedVariant?.image?.url ?? product.featuredImage?.url ?? product.images.nodes[0]?.url,
@@ -1467,7 +1467,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
         isOpen={isCodModalOpen}
         onClose={() => setIsCodModalOpen(false)}
         product={{
-          id: selectedVariant?.id || product.id,
+          id: selectedVariant?.id ?? product.selectedOrFirstAvailableVariant?.id ?? product.id,
           title: sanitizedTitle,
           variantTitle: selectedVariant?.title !== "Default Title" ? selectedVariant?.title : undefined,
           image: primaryImage?.url,

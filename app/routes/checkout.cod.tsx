@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { envContext } from "~/lib/env";
 import { formatPrice } from "~/lib/money";
+import { createShopifyCodOrder } from "~/lib/shopify-admin.server";
 import { storefrontClientContext } from "~/lib/storefront";
 import type { Route } from "./+types/checkout.cod";
 
@@ -129,8 +130,10 @@ export async function action({ request, context }: Route.ActionArgs) {
   const landmark = String(formData.get("landmark") || "").trim();
   const productTitle = String(formData.get("productTitle") || "Grow & Glow Item").trim();
   const variantTitle = String(formData.get("variantTitle") || "").trim();
+  const rawVariantId = String(formData.get("variantId") || "").trim();
   const quantity = Math.max(1, parseInt(String(formData.get("quantity") || "1"), 10));
-  const totalAmount = String(formData.get("totalAmount") || "0");
+  const totalAmount = parseFloat(String(formData.get("totalAmount") || "0")) || 0;
+  const rawDeliveryFee = parseFloat(String(formData.get("deliveryFee") || "0")) || 0;
   const productImage = String(formData.get("productImage") || "");
 
   // Validation
@@ -149,12 +152,39 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!city) {
     return { error: "Please specify your city / town." };
   }
+  if (!rawVariantId) {
+    return { error: "Missing product variant ID. Please reload the page." };
+  }
 
-  // Generate unique Order ID
-  const randomDigits = Math.floor(100000 + Math.random() * 900000);
-  const orderNumber = `GG-COD-${randomDigits}`;
-  const orderId = `cod_${Date.now()}_${randomDigits}`;
-  const createdAt = new Date().toISOString();
+  const nameParts = name.split(" ");
+  const firstName = nameParts[0] || name;
+  const lastName = nameParts.slice(1).join(" ") || firstName;
+  const idempotencyKey = `cod_${phone}_${rawVariantId}_${quantity}`;
+
+  const result = await createShopifyCodOrder(env, {
+    variantId: rawVariantId,
+    quantity,
+    clientTotal: totalAmount,
+    deliveryFee: rawDeliveryFee,
+    firstName,
+    lastName,
+    phone,
+    address,
+    landmark: landmark || undefined,
+    pincode,
+    city,
+    state,
+    productTitle,
+    variantTitle: variantTitle || undefined,
+    productImage: productImage || undefined,
+    idempotencyKey,
+  });
+
+  if (!result.success) {
+    return { error: result.error };
+  }
+
+  const verifiedOrder = result.order;
 
   // Save to Supabase if credentials exist
   if (env?.SUPABASE_URL && (env?.SUPABASE_SERVICE_ROLE_KEY || env?.SUPABASE_ANON_KEY)) {
@@ -169,8 +199,8 @@ export async function action({ request, context }: Route.ActionArgs) {
           Prefer: "return=minimal",
         },
         body: JSON.stringify({
-          id: orderId,
-          order_number: orderNumber,
+          id: `shopify_${verifiedOrder.shopifyOrderId}`,
+          order_number: verifiedOrder.orderNumber,
           customer_name: name,
           customer_phone: phone,
           delivery_address: address,
@@ -178,14 +208,14 @@ export async function action({ request, context }: Route.ActionArgs) {
           city,
           state,
           landmark: landmark || null,
-          product_title: productTitle,
-          variant_title: variantTitle || null,
+          product_title: verifiedOrder.productTitle,
+          variant_title: verifiedOrder.variantTitle || null,
           product_image: productImage || null,
           quantity,
-          total_amount: String(totalAmount),
+          total_amount: verifiedOrder.totalAmount,
           payment_method: "Cash on Delivery (COD)",
           status: "confirmed",
-          created_at: createdAt,
+          created_at: verifiedOrder.createdAt,
         }),
       });
     } catch {
@@ -193,17 +223,18 @@ export async function action({ request, context }: Route.ActionArgs) {
     }
   }
 
-  // Redirect to the dedicated Order Confirmed screen!
+  // Redirect to the dedicated Order Confirmed screen with real Shopify order details
   const params = new URLSearchParams({
-    orderNumber,
+    orderNumber: verifiedOrder.orderNumber,
+    shopifyOrderId: verifiedOrder.shopifyOrderId,
     name,
     phone,
     address,
     city,
     state,
     pincode,
-    total: totalAmount,
-    product: productTitle,
+    total: verifiedOrder.totalAmount,
+    product: verifiedOrder.productTitle,
     qty: String(quantity),
     image: productImage,
   });
@@ -296,6 +327,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
             ) : null}
 
             <Form method="post" className="space-y-4">
+              <input type="hidden" name="variantId" value={loaderData.variantId} />
               <input type="hidden" name="productTitle" value={title} />
               <input type="hidden" name="variantTitle" value={variantTitle || ""} />
               <input type="hidden" name="productImage" value={image} />

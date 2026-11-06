@@ -201,6 +201,7 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
           variantTitle: product.variantTitle,
           productImage: product.image,
           quantity: product.quantity,
+          unitPrice: unitAmount,
           totalAmount: totalPayable,
           deliveryFee: shippingFee,
           idempotencyKey,

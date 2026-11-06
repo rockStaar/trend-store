@@ -11,7 +11,8 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const orderNumber = url.searchParams.get("orderNumber") || `GG-COD-${Math.floor(100000 + Math.random() * 900000)}`;
+  const orderNumber = url.searchParams.get("orderNumber") || "";
+  const shopifyOrderId = url.searchParams.get("shopifyOrderId") || "";
   const name = url.searchParams.get("name") || "Valued Customer";
   const phone = url.searchParams.get("phone") || "";
   const address = url.searchParams.get("address") || "";
@@ -25,6 +26,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   return {
     orderNumber,
+    shopifyOrderId,
     name,
     phone,
     address,
@@ -41,6 +43,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function OrderConfirmedPage({ loaderData }: Route.ComponentProps) {
   const {
     orderNumber,
+    shopifyOrderId,
     name,
     phone,
     address,
@@ -73,8 +76,13 @@ export default function OrderConfirmedPage({ loaderData }: Route.ComponentProps)
             <p className="text-xs sm:text-sm text-[#5E5B52] max-w-md mx-auto">
               Your Cash on Delivery order has been successfully placed and forwarded to our packaging station.
             </p>
-            <div className="inline-block bg-[#FAF6F0] border border-[#D7A84C] px-4 py-1.5 rounded-full text-xs font-bold text-[#282720]">
-              Order ID: <span className="text-[#B77943]">{orderNumber}</span>
+            <div className="inline-block bg-[#FAF6F0] border border-[#D7A84C] px-4 py-1.5 rounded-xl text-xs font-bold text-[#282720]">
+              Shopify Order: <span className="text-[#B77943]">{orderNumber || "Confirmed"}</span>
+              {shopifyOrderId ? (
+                <span className="text-[10px] text-[#7D786D] block font-normal mt-0.5">
+                  Admin ID: #{shopifyOrderId}
+                </span>
+              ) : null}
             </div>
           </div>
 
