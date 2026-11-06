@@ -1,6 +1,7 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { formatPrice } from "~/lib/money";
 import type { PublicReview, ReviewStats, ReviewFilter } from "~/lib/reviews";
+import { DEMO_REVIEWS, DEMO_REVIEW_STATS, filterDemoReviews } from "~/lib/demo-reviews";
 
 type ProductReviewsProps = {
   productId: string;
@@ -133,6 +134,12 @@ export function ProductReviews({
   const [filter, setFilter] = useState<ReviewFilter>({ sortBy: "recent" });
   const [loading, setLoading] = useState(false);
 
+  // Tab toggle between verified customer reviews and demonstration showcase
+  const [activeTab, setActiveTab] = useState<"customers" | "demo">(
+    initialReviews && initialReviews.length > 0 ? "customers" : "demo",
+  );
+  const [demoHelpful, setDemoHelpful] = useState<Record<string, number>>({});
+
   // Modals state
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
@@ -169,6 +176,9 @@ export function ProductReviews({
     setFilter({ sortBy: "recent" });
     setSubmitSuccess(null);
     setSubmitError(null);
+    if (initialReviews && initialReviews.length > 0) {
+      setActiveTab("customers");
+    }
   }, [productId, productHandle, initialReviews, initialStats]);
 
   // Fetch reviews on filter change
@@ -199,7 +209,9 @@ export function ProductReviews({
   const handleFilterChange = (updates: Partial<ReviewFilter>) => {
     const next = { ...filter, ...updates };
     setFilter(next);
-    fetchReviews(next);
+    if (activeTab === "customers") {
+      fetchReviews(next);
+    }
   };
 
   // Handle Photo File Upload
@@ -285,6 +297,8 @@ export function ProductReviews({
       setFormContent("");
       setFormPhotos([]);
       setFormHoneypot("");
+      // Switch to verified customer reviews tab to show user submission
+      setActiveTab("customers");
       // Refresh reviews list immediately
       await fetchReviews(filter);
     } catch (err: any) {
@@ -297,6 +311,12 @@ export function ProductReviews({
   const handleHelpful = async (reviewId: string) => {
     if (helpfulVoted[reviewId]) return;
     setHelpfulVoted((prev) => ({ ...prev, [reviewId]: true }));
+
+    if (activeTab === "demo") {
+      setDemoHelpful((prev) => ({ ...prev, [reviewId]: (prev[reviewId] || 0) + 1 }));
+      return;
+    }
+
     setReviews((prev) =>
       prev.map((r) => (r.id === reviewId ? { ...r, helpfulCount: r.helpfulCount + 1 } : r)),
     );
@@ -336,7 +356,14 @@ export function ProductReviews({
     }
   };
 
-  const allPhotos = stats.allPhotos || [];
+  const displayedStats = activeTab === "demo" ? DEMO_REVIEW_STATS : stats;
+  const displayedReviews =
+    activeTab === "demo"
+      ? filterDemoReviews(filter).map((r) =>
+          demoHelpful[r.id] ? { ...r, helpfulCount: r.helpfulCount + demoHelpful[r.id] } : r,
+        )
+      : reviews;
+  const allPhotos = displayedStats.allPhotos || [];
   const selectedPhoto = selectedPhotoIndex !== null ? allPhotos[selectedPhotoIndex] : null;
 
   return (
@@ -393,6 +420,50 @@ export function ProductReviews({
           </div>
         </div>
 
+        {/* Navigation Tabs between Customer Reviews and Sample Showcase */}
+        <div className="flex items-center gap-2 pt-6">
+          <button
+            type="button"
+            onClick={() => setActiveTab("customers")}
+            className={`cursor-pointer px-4 py-2 rounded-full text-xs font-bold transition-all ${
+              activeTab === "customers"
+                ? "bg-[#282720] text-white shadow-xs"
+                : "bg-[#FAF6F0] text-[#7D786D] hover:text-[#282720] hover:bg-[#EFE9DE] border border-[#E2DBD0]"
+            }`}
+          >
+            <span>Verified Customer Reviews</span>
+            <span className="ml-1.5 opacity-80">({reviews.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("demo")}
+            className={`cursor-pointer px-4 py-2 rounded-full text-xs font-bold transition-all ${
+              activeTab === "demo"
+                ? "bg-[#B77943] text-white shadow-xs"
+                : "bg-[#FAF6F0] text-[#7D786D] hover:text-[#282720] hover:bg-[#EFE9DE] border border-[#E2DBD0]"
+            }`}
+          >
+            <span>💡 Sample Showcase</span>
+            <span className="ml-1.5 opacity-80">({DEMO_REVIEWS.length})</span>
+          </button>
+        </div>
+
+        {/* Demo Mode Notice Banner */}
+        {activeTab === "demo" && (
+          <div className="bg-[#FAF6F0] border border-[#D7A84C]/60 rounded-xl p-4 my-6 flex items-start gap-3 text-xs text-[#282720]">
+            <span className="text-base leading-none">💡</span>
+            <div className="space-y-0.5">
+              <p className="font-bold text-[#B77943]">
+                Demonstration Showcase ({DEMO_REVIEWS.length} Sample Reviews)
+              </p>
+              <p className="text-[#5E5B52] leading-relaxed">
+                These are illustrative demonstration reviews showing genuine-style feedback, star ratings, and real product & utility photography. As shoppers submit genuine reviews, they will be moderated and displayed under <strong>Verified Customer Reviews</strong>.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Admin Moderation Bar (when unlocked) */}
         {isAdminMode && (
           <div className="bg-[#FAF6F0] border border-[#B77943]/40 rounded-xl p-4 my-6 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -425,27 +496,27 @@ export function ProductReviews({
         )}
 
         {/* 1. Review Summary Card matching Reference 1 */}
-        {stats.totalReviews > 0 ? (
+        {displayedStats.totalReviews > 0 ? (
           <div className="py-8 border-b border-[#E2DBD0]">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center bg-[#FAF6F0] p-6 sm:p-8 rounded-2xl border border-[#E2DBD0]">
               {/* Left Column: Big Average */}
               <div className="text-center md:text-left flex flex-col items-center md:items-start justify-center">
                 <div className="flex items-baseline gap-2">
                   <span className="font-serif text-5xl sm:text-6xl font-normal text-[#282720]">
-                    {stats.averageRating.toFixed(2)}
+                    {displayedStats.averageRating.toFixed(2)}
                   </span>
                   <span className="text-sm font-semibold text-[#7D786D]">/ 5.0</span>
                 </div>
                 <div className="mt-2 mb-1">
-                  <StarRating rating={stats.averageRating} size="md" />
+                  <StarRating rating={displayedStats.averageRating} size="md" />
                 </div>
                 <p className="text-xs text-[#7D786D]">
-                  Based on <strong>{stats.totalReviews}</strong> customer reviews
+                  Based on <strong>{displayedStats.totalReviews}</strong> {activeTab === "demo" ? "showcase sample" : "customer"} reviews
                 </p>
-                {stats.recommendPercent > 0 ? (
+                {displayedStats.recommendPercent > 0 ? (
                   <p className="text-xs text-emerald-800 font-medium mt-2 flex items-center gap-1">
                     <span>✓</span>
-                    <span>{stats.recommendPercent}% of reviewers recommend this</span>
+                    <span>{displayedStats.recommendPercent}% of reviewers recommend this</span>
                   </p>
                 ) : null}
               </div>
@@ -453,9 +524,9 @@ export function ProductReviews({
               {/* Middle Column: Star Breakdown */}
               <div className="space-y-2">
                 {[5, 4, 3, 2, 1].map((star) => {
-                  const count = stats.ratingDistribution[star as 1 | 2 | 3 | 4 | 5] || 0;
+                  const count = displayedStats.ratingDistribution[star as 1 | 2 | 3 | 4 | 5] || 0;
                   const pct =
-                    stats.totalReviews > 0 ? Math.round((count / stats.totalReviews) * 100) : 0;
+                    displayedStats.totalReviews > 0 ? Math.round((count / displayedStats.totalReviews) * 100) : 0;
                   const isSelected = filter.rating === star;
 
                   return (
@@ -484,14 +555,14 @@ export function ProductReviews({
               <div className="space-y-5 bg-white p-5 rounded-xl border border-[#E2DBD0]">
                 <AttributeBar
                   label="Value for Price"
-                  value={stats.averageValue || 4}
+                  value={displayedStats.averageValue || 4}
                   lowLabel="Overpriced"
                   midLabel="Fair value"
                   highLabel="Good value"
                 />
                 <AttributeBar
                   label="Quality & Satisfaction"
-                  value={stats.averageQuality || 4.2}
+                  value={displayedStats.averageQuality || 4.2}
                   lowLabel="Fair"
                   midLabel="Moderate"
                   highLabel="Exceptional"
@@ -507,7 +578,7 @@ export function ProductReviews({
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-heading text-sm uppercase tracking-wider font-bold text-[#282720] flex items-center gap-2">
                 <span>📸</span>
-                <span>Customer Photos ({allPhotos.length})</span>
+                <span>{activeTab === "demo" ? "Showcase Photos" : "Customer Photos"} ({allPhotos.length})</span>
               </h3>
               <span className="text-xs text-[#7D786D]">Click to view full photo & review</span>
             </div>
@@ -617,31 +688,51 @@ export function ProductReviews({
             <div className="py-16 text-center text-[#7D786D] text-sm">
               <p>Updating reviews…</p>
             </div>
-          ) : reviews.length === 0 ? (
-            /* Beautiful Empty State */
+          ) : displayedReviews.length === 0 ? (
+            /* Empty State */
             <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-2xl p-10 sm:p-16 text-center max-w-xl mx-auto my-6">
               <div className="size-16 rounded-full bg-white border border-[#E2DBD0] flex items-center justify-center text-3xl mx-auto mb-4 text-[#D7A84C]">
                 ★
               </div>
               <h3 className="font-serif text-2xl font-normal text-[#282720]">
-                Be the First to Review This Discovery
+                {activeTab === "customers" ? "Be the First to Review This Discovery" : "No Sample Reviews Match Filter"}
               </h3>
               <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 mb-6 leading-relaxed">
-                Have you experienced {productTitle}? Share your honest feedback with our community
-                and help fellow shoppers choose thoughtfully.
+                {activeTab === "customers"
+                  ? `Have you experienced ${productTitle || "this product"}? Share your honest feedback with our community and help fellow shoppers choose thoughtfully.`
+                  : "Try clearing your filters to view all 16 demonstration showcase reviews."}
               </p>
-              <button
-                type="button"
-                onClick={() => setIsWriteModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 bg-[#B77943] hover:bg-[#9E6433] text-white px-7 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-              >
-                <span>Write the First Review</span>
-                <span>✎</span>
-              </button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsWriteModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-2 bg-[#B77943] hover:bg-[#9E6433] text-white px-7 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                >
+                  <span>Write a Review</span>
+                  <span>✎</span>
+                </button>
+                {activeTab === "customers" ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("demo")}
+                    className="inline-flex items-center justify-center gap-1.5 bg-white border border-[#E2DBD0] hover:bg-[#FAF6F0] text-[#282720] px-5 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs cursor-pointer"
+                  >
+                    <span>💡 View 16 Sample Reviews</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleFilterChange({ rating: undefined, withMedia: false, sortBy: "recent" })}
+                    className="inline-flex items-center justify-center gap-1.5 bg-white border border-[#E2DBD0] hover:bg-[#FAF6F0] text-[#282720] px-5 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs cursor-pointer"
+                  >
+                    <span>Reset Filters</span>
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="divide-y divide-[#E2DBD0]">
-              {reviews.map((review) => {
+              {displayedReviews.map((review) => {
                 const initials = review.author
                   .split(" ")
                   .map((n) => n[0])
@@ -672,7 +763,17 @@ export function ProductReviews({
                           </span>
                         </div>
 
-                        {review.verifiedPurchase ? (
+                        {review.isDemo ? (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#B77943] bg-[#FAF6F0] px-2.5 py-0.5 rounded-full border border-[#D7A84C]/50">
+                              <span>💡</span>
+                              <span>Sample Review</span>
+                            </span>
+                            <span className="text-[10px] text-[#7D786D] block mt-0.5">
+                              Demonstration Example
+                            </span>
+                          </div>
+                        ) : review.verifiedPurchase ? (
                           <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                             <span>🛡️</span>
                             <span>Verified Buyer</span>
@@ -688,7 +789,7 @@ export function ProductReviews({
                         <p className="text-[11px] text-[#7D786D] mt-1">{formattedDate}</p>
 
                         {/* Admin Action Buttons on Review Card */}
-                        {isAdminMode && (
+                        {isAdminMode && !review.isDemo && (
                           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                             {review.status === "pending" ? (
                               <button

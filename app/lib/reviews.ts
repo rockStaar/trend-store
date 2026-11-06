@@ -15,6 +15,7 @@ export type Review = {
   content: string;
   recommend: boolean;
   verifiedPurchase: boolean;
+  isDemo?: boolean;
   orderId?: string;
   photos: string[];
   valueRating?: number; // 1 to 5: 1=Overpriced, 3=Fair value, 5=Good value
