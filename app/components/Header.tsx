@@ -36,13 +36,13 @@ export function Header({ shopInfo }: { shopInfo: StorefrontShop }) {
           </div>
           <Link
             to="/"
-            aria-label="Grow & Glow"
-            title="Grow & Glow"
+            aria-label={shopInfo.name || "HypeeeCart"}
+            title={shopInfo.name || "HypeeeCart"}
             className="text-on-surface focus-visible:outline-accent inline-flex min-w-0 items-center rounded-sm text-lg font-medium no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group"
           >
             <img
               src="/logo.png"
-              alt="Grow & Glow"
+              alt={shopInfo.name || "HypeeeCart"}
               className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-[1.02]"
             />
           </Link>

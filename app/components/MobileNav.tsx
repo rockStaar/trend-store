@@ -16,10 +16,10 @@ export function MobileNav() {
           <Link to="/" onClick={() => closeMobileNavDrawer()} className="inline-block">
             <img
               src="/logo.png"
-              alt="Grow & Glow"
+              alt="HypeeeCart"
               className="h-8 w-auto object-contain"
             />
-            <span className="sr-only" id="mobile-nav-title">Grow & Glow</span>
+            <span className="sr-only" id="mobile-nav-title">HypeeeCart</span>
           </Link>
           <button
             type="button"

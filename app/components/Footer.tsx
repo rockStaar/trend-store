@@ -73,7 +73,7 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
               <Link to="/" className="inline-block">
                 <img
                   src="/logo.png"
-                  alt="Grow & Glow"
+                  alt="HypeeeCart"
                   className="h-10 w-auto object-contain"
                 />
               </Link>
