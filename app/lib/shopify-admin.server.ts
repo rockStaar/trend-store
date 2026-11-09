@@ -64,7 +64,7 @@ export type CreateCodOrderResult =
 
 /**
  * Resolves the target myshopify store domain.
- * Falls back to rxvdtk-sn.myshopify.com if unset or in mock.shop mode.
+ * Falls back to fbsmb7-te.myshopify.com if unset or in mock.shop mode.
  */
 export function getAdminStoreDomain(env?: Env): string {
   const rawStoreDomain =
@@ -78,7 +78,7 @@ export function getAdminStoreDomain(env?: Env): string {
       .trim();
   }
 
-  return "rxvdtk-sn.myshopify.com";
+  return "fbsmb7-te.myshopify.com";
 }
 
 /**
