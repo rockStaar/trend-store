@@ -10,7 +10,6 @@ import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
-import { ProductReviews } from "~/components/ProductReviews";
 import { CodOrderModal } from "~/components/CodOrderModal";
 import { openCartDrawer } from "~/lib/cart-drawer";
 import { envContext } from "~/lib/env";
@@ -18,8 +17,6 @@ import { formatPrice, salePercent } from "~/lib/money";
 import { ProductProvider, useProductForm } from "~/lib/product";
 import { getProductFaqs, type FaqItem } from "~/lib/product-faq";
 import { parseProductContent, type StructuredProductContent } from "~/lib/product-content";
-import type { PublicReview, ReviewStats } from "~/lib/reviews";
-import { getReviewsForProduct } from "~/lib/reviews.server";
 import { storefrontClientContext } from "~/lib/storefront";
 import { formatPageTitle, getShopNameFromRootMatch } from "~/lib/storefront-shop";
 
@@ -168,27 +165,22 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   if (!data?.product) throw new Response("Not Found", { status: 404 });
 
-  const [{ reviews, stats: reviewStats }, faqs] = await Promise.all([
-    getReviewsForProduct(data.product.id, env, { productHandle: data.product.handle }),
-    Promise.resolve(
-      getProductFaqs({
-        id: data.product.id,
-        title: data.product.title,
-        handle: data.product.handle,
-        description: data.product.description,
-        vendor: data.product.vendor,
-        metafieldFaqJson: (data.product as any).faqMetafield?.value ?? null,
-      }),
-    ),
-  ]);
+  const faqs = await Promise.resolve(
+    getProductFaqs({
+      id: data.product.id,
+      title: data.product.title,
+      handle: data.product.handle,
+      description: data.product.description,
+      vendor: data.product.vendor,
+      metafieldFaqJson: (data.product as any).faqMetafield?.value ?? null,
+    }),
+  );
 
   return {
     product: data.product,
     relatedProducts: data.products.nodes
       .filter((product) => product.handle !== data.product?.handle)
       .slice(0, 4),
-    reviews,
-    reviewStats,
     faqs,
   };
 }
@@ -1199,12 +1191,10 @@ function PincodeEstimator() {
 function ProductInfo({
   product,
   selectedVariant,
-  reviewStats,
   structuredContent,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
-  reviewStats?: ReviewStats;
   structuredContent: StructuredProductContent;
 }) {
   const [quantity, setQuantity] = useState(1);
@@ -1224,21 +1214,11 @@ function ProductInfo({
   return (
     <div className="flex flex-col gap-0 md:sticky md:top-8 md:self-start">
       {/* 1. Product Title: clear, bold heading, compact spacing */}
-      <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#282720] leading-snug tracking-tight mb-1.5">
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#282720] leading-snug tracking-tight mb-2">
         {sanitizedTitle}
       </h1>
 
-      {/* 2. Star rating & reviews: immediately below title in one compact line */}
-      <div className="flex items-center gap-1.5 text-xs text-[#282720] mb-2.5">
-        <span className="text-[#D7A84C] text-sm tracking-widest">★★★★★</span>
-        <span className="font-extrabold">
-          {reviewStats && reviewStats.totalReviews > 0
-            ? `Excellent ${reviewStats.averageRating.toFixed(1)}/5 | ${reviewStats.totalReviews} Customers`
-            : "Excellent 4.8/5 | 5,900+ Happy Customers"}
-        </span>
-      </div>
-
-      {/* 3. Product Price & Compare-At Row */}
+      {/* 2. Product Price & Compare-At Row */}
       <PriceBlock product={product} selectedVariant={selectedVariant} />
       <InventoryHint selectedVariant={selectedVariant} />
 
@@ -1375,11 +1355,9 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
 
 function ProductPageContent({
   product,
-  reviewStats,
   structuredContent,
 }: {
   product: ProductData;
-  reviewStats?: ReviewStats;
   structuredContent: StructuredProductContent;
 }) {
   const { selectedVariant } = useProductForm();
@@ -1392,7 +1370,6 @@ function ProductPageContent({
         <ProductInfo
           product={product}
           selectedVariant={selectedVariant}
-          reviewStats={reviewStats}
           structuredContent={structuredContent}
         />
       </div>
@@ -1516,7 +1493,7 @@ function RelatedProducts({ products }: { products: RelatedProduct[] }) {
 }
 
 export default function ProductRoute({ loaderData }: Route.ComponentProps) {
-  const { product, relatedProducts, reviews, reviewStats, faqs } = loaderData;
+  const { product, relatedProducts, faqs } = loaderData;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -1553,24 +1530,12 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
       <main className="flex-1 pb-16 md:pb-0" id="main-content" tabIndex={-1}>
         <ProductPageContent
           product={product}
-          reviewStats={reviewStats}
           structuredContent={structuredContent}
         />
         <ProductEditorialShowcase
           product={product}
           structuredContent={structuredContent}
           faqs={faqs}
-        />
-        <ProductReviews
-          productId={product.id}
-          productHandle={product.handle}
-          productTitle={filterSupplierNames(product.title)}
-          initialReviews={reviews}
-          initialStats={reviewStats}
-          productPrice={
-            product.selectedOrFirstAvailableVariant?.price ?? product.priceRange.minVariantPrice
-          }
-          onAddToCart={() => openCartDrawer()}
         />
         <RelatedProducts products={relatedProducts} />
         <StickyMobileBuyBar product={product} />
