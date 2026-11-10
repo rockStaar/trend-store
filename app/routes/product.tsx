@@ -17,6 +17,7 @@ import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
 import { ProductProvider, useProductForm } from "~/lib/product";
 import { getProductFaqs, type FaqItem } from "~/lib/product-faq";
+import { parseProductContent, type StructuredProductContent } from "~/lib/product-content";
 import type { PublicReview, ReviewStats } from "~/lib/reviews";
 import { getReviewsForProduct } from "~/lib/reviews.server";
 import { storefrontClientContext } from "~/lib/storefront";
@@ -80,7 +81,7 @@ const PRODUCT_QUERY = gql(
           width
           height
         }
-        images(first: 8) {
+        images(first: 16) {
           nodes {
             id
             url
@@ -340,8 +341,8 @@ function ProductGallery({
             />
           ) : (
             <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE] text-[#7D786D]">
-              <span className="text-4xl mb-2">🌿</span>
-              <span className="text-xs">Grow &amp; Glow Product</span>
+              <span className="text-4xl mb-2">🛍️</span>
+              <span className="text-xs">HypeeeCart Product</span>
             </div>
           )}
         </div>
@@ -648,123 +649,6 @@ function QuantitySelector({
   );
 }
 
-function getProductFeatures(product: ProductData) {
-  const text = `${product.title} ${product.description || ""}`.toLowerCase();
-
-  if (text.includes("duster") || text.includes("clean") || text.includes("car") || text.includes("handle")) {
-    return [
-      {
-        title: "Extendable Handle",
-        desc: "Adjustable from 75 cm (29.5 in) to 86 cm (33.8 in), making it easy to clean car roofs, windshields, and hard-to-reach spots.",
-      },
-      {
-        title: "Puffy Microfiber Brush",
-        desc: "Soft yet durable fibers that absorb dust effectively and leave no streaks or scratches behind.",
-      },
-      {
-        title: "Space-Saving Design",
-        desc: "Detachable and retractable handle allows easy storage in your car trunk or garage.",
-      },
-      {
-        title: "Multi-Purpose Use",
-        desc: "Perfect for cars, SUVs, trucks, bikes, home furniture, glass windows, and office cleaning.",
-      },
-      {
-        title: "Ergonomic Grip",
-        desc: "Anti-slip foam handle provides comfortable hold during cleaning.",
-      },
-    ];
-  }
-
-  if (text.includes("shelf") || text.includes("corner") || text.includes("adhesive") || text.includes("wall") || text.includes("bathroom") || text.includes("rack")) {
-    return [
-      {
-        title: "Drill-Free Installation",
-        desc: "Strong trace-less adhesive pads hold securely without damaging walls or bathroom tiles.",
-      },
-      {
-        title: "Rustproof & Waterproof",
-        desc: "Anti-corrosion engineered finish withstands high humidity and constant steam.",
-      },
-      {
-        title: "Fast-Draining Design",
-        desc: "Hollow base prevents stagnant water accumulation, keeping bath items dry and clean.",
-      },
-      {
-        title: "Heavy-Duty Load Capacity",
-        desc: "Sturdy frame easily holds large shampoo, conditioner, and body wash bottles.",
-      },
-      {
-        title: "Space-Saving Corner Fit",
-        desc: "Maximizes unused 90-degree corners for neat, organized storage.",
-      },
-    ];
-  }
-
-  if (text.includes("bottle") || text.includes("flask") || text.includes("cup") || text.includes("mug")) {
-    return [
-      {
-        title: "Vacuum Insulation",
-        desc: "Keeps beverages piping hot for 12 hours or refreshingly ice-cold for 24 hours.",
-      },
-      {
-        title: "Food-Grade Stainless Steel",
-        desc: "Grade 304 interior ensures zero flavor retention and 100% BPA-free safety.",
-      },
-      {
-        title: "Leakproof Lid",
-        desc: "Precision silicone gasket prevents accidental spills in backpacks or vehicles.",
-      },
-      {
-        title: "Sweat-Free Grip",
-        desc: "Durable matte powder coat provides a comfortable, slip-resistant hold.",
-      },
-      {
-        title: "Everyday Portability",
-        desc: "Fits standard car cup holders and gym bag side pockets effortlessly.",
-      },
-    ];
-  }
-
-  return [
-    {
-      title: "Premium Build Quality",
-      desc: "Constructed with selected high-grade materials engineered for everyday domestic use.",
-    },
-    {
-      title: "Functional & Ergonomic",
-      desc: "Designed for comfortable handling and reliable performance every single day.",
-    },
-    {
-      title: "Zero Transit Damage Guarantee",
-      desc: "Ships in protective multi-layer packaging to ensure flawless doorstep delivery.",
-    },
-    {
-      title: "Easy Maintenance",
-      desc: "Wipe-clean surfaces that resist dust, stains, and daily wear and tear.",
-    },
-    {
-      title: "Tested & Certified",
-      desc: "Individually batch-inspected to meet domestic Indian household quality standards.",
-    },
-  ];
-}
-
-function cleanDescriptionIntro(product: ProductData): string {
-  const sanitized = filterSupplierNames(product.description || "");
-  const text = `${product.title} ${sanitized}`.toLowerCase();
-
-  if (text.includes("duster") || text.includes("car")) {
-    return `Keep your car spotless with this ${filterSupplierNames(product.title)}, designed for effortless dusting and cleaning. Made with high-quality microfiber bristles, it efficiently traps dirt, dust, and pollen without scratching the surface. Its lightweight and ergonomic design makes it ideal for quick cleaning sessions as well as deep detailing.`;
-  }
-
-  if (sanitized && sanitized.length > 50) {
-    return sanitized;
-  }
-
-  return `Experience premium convenience and durability with the ${filterSupplierNames(product.title)}. Crafted from high-grade materials, it is engineered for dependable daily performance, comfortable usability, and long-lasting domestic utility.`;
-}
-
 function BenefitsOfPrepaidOrdersCard() {
   return (
     <div className="rounded-xl border border-[#282720]/25 bg-white p-3 sm:p-3.5 mb-3 shadow-2xs">
@@ -1033,17 +917,15 @@ function TrustedPaymentsAndTimeline() {
   );
 }
 
-function ProductLowerDetails({
+function ProductEditorialShowcase({
   product,
+  structuredContent,
   faqs,
 }: {
   product: ProductData;
+  structuredContent: StructuredProductContent;
   faqs?: FaqItem[];
 }) {
-  const sanitizedTitle = filterSupplierNames(product.title);
-  const features = getProductFeatures(product);
-  const intro = cleanDescriptionIntro(product);
-
   const defaultFaqs: FaqItem[] = [
     {
       question: "When will my order be dispatched and delivered?",
@@ -1070,39 +952,118 @@ function ProductLowerDetails({
   const faqItems = faqs && faqs.length > 0 ? faqs.slice(0, 5) : defaultFaqs;
 
   return (
-    <section className="max-w-page px-margin mx-auto w-full py-8 space-y-5" aria-label="Product details and specifications">
-      {/* 1. Detailed Product Description & Feature List */}
-      <div className="bg-white border border-[#E2DBD0] rounded-2xl p-5 sm:p-7 shadow-2xs space-y-4">
-        {/* Intro text */}
-        <p className="text-xs sm:text-sm text-[#282720] leading-relaxed">
-          {intro}
-        </p>
+    <section className="max-w-page px-margin mx-auto w-full py-8 space-y-6" aria-label="Product details and specifications">
+      {/* 1. Structured Product Overview & Key Highlights */}
+      <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-8 shadow-2xs space-y-6">
+        <div className="border-b border-[#F0EBE1] pb-4">
+          <span className="text-[11px] uppercase font-bold tracking-widest text-[#B77943]">
+            Curated For Everyday Convenience
+          </span>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[#282720] mt-1 tracking-tight">
+            Product Overview &amp; Highlights
+          </h2>
+        </div>
 
-        {/* Feature bullets with Green Checkmarks matching Image 3 */}
-        <div className="space-y-3 pt-2 border-t border-[#F0EBE1]">
-          {features.map((feat, idx) => (
-            <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#282720]">
-              <span className="text-emerald-600 text-sm sm:text-base shrink-0 leading-none">✅</span>
-              <div>
-                <strong className="font-bold">{feat.title}</strong>
-                <span className="text-[#5E5B52]"> – {feat.desc}</span>
-              </div>
-            </div>
+        {/* Clean Overview Paragraphs (No spam or dropship clutter) */}
+        <div className="space-y-3 text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+          {structuredContent.overviewParagraphs.map((para, idx) => (
+            <p key={idx}>{para}</p>
           ))}
         </div>
 
-        {/* Concluding Assurance paragraph matching Image 3 */}
-        <div className="pt-3 border-t border-[#F0EBE1] text-xs sm:text-sm text-[#5E5B52] leading-relaxed space-y-2">
-          <p>
-            Unlike traditional products that shed, break, or wear down quickly, this {sanitizedTitle} is engineered to deliver reliable, long-lasting performance for everyday convenience.
-          </p>
-          <p>
-            Whether you are using it at home, in your car, or on the go, it is crafted to be your ultimate dependable companion.
-          </p>
+        {/* Key Features Grid with Emerald Badges */}
+        <div className="pt-2">
+          <h3 className="text-xs uppercase font-bold tracking-wider text-[#282720] mb-3.5">
+            Key Features &amp; Benefits
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {structuredContent.keyFeatures.map((feat, idx) => (
+              <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#FAF6F0]/70 border border-[#EFE9DE] transition-colors hover:border-[#B77943]/40">
+                <span className="text-emerald-700 text-base shrink-0 leading-none mt-0.5" aria-hidden="true">✅</span>
+                <div className="space-y-0.5">
+                  <h4 className="font-bold text-xs sm:text-sm text-[#282720]">{feat.title}</h4>
+                  <p className="text-xs text-[#5E5B52] leading-relaxed">{feat.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 2. 5 Days Return Policy Collapsible Row */}
+      {/* 2. Visual Feature Spotlights (Alternating Image + Text using genuine extra images) */}
+      {structuredContent.visualSpotlights.length > 0 ? (
+        <div className="space-y-5" aria-label="Visual feature highlights">
+          {structuredContent.visualSpotlights.map((spotlight, idx) => {
+            const isReversed = idx % 2 === 1;
+            return (
+              <div
+                key={idx}
+                className={`bg-white border border-[#E2DBD0] rounded-2xl p-5 sm:p-7 shadow-2xs flex flex-col md:flex-row items-center gap-6 sm:gap-8 ${isReversed ? "md:flex-row-reverse" : ""}`}
+              >
+                <div className="w-full md:w-5/12 aspect-square max-w-[320px] rounded-xl overflow-hidden bg-[#FAF6F0] border border-[#E2DBD0] p-4 flex items-center justify-center shrink-0">
+                  <img
+                    src={spotlight.image.url}
+                    alt={spotlight.image.altText ?? spotlight.feature.title}
+                    className="h-full w-full max-h-full max-w-full object-contain object-center"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex-1 space-y-2.5">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#B77943] bg-[#B77943]/10 px-2.5 py-1 rounded-full inline-block">
+                    Feature Spotlight
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-extrabold text-[#282720] tracking-tight">
+                    {spotlight.feature.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+                    {spotlight.feature.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* 3. Technical Specifications Table */}
+      {structuredContent.specifications.length > 0 ? (
+        <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#B77943]">
+            <span>📋</span>
+            <span>Product Specifications</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {structuredContent.specifications.map((spec, idx) => (
+              <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-[#FAF6F0]/70 border border-[#EFE9DE] text-xs">
+                <span className="font-semibold text-[#7D786D]">{spec.label}</span>
+                <span className="font-bold text-[#282720] text-right truncate max-w-[60%]">{spec.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {/* 4. How To Use (if provided) */}
+      {structuredContent.howToUse.length > 0 ? (
+        <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#B77943]">
+            <span>💡</span>
+            <span>How to Use</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {structuredContent.howToUse.map((step, idx) => (
+              <div key={idx} className="p-3.5 rounded-xl bg-[#FAF6F0] border border-[#E2DBD0] space-y-1.5">
+                <span className="size-6 rounded-full bg-[#282720] text-white text-[11px] font-bold flex items-center justify-center">
+                  {idx + 1}
+                </span>
+                <p className="text-xs text-[#282720] font-medium leading-relaxed">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {/* 5. 5 Days Return Policy Collapsible Row */}
       <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
         <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
           <span className="flex items-center gap-2.5">
@@ -1121,7 +1082,7 @@ function ProductLowerDetails({
         </div>
       </details>
 
-      {/* 3. Frequently Asked Questions (FAQs) Collapsible Row */}
+      {/* 6. Frequently Asked Questions (FAQs) Collapsible Row */}
       <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
         <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
           <span className="flex items-center gap-2.5">
@@ -1211,10 +1172,12 @@ function ProductInfo({
   product,
   selectedVariant,
   reviewStats,
+  structuredContent,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
   reviewStats?: ReviewStats;
+  structuredContent: StructuredProductContent;
 }) {
   const [quantity, setQuantity] = useState(1);
   const { options, register, formProps, errors, pending } = useProductForm();
@@ -1233,33 +1196,39 @@ function ProductInfo({
   return (
     <div className="flex flex-col gap-0 md:sticky md:top-8 md:self-start">
       {/* 1. Product Title: clear, bold heading, compact spacing */}
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#282720] leading-tight mb-1.5 tracking-tight">
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#282720] leading-snug tracking-tight mb-1.5">
         {sanitizedTitle}
       </h1>
 
       {/* 2. Star rating & reviews: immediately below title in one compact line */}
-      <div className="flex items-center gap-1.5 text-xs text-[#282720] mb-3">
+      <div className="flex items-center gap-1.5 text-xs text-[#282720] mb-2.5">
         <span className="text-[#D7A84C] text-sm tracking-widest">★★★★★</span>
         <span className="font-extrabold">
           {reviewStats && reviewStats.totalReviews > 0
             ? `Excellent ${reviewStats.averageRating.toFixed(1)}/5 | ${reviewStats.totalReviews} Customers`
-            : "Excellent 4.8/5 | 5968 Customers"}
+            : "Excellent 4.8/5 | 5,900+ Happy Customers"}
         </span>
       </div>
 
-      {/* 3. Benefits of Prepaid Orders: compact bordered card matching Image 1 */}
-      <BenefitsOfPrepaidOrdersCard />
-
-      {/* 4. Product Price: compact row (Rs. 599.00  Rs. 999.00  [SAVE 40%]) */}
+      {/* 3. Product Price & Compare-At Row */}
       <PriceBlock product={product} selectedVariant={selectedVariant} />
       <InventoryHint selectedVariant={selectedVariant} />
 
-      {/* Variant options if available */}
-      <div data-product-form className="space-y-2.5">
+      {/* 4. Short compelling introductory description */}
+      {structuredContent.shortIntro ? (
+        <div className="my-2.5 border-l-2 border-[#B77943] pl-3 py-1 bg-[#FAF6F0]/70 rounded-r-lg">
+          <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+            {structuredContent.shortIntro}
+          </p>
+        </div>
+      ) : null}
+
+      {/* 5. Variant options if available */}
+      <div data-product-form className="space-y-2.5 my-2">
         <span className="sr-only" aria-live="polite" data-add-to-cart-status />
         <VariantOptions product={product} />
 
-        {/* 5. ADD TO CART Button: full-width espresso button with ivory text */}
+        {/* 6. ADD TO CART Button: full-width espresso button with ivory text */}
         <form {...formProps({ afterSubmit: openCartDrawer })} className="mt-1">
           <input type="hidden" {...register("merchandiseId", {})} />
           <input type="hidden" name="quantity" value={quantity} />
@@ -1282,7 +1251,7 @@ function ProductInfo({
           </button>
         </form>
 
-        {/* 6. ORDER NOW — CASH ON DELIVERY Button: directly beneath Add to Cart */}
+        {/* 7. ORDER NOW — CASH ON DELIVERY Button: directly beneath Add to Cart */}
         <button
           type="button"
           onClick={() => setIsCodModalOpen(true)}
@@ -1308,7 +1277,7 @@ function ProductInfo({
           }}
         />
 
-        {/* 7. Bundle / Quantity Selector: directly below the two purchase buttons */}
+        {/* 8. Bundle / Quantity Selector: directly below the two purchase buttons */}
         <PackSelector
           unitPrice={baseUnitAmount}
           unitCompareAt={genuineCompareAt}
@@ -1339,8 +1308,13 @@ function ProductInfo({
         ) : null}
       </div>
 
-      {/* 8. Other purchase information: Pincode & Delivery Timeline & Trusted Payments */}
+      {/* 9. Benefits of Prepaid Orders card */}
+      <BenefitsOfPrepaidOrdersCard />
+
+      {/* 10. Delivery & Pincode checker */}
       <PincodeEstimator />
+
+      {/* 11. Trusted payments & 3-stage delivery timeline */}
       <TrustedPaymentsAndTimeline />
     </div>
   );
@@ -1374,21 +1348,24 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
 function ProductPageContent({
   product,
   reviewStats,
+  structuredContent,
 }: {
   product: ProductData;
   reviewStats?: ReviewStats;
+  structuredContent: StructuredProductContent;
 }) {
   const { selectedVariant } = useProductForm();
 
   return (
     <section className="max-w-page px-margin mx-auto w-full py-4 md:py-8">
       <ProductBreadcrumb product={product} />
-      <div className="product-grid grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-12">
+      <div className="product-grid grid grid-cols-1 lg:grid-cols-[54%_46%] gap-8 lg:gap-12 items-start">
         <ProductGallery product={product} selectedVariant={selectedVariant} />
         <ProductInfo
           product={product}
           selectedVariant={selectedVariant}
           reviewStats={reviewStats}
+          structuredContent={structuredContent}
         />
       </div>
     </section>
@@ -1515,6 +1492,16 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const structuredContent = useMemo(
+    () =>
+      parseProductContent({
+        title: product.title,
+        description: product.description,
+        images: product.images.nodes,
+      }),
+    [product.title, product.description, product.images.nodes],
+  );
+
   return (
     <ProductProvider
       product={product}
@@ -1536,8 +1523,16 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
     >
       <ProductViewedTracker product={product} />
       <main className="flex-1 pb-16 md:pb-0" id="main-content" tabIndex={-1}>
-        <ProductPageContent product={product} reviewStats={reviewStats} />
-        <ProductLowerDetails product={product} faqs={faqs} />
+        <ProductPageContent
+          product={product}
+          reviewStats={reviewStats}
+          structuredContent={structuredContent}
+        />
+        <ProductEditorialShowcase
+          product={product}
+          structuredContent={structuredContent}
+          faqs={faqs}
+        />
         <ProductReviews
           productId={product.id}
           productHandle={product.handle}
