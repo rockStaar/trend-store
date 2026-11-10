@@ -917,6 +917,48 @@ function TrustedPaymentsAndTimeline() {
   );
 }
 
+function TrustBadgesBanner() {
+  return (
+    <div className="grid grid-cols-4 gap-2 sm:gap-4 py-3 sm:py-5 border-b border-[#E2DBD0] mb-6">
+      <div className="flex flex-col items-center text-center">
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
+          <span className="text-base sm:text-lg">🔒</span>
+        </div>
+        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+          Secure Ordering
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center text-center">
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
+          <span className="text-[11px] sm:text-xs font-black text-[#282720]">5D</span>
+        </div>
+        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+          Free Replacement
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center text-center">
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
+          <span className="text-[10px] sm:text-xs font-black text-[#282720]">100%</span>
+        </div>
+        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+          Satisfaction
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center text-center">
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
+          <span className="text-base sm:text-lg">🚚</span>
+        </div>
+        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+          Easy Returns
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function ProductEditorialShowcase({
   product,
   structuredContent,
@@ -952,80 +994,86 @@ function ProductEditorialShowcase({
   const faqItems = faqs && faqs.length > 0 ? faqs.slice(0, 5) : defaultFaqs;
 
   return (
-    <section className="max-w-page px-margin mx-auto w-full py-8 space-y-6" aria-label="Product details and specifications">
-      {/* 1. Structured Product Overview & Key Highlights */}
-      <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-8 shadow-2xs space-y-6">
-        <div className="border-b border-[#F0EBE1] pb-4">
-          <span className="text-[11px] uppercase font-bold tracking-widest text-[#B77943]">
-            Curated For Everyday Convenience
-          </span>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-[#282720] mt-1 tracking-tight">
-            Product Overview &amp; Highlights
-          </h2>
-        </div>
+    <section className="max-w-page px-margin mx-auto w-full py-8 space-y-6" aria-label="Product details and story">
+      {/* Editorial Story Container Matching Image 2 */}
+      <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-9 shadow-2xs">
+        {/* 4 Circular Trust Badges Banner at top */}
+        <TrustBadgesBanner />
 
-        {/* Clean Overview Paragraphs (No spam or dropship clutter) */}
-        <div className="space-y-3 text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
-          {structuredContent.overviewParagraphs.map((para, idx) => (
-            <p key={idx}>{para}</p>
-          ))}
-        </div>
+        {/* If Story Sections exist (like OM Mantra Device in Image 2), render each story block */}
+        {structuredContent.storySections.length > 0 ? (
+          <div className="space-y-8">
+            {structuredContent.storySections.map((sec, idx) => (
+              <div key={idx} className="space-y-3.5">
+                {sec.headline ? (
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#282720] tracking-tight leading-snug">
+                    {sec.headline}
+                  </h3>
+                ) : null}
 
-        {/* Key Features Grid with Emerald Badges */}
-        <div className="pt-2">
-          <h3 className="text-xs uppercase font-bold tracking-wider text-[#282720] mb-3.5">
-            Key Features &amp; Benefits
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {structuredContent.keyFeatures.map((feat, idx) => (
-              <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#FAF6F0]/70 border border-[#EFE9DE] transition-colors hover:border-[#B77943]/40">
-                <span className="text-emerald-700 text-base shrink-0 leading-none mt-0.5" aria-hidden="true">✅</span>
-                <div className="space-y-0.5">
-                  <h4 className="font-bold text-xs sm:text-sm text-[#282720]">{feat.title}</h4>
-                  <p className="text-xs text-[#5E5B52] leading-relaxed">{feat.desc}</p>
-                </div>
+                {sec.subhead ? (
+                  <p className="font-bold text-sm sm:text-base text-[#282720] leading-snug">
+                    {sec.subhead}
+                  </p>
+                ) : null}
+
+                {sec.paragraph ? (
+                  <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+                    {sec.paragraph}
+                  </p>
+                ) : null}
+
+                {sec.bullets.length > 0 ? (
+                  <ul className="space-y-2 py-1.5" role="list">
+                    {sec.bullets.map((bullet, bIdx) => (
+                      <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#282720]">
+                        <span className="text-[#282720] font-bold text-base leading-none">✓</span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {/* Supporting Lifestyle Image with Rounded Frame */}
+                {sec.image?.url ? (
+                  <div className="my-5 overflow-hidden rounded-2xl border border-[#E2DBD0] bg-[#FAF6F0] p-3 sm:p-6 flex items-center justify-center">
+                    <img
+                      src={sec.image.url}
+                      alt={sec.image.altText ?? sec.headline}
+                      className="w-full h-auto max-h-[420px] object-contain rounded-xl"
+                      loading="lazy"
+                    />
+                  </div>
+                ) : null}
+
+                {idx < structuredContent.storySections.length - 1 ? (
+                  <div className="pt-5 border-b border-[#F0EBE1]" />
+                ) : null}
               </div>
             ))}
           </div>
-        </div>
+        ) : (
+          /* Fallback key features grid for products with plain text */
+          <div className="space-y-4">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-[#282720]">
+              Key Features &amp; Highlights
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {structuredContent.keyFeatures.map((feat, idx) => (
+                <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#FAF6F0]/70 border border-[#EFE9DE]">
+                  <span className="text-emerald-700 text-base shrink-0 leading-none mt-0.5">✅</span>
+                  <div>
+                    <h4 className="font-bold text-xs sm:text-sm text-[#282720]">{feat.title}</h4>
+                    <p className="text-xs text-[#5E5B52] leading-relaxed">{feat.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 2. Visual Feature Spotlights (Alternating Image + Text using genuine extra images) */}
-      {structuredContent.visualSpotlights.length > 0 ? (
-        <div className="space-y-5" aria-label="Visual feature highlights">
-          {structuredContent.visualSpotlights.map((spotlight, idx) => {
-            const isReversed = idx % 2 === 1;
-            return (
-              <div
-                key={idx}
-                className={`bg-white border border-[#E2DBD0] rounded-2xl p-5 sm:p-7 shadow-2xs flex flex-col md:flex-row items-center gap-6 sm:gap-8 ${isReversed ? "md:flex-row-reverse" : ""}`}
-              >
-                <div className="w-full md:w-5/12 aspect-square max-w-[320px] rounded-xl overflow-hidden bg-[#FAF6F0] border border-[#E2DBD0] p-4 flex items-center justify-center shrink-0">
-                  <img
-                    src={spotlight.image.url}
-                    alt={spotlight.image.altText ?? spotlight.feature.title}
-                    className="h-full w-full max-h-full max-w-full object-contain object-center"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="flex-1 space-y-2.5">
-                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#B77943] bg-[#B77943]/10 px-2.5 py-1 rounded-full inline-block">
-                    Feature Spotlight
-                  </span>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-[#282720] tracking-tight">
-                    {spotlight.feature.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
-                    {spotlight.feature.desc}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
-
-      {/* 3. Technical Specifications Table */}
+      {/* Technical Specifications Table */}
       {structuredContent.specifications.length > 0 ? (
         <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
           <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#B77943]">
@@ -1043,27 +1091,7 @@ function ProductEditorialShowcase({
         </div>
       ) : null}
 
-      {/* 4. How To Use (if provided) */}
-      {structuredContent.howToUse.length > 0 ? (
-        <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#B77943]">
-            <span>💡</span>
-            <span>How to Use</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {structuredContent.howToUse.map((step, idx) => (
-              <div key={idx} className="p-3.5 rounded-xl bg-[#FAF6F0] border border-[#E2DBD0] space-y-1.5">
-                <span className="size-6 rounded-full bg-[#282720] text-white text-[11px] font-bold flex items-center justify-center">
-                  {idx + 1}
-                </span>
-                <p className="text-xs text-[#282720] font-medium leading-relaxed">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {/* 5. 5 Days Return Policy Collapsible Row */}
+      {/* 5 Days Return Policy Collapsible Row */}
       <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
         <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
           <span className="flex items-center gap-2.5">
@@ -1082,7 +1110,7 @@ function ProductEditorialShowcase({
         </div>
       </details>
 
-      {/* 6. Frequently Asked Questions (FAQs) Collapsible Row */}
+      {/* Frequently Asked Questions (FAQs) Collapsible Row */}
       <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
         <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
           <span className="flex items-center gap-2.5">

@@ -1,13 +1,12 @@
 /**
- * HypeeeCart — Product Content Sanitizer & Structured Feature Parser
+ * HypeeeCart — Product Content Sanitizer & Structured Editorial Story Parser
  *
  * Transforms raw, dropship-polluted, or unstructured Shopify product descriptions
- * into a clean, premium, structured content model:
- *  - shortIntro: Concise, compelling introductory description for the right-column hero.
- *  - keyFeatures: Polished feature bullet items with strong titles & descriptions.
- *  - specifications: Clean key-value pairs (Material, Dimensions, Power, Package Contents).
- *  - howToUse: Optional step-by-step usage instructions.
- *  - visualSpotlights: Pairs genuine extra gallery images with feature highlights.
+ * into a clean, premium, structured content model matching the reference landing page:
+ *  - 4 Trust Badges banner (Secure Ordering, Money Back, 100% Satisfaction, Easy Returns)
+ *  - Rich Story Sections (Headline, Subhead, Paragraph, Clean '✓' Bullets, Supporting Images)
+ *  - Short intro teaser for right-column product info
+ *  - Clean specifications & FAQ integration
  */
 
 import { filterSupplierNames } from "~/routes/product";
@@ -30,16 +29,20 @@ export type ProductSpec = {
   value: string;
 };
 
+export type StorySection = {
+  headline: string;
+  subhead?: string;
+  paragraph?: string;
+  bullets: string[];
+  image?: ProductImage;
+};
+
 export type StructuredProductContent = {
   shortIntro: string;
-  overviewParagraphs: string[];
+  storySections: StorySection[];
   keyFeatures: KeyFeature[];
   specifications: ProductSpec[];
   howToUse: string[];
-  visualSpotlights: Array<{
-    image: ProductImage;
-    feature: KeyFeature;
-  }>;
 };
 
 /**
@@ -97,12 +100,12 @@ export function sanitizeRawDescription(rawText: string | null | undefined): stri
 
     // Skip repeated lines (dropship descriptions often repeat the exact same line 5x)
     const normalized = lower.replace(/[^a-z0-9]/g, "");
-    if (normalized.length > 15) {
+    if (normalized.length > 20) {
       if (seenLines.has(normalized)) continue;
       seenLines.add(normalized);
     }
 
-    // Collapse excessive emojis (more than 2 consecutive emojis)
+    // Collapse excessive duplicate emojis
     line = line.replace(/([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}])\s*(\1\s*)+/gu, "$1 ");
 
     cleanLines.push(line);
@@ -112,10 +115,109 @@ export function sanitizeRawDescription(rawText: string | null | undefined): stri
 }
 
 /**
- * Intelligent category fallback features when source product lacks explicit bullet points.
+ * Parses continuous or structured description text into rich story sections matching Image 2.
  */
-function getCategoryFallbackFeatures(cleanTitle: string, cleanText: string): KeyFeature[] {
-  const combined = `${cleanTitle} ${cleanText}`.toLowerCase();
+export function parseEditorialStorySections(
+  cleanText: string,
+  images: ProductImage[] = [],
+): StorySection[] {
+  if (!cleanText || cleanText.length < 20) return [];
+
+  // Normalize checkmarks and bullets
+  let str = cleanText.replace(/✓\s*/g, "\n✓ ");
+  str = str.replace(/✔\s*/g, "\n✓ ");
+
+  // Put newlines before major section starts (emoji followed by capital words and period)
+  str = str.replace(
+    /([.!?]|✓\s*[^\n]+?)\s+([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]\s*[A-Z0-9][^.!?\n]{3,60}\.)/gu,
+    "$1\n\n$2",
+  );
+  str = str.replace(
+    /([a-zA-Z0-9])\s+(🕉️\s*32 Mantras|🧘\s*Calm Your Mind|✨\s*Make OM|✨\s*One Sound|🕉️\s*Remove Negative|🔱\s*Bring the Power)/gu,
+    "$1\n\n$2",
+  );
+
+  const rawBlocks = str.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+  const sections: StorySection[] = [];
+
+  // Start assigning from secondary images (images[1], images[2], ...)
+  let imageIdx = 1;
+
+  for (const block of rawBlocks) {
+    const lines = block.split(/\n/).map((l) => l.trim()).filter(Boolean);
+    const bullets: string[] = [];
+    const textLines: string[] = [];
+
+    for (const line of lines) {
+      if (line.startsWith("✓") || line.startsWith("✔") || line.startsWith("•") || line.startsWith("- ")) {
+        const cleanBullet = line.replace(/^[✓✔•\-]\s*/, "").trim();
+        if (cleanBullet.length > 2) bullets.push(cleanBullet);
+      } else {
+        textLines.push(line);
+      }
+    }
+
+    let remaining = textLines.join(" ");
+
+    // Check for inline emoji list at the end of a section
+    // e.g. "🔱 OM Mantra Sound 🧘 Meditation 🧘 Prayer & Pooja ✨ Positive Ambience 🌿 Relaxation"
+    const inlineEmojiListRegex =
+      /((?:[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]\s*[^.!?\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]{3,35}\s*){2,})$/u;
+    const inlineMatch = remaining.match(inlineEmojiListRegex);
+    if (inlineMatch) {
+      const listStr = inlineMatch[1];
+      remaining = remaining.slice(0, remaining.length - listStr.length).trim();
+      const items = listStr.match(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]\s*[^.!?\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]{3,35}/gu,
+      );
+      if (items) {
+        bullets.push(
+          ...items.map((it) =>
+            it.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]\s*/u, "").trim(),
+          ),
+        );
+      }
+    }
+
+    const sentences = remaining.split(/(?<=[.!?])\s+/);
+    if (sentences.length === 0 || !sentences[0]) continue;
+
+    const headline = sentences[0].trim();
+    let subhead = "";
+    let paragraph = "";
+
+    if (sentences.length === 2) {
+      paragraph = sentences[1].trim();
+    } else if (sentences.length > 2) {
+      if (sentences[1].length < 75) {
+        subhead = sentences[1].trim();
+        paragraph = sentences.slice(2).join(" ").trim();
+      } else {
+        paragraph = sentences.slice(1).join(" ").trim();
+      }
+    }
+
+    // Assign a distinct secondary product image to this section if available
+    const assignedImage = images && images.length > imageIdx ? images[imageIdx] : undefined;
+    if (assignedImage) imageIdx++;
+
+    sections.push({
+      headline,
+      subhead: subhead || undefined,
+      paragraph: paragraph || undefined,
+      bullets,
+      image: assignedImage,
+    });
+  }
+
+  return sections;
+}
+
+/**
+ * Intelligent category fallback features when a product has NO description at all.
+ */
+function getCategoryFallbackFeatures(cleanTitle: string): KeyFeature[] {
+  const combined = cleanTitle.toLowerCase();
 
   // 1. Mantra / Bell / Audio / Religious Device
   if (
@@ -155,9 +257,8 @@ function getCategoryFallbackFeatures(cleanTitle: string, cleanText: string): Key
   if (
     combined.includes("duster") ||
     combined.includes("clean") ||
-    combined.includes("car") ||
-    combined.includes("microfiber") ||
-    combined.includes("brush")
+    combined.includes("car care") ||
+    combined.includes("microfiber brush")
   ) {
     return [
       {
@@ -183,14 +284,12 @@ function getCategoryFallbackFeatures(cleanTitle: string, cleanText: string): Key
     ];
   }
 
-  // 3. Bathroom / Shelf / Rack / Adhesive / Organizer
+  // 3. Bathroom Shelf / Storage Rack (ONLY if explicitly a shelf or rack)
   if (
-    combined.includes("shelf") ||
-    combined.includes("corner") ||
-    combined.includes("rack") ||
-    combined.includes("bathroom") ||
-    combined.includes("adhesive") ||
-    combined.includes("organizer")
+    combined.includes("bathroom shelf") ||
+    combined.includes("corner shelf") ||
+    combined.includes("storage rack") ||
+    combined.includes("shower caddy")
   ) {
     return [
       {
@@ -221,8 +320,7 @@ function getCategoryFallbackFeatures(cleanTitle: string, cleanText: string): Key
     combined.includes("bottle") ||
     combined.includes("flask") ||
     combined.includes("mug") ||
-    combined.includes("tumbler") ||
-    combined.includes("cup")
+    combined.includes("tumbler")
   ) {
     return [
       {
@@ -252,7 +350,7 @@ function getCategoryFallbackFeatures(cleanTitle: string, cleanText: string): Key
   return [
     {
       title: "Premium Engineering",
-      desc: `Carefully constructed using high-grade, durable materials built to withstand active everyday domestic use.`,
+      desc: "Carefully constructed using high-grade, durable materials built to withstand active everyday domestic use.",
     },
     {
       title: "Ergonomic & Practical Design",
@@ -288,113 +386,57 @@ export function parseProductContent({
   const cleanTitle = filterSupplierNames(title);
   const cleanText = sanitizeRawDescription(description);
 
-  const lines = cleanText.split("\n").map((l) => l.trim()).filter(Boolean);
+  // Parse rich story sections matching the reference screenshot in Image 2
+  const storySections = parseEditorialStorySections(cleanText, images);
 
   const keyFeatures: KeyFeature[] = [];
   const specifications: ProductSpec[] = [];
   const howToUse: string[] = [];
-  const overviewLines: string[] = [];
 
-  let currentSection: "overview" | "features" | "specs" | "howToUse" = "overview";
-
+  // Parse key-value specifications from text if present
+  const lines = cleanText.split("\n").map((l) => l.trim()).filter(Boolean);
   for (const line of lines) {
-    const lower = line.toLowerCase();
-
-    // Section header detection
-    if (
-      lower.includes("key feature") ||
-      lower.includes("features:") ||
-      lower.startsWith("features") ||
-      lower.includes("highlights")
-    ) {
-      currentSection = "features";
-      continue;
-    }
-    if (
-      lower.includes("specification") ||
-      lower.includes("specs:") ||
-      lower.startsWith("product details") ||
-      lower.startsWith("specifications")
-    ) {
-      currentSection = "specs";
-      continue;
-    }
-    if (
-      lower.includes("how to use") ||
-      lower.includes("instructions") ||
-      lower.includes("directions")
-    ) {
-      currentSection = "howToUse";
-      continue;
-    }
-
-    // Specification key-value extraction (e.g. "Material : ABS Plastic")
     const specMatch = line.match(
       /^(material|color|dimensions?|size|weight|voltage|power|type|package contents?|in the box|capacity|net quantity|country of origin)\s*[:\-]\s*(.+)$/i,
     );
     if (specMatch) {
       const label = specMatch[1].trim();
       const value = specMatch[2].trim();
-      // Only include meaningful specs (exclude meesho supplier ids)
       if (value.length > 0 && !value.toLowerCase().includes("supplier")) {
         specifications.push({
           label: label.charAt(0).toUpperCase() + label.slice(1).toLowerCase(),
           value: filterSupplierNames(value),
         });
       }
-      continue;
     }
+  }
 
-    // Bullet feature extraction
-    const bulletMatch = line.match(/^[-*•✔✅\d.]+\s*(.+)$/);
-    if (bulletMatch || currentSection === "features") {
-      const content = bulletMatch ? bulletMatch[1].trim() : line;
-      if (content.length > 5) {
-        // Check if feature has a title and description (e.g. "Title: Description" or "Title - Description")
-        const splitMatch = content.match(/^([^:\-–—]{3,35})\s*[:\-–—]\s*(.+)$/);
-        if (splitMatch) {
+  // If story sections exist, convert their first section bullets into keyFeatures
+  if (storySections.length > 0) {
+    for (const sec of storySections) {
+      for (const bullet of sec.bullets) {
+        if (keyFeatures.length < 6) {
           keyFeatures.push({
-            title: splitMatch[1].trim(),
-            desc: splitMatch[2].trim(),
-          });
-        } else {
-          keyFeatures.push({
-            title: content.slice(0, 30).trim(),
-            desc: content,
+            title: bullet,
+            desc: sec.paragraph || `Enjoy genuine ${bullet.toLowerCase()} crafted for daily convenience.`,
           });
         }
       }
-      continue;
     }
-
-    if (currentSection === "howToUse") {
-      const cleanStep = line.replace(/^[-*•\d.]+\s*/, "").trim();
-      if (cleanStep.length > 5) howToUse.push(cleanStep);
-      continue;
-    }
-
-    // Otherwise treat as overview paragraph line
-    overviewLines.push(line);
   }
 
-  // 1. Build Key Features: If fewer than 3 features were extracted from raw text, use category fallback
+  // If still no key features, use title-based category fallback (never matching "corner" generically)
   const finalFeatures: KeyFeature[] =
-    keyFeatures.length >= 3 ? keyFeatures.slice(0, 6) : getCategoryFallbackFeatures(cleanTitle, cleanText);
+    keyFeatures.length >= 3 ? keyFeatures.slice(0, 6) : getCategoryFallbackFeatures(cleanTitle);
 
-  // 2. Short Intro for the right column:
+  // Short intro teaser for right-column product info
   let shortIntro = "";
-  if (overviewLines.length > 0) {
-    const candidate = overviewLines[0].trim();
-    if (candidate.length >= 30 && candidate.length <= 260) {
-      shortIntro = candidate;
-    } else if (candidate.length > 260) {
-      // Trim to first sentence or clean 200 chars
-      const periodIdx = candidate.indexOf(". ");
-      if (periodIdx > 30 && periodIdx < 240) {
-        shortIntro = candidate.slice(0, periodIdx + 1).trim();
-      } else {
-        shortIntro = candidate.slice(0, 200).replace(/\s+\S*$/, "") + "…";
-      }
+  if (storySections.length > 0 && storySections[0].paragraph) {
+    shortIntro = storySections[0].paragraph;
+  } else if (cleanText.length > 20) {
+    const firstSentence = cleanText.split(/(?<=[.!?])\s+/)[0];
+    if (firstSentence && firstSentence.length <= 220) {
+      shortIntro = firstSentence;
     }
   }
 
@@ -402,22 +444,7 @@ export function parseProductContent({
     shortIntro = `Experience premium convenience and reliable performance with the ${cleanTitle}. Thoughtfully designed for modern Indian homes, practical everyday use, and lasting satisfaction.`;
   }
 
-  // 3. Clean Overview Paragraphs (1 or 2 clean paragraphs)
-  const overviewParagraphs: string[] = [];
-  if (overviewLines.length > 0) {
-    const combinedOverview = overviewLines.join(" ").trim();
-    if (combinedOverview.length > 40) {
-      // Split into paragraphs if long
-      overviewParagraphs.push(combinedOverview.slice(0, 450).trim());
-    }
-  }
-  if (overviewParagraphs.length === 0) {
-    overviewParagraphs.push(
-      `The ${cleanTitle} combines functional elegance with reliable craftsmanship. Whether for daily rituals, home organization, or personal convenience, it is engineered to deliver dependable results day after day.`,
-    );
-  }
-
-  // 4. Default specifications if none were explicitly parsed
+  // Default specifications if none were explicitly parsed
   if (specifications.length === 0) {
     specifications.push(
       { label: "Product", value: cleanTitle },
@@ -428,30 +455,11 @@ export function parseProductContent({
     );
   }
 
-  // 5. Visual Spotlights (Image + Text Pairings)
-  // Take genuine extra images from gallery (skip index 0, which is the main hero image)
-  const visualSpotlights: Array<{ image: ProductImage; feature: KeyFeature }> = [];
-  const extraImages = images.slice(1);
-
-  if (extraImages.length > 0) {
-    const count = Math.min(extraImages.length, finalFeatures.length, 3);
-    for (let i = 0; i < count; i++) {
-      if (extraImages[i]?.url) {
-        visualSpotlights.push({
-          image: extraImages[i],
-          feature: finalFeatures[i],
-        });
-      }
-    }
-  }
-
   return {
     shortIntro,
-    overviewParagraphs,
+    storySections,
     keyFeatures: finalFeatures,
     specifications,
     howToUse,
-    visualSpotlights,
   };
 }
-
