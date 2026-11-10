@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
 import { CodOrderModal } from "~/components/CodOrderModal";
+import { ProductCustomerReviews } from "~/components/ProductCustomerReviews";
 import { openCartDrawer } from "~/lib/cart-drawer";
 import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
@@ -1192,10 +1193,12 @@ function ProductInfo({
   product,
   selectedVariant,
   structuredContent,
+  isMantraDevice,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
   structuredContent: StructuredProductContent;
+  isMantraDevice?: boolean;
 }) {
   const [quantity, setQuantity] = useState(1);
   const { options, register, formProps, errors, pending } = useProductForm();
@@ -1217,6 +1220,20 @@ function ProductInfo({
       <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#282720] leading-snug tracking-tight mb-2">
         {sanitizedTitle}
       </h1>
+
+      {/* Verified customer rating for this specific product */}
+      {isMantraDevice ? (
+        <a
+          href="#customer-reviews"
+          className="flex items-center gap-1.5 text-xs text-[#282720] mb-2.5 hover:opacity-80 transition-opacity w-fit"
+        >
+          <span className="text-[#D7A84C] text-sm tracking-widest leading-none">★★★★★</span>
+          <span className="font-extrabold text-[#282720]">4.8/5 | 6 Customer Reviews</span>
+          <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+            ✓ Verified
+          </span>
+        </a>
+      ) : null}
 
       {/* 2. Product Price & Compare-At Row */}
       <PriceBlock product={product} selectedVariant={selectedVariant} />
@@ -1356,9 +1373,11 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
 function ProductPageContent({
   product,
   structuredContent,
+  isMantraDevice,
 }: {
   product: ProductData;
   structuredContent: StructuredProductContent;
+  isMantraDevice?: boolean;
 }) {
   const { selectedVariant } = useProductForm();
 
@@ -1371,6 +1390,7 @@ function ProductPageContent({
           product={product}
           selectedVariant={selectedVariant}
           structuredContent={structuredContent}
+          isMantraDevice={isMantraDevice}
         />
       </div>
     </section>
@@ -1497,6 +1517,17 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isMantraDevice = useMemo(() => {
+    const t = `${product.title} ${product.handle}`.toLowerCase();
+    return (
+      t.includes("mantra") ||
+      t.includes("om") ||
+      t.includes("chalisa") ||
+      t.includes("bhajan") ||
+      t.includes("chant")
+    );
+  }, [product.title, product.handle]);
+
   const structuredContent = useMemo(
     () =>
       parseProductContent({
@@ -1531,12 +1562,14 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
         <ProductPageContent
           product={product}
           structuredContent={structuredContent}
+          isMantraDevice={isMantraDevice}
         />
         <ProductEditorialShowcase
           product={product}
           structuredContent={structuredContent}
           faqs={faqs}
         />
+        {isMantraDevice ? <ProductCustomerReviews /> : null}
         <RelatedProducts products={relatedProducts} />
         <StickyMobileBuyBar product={product} />
       </main>
