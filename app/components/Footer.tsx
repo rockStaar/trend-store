@@ -66,9 +66,9 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
 
       {/* Main Footer Links */}
       <div className="max-w-page px-margin mx-auto py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {/* Brand Column */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-1">
             <div className="flex flex-col items-start gap-1">
               <Link to="/" className="inline-block">
                 <img
@@ -77,44 +77,44 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                   className="h-10 w-auto object-contain"
                 />
               </Link>
-              <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-semibold mt-1">
+              <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-bold mt-1">
                 Trending Finds. Everyday Wins.
               </span>
             </div>
             <p className="text-xs text-[#635F53] leading-relaxed">
-              Curating clever home essentials, trending gadgets, and practical everyday problem-solvers for modern Indian homes. Quality-checked, swiftly delivered, backed by our 7-day replacement guarantee.
+              Discover clever home essentials, trending gadgets, and practical everyday upgrades made to bring convenience to your home.
             </p>
-            <div className="pt-2 text-xs text-[#635F53]">
-              <p className="font-medium text-[#282720]">Customer Support (Mon–Sat, 10am–6pm IST):</p>
-              <p className="mt-1">Email: <a href="mailto:support@hypeeecart.in" className="text-[#B77943] underline">support@hypeeecart.in</a></p>
-              <p className="mt-0.5">WhatsApp: <span className="text-[#282720] font-medium">+91 98765 43210</span> (Mon–Sat)</p>
+            <div className="pt-2 text-xs text-[#635F53] space-y-1">
+              <p className="font-semibold text-[#282720]">Customer Support:</p>
+              <p>Email: <a href="mailto:support@hypeeecart.in" className="text-[#B77943] hover:underline font-medium">support@hypeeecart.in</a></p>
+              <p>Mon–Sat: 10:00 AM – 6:30 PM IST</p>
             </div>
           </div>
 
-          {/* Quick Discoveries */}
+          {/* Useful Links Column 1 */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-4">
-              Explore Store
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+              Useful Links
             </h3>
             <ul role="list" className="space-y-1">
               <li>
-                <Link to="/" className={linkClass}>
-                  Home
+                <Link to="/#home-kitchen" className={linkClass}>
+                  Home &amp; Kitchen
                 </Link>
               </li>
               <li>
-                <Link to="/#trending" className={linkClass}>
-                  Trending Finds
+                <Link to="/search?q=storage" className={linkClass}>
+                  Storage &amp; Household
                 </Link>
               </li>
               <li>
-                <Link to="/#essentials" className={linkClass}>
-                  Home Essentials
+                <Link to="/search?q=decor" className={linkClass}>
+                  Home Decor &amp; Lighting
                 </Link>
               </li>
               <li>
-                <Link to="/#problem-solvers" className={linkClass}>
-                  Gadgets &amp; Accessories
+                <Link to="/#smart-upgrades" className={linkClass}>
+                  Tools &amp; Home Improvement
                 </Link>
               </li>
               <li>
@@ -122,38 +122,72 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                   All Collections
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          {/* Useful Links Column 2 */}
+          <div>
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+              Categories
+            </h3>
+            <ul role="list" className="space-y-1">
               <li>
-                <Link to="/#why-us" className={linkClass}>
-                  Why HypeeeCart
+                <Link to="/#health-care" className={linkClass}>
+                  Health &amp; Personal Care
+                </Link>
+              </li>
+              <li>
+                <Link to="/search?q=mobile" className={linkClass}>
+                  Mobile Accessories
+                </Link>
+              </li>
+              <li>
+                <Link to="/search?q=bags" className={linkClass}>
+                  Bags, Wallets &amp; Travel
+                </Link>
+              </li>
+              <li>
+                <Link to="/search?q=toys" className={linkClass}>
+                  Toys &amp; Kids Essentials
+                </Link>
+              </li>
+              <li>
+                <Link to="/search?q=stationery" className={linkClass}>
+                  Stationery &amp; Office
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Customer Care & Policies */}
+          {/* Policies & Help Column */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-4">
-              Help & Policies
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+              Policies &amp; Help
             </h3>
             <ul role="list" className="space-y-1">
               <li>
+                <Link to="/#why-us" className={linkClass}>
+                  About HypeeeCart
+                </Link>
+              </li>
+              <li>
+                <Link to="/policies/contact" className={linkClass}>
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/account" className={linkClass}>
+                  Track Your Order
+                </Link>
+              </li>
+              <li>
                 <Link to="/policies/shipping-policy" className={linkClass}>
-                  Shipping & Delivery Policy
+                  Shipping &amp; Delivery
                 </Link>
               </li>
               <li>
                 <Link to="/policies/refund-policy" className={linkClass}>
-                  7-Day Returns & Replacements
-                </Link>
-              </li>
-              <li>
-                <Link to="/policies/faq" className={linkClass}>
-                  Frequently Asked Questions
-                </Link>
-              </li>
-              <li>
-                <Link to="/policies/terms-of-service" className={linkClass}>
-                  Terms of Service
+                  7-Day Replacements
                 </Link>
               </li>
               <li>
@@ -162,58 +196,60 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                 </Link>
               </li>
               <li>
-                <Link to="/policies/contact" className={linkClass}>
-                  Contact Customer Care
+                <Link to="/policies/terms-of-service" className={linkClass}>
+                  Terms of Service
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* India Payment Methods & Trust */}
-          <div className="space-y-4">
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720]">
-              Secure Payments
+          {/* My Account Column */}
+          <div>
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+              My Account
             </h3>
-            <p className="text-xs text-[#635F53] leading-relaxed">
-              We support all trusted Indian payment gateways with 256-bit SSL encryption.
-            </p>
+            <ul role="list" className="space-y-1">
+              <li>
+                <Link to="/account" className={linkClass}>
+                  Sign In / Register
+                </Link>
+              </li>
+              <li>
+                <Link to="/account" className={linkClass}>
+                  Order History
+                </Link>
+              </li>
+              <li>
+                <Link to="/#trending" className={linkClass}>
+                  My Wishlist
+                </Link>
+              </li>
+              <li>
+                <Link to="/cart" className={linkClass}>
+                  View Cart
+                </Link>
+              </li>
+            </ul>
 
             {/* Indian Payment Badges */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2.5 py-1 text-[11px] font-semibold text-[#282720]">
-                UPI (GPay / PhonePe / Paytm)
+            <div className="mt-5 pt-4 border-t border-[#E2DBD0]">
+              <span className="text-[11px] font-bold text-[#282720] block mb-2">
+                Secure Indian Payments
               </span>
-              <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2.5 py-1 text-[11px] font-semibold text-[#282720]">
-                RuPay
-              </span>
-              <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2.5 py-1 text-[11px] font-semibold text-[#282720]">
-                Cards & NetBanking
-              </span>
-              <span className="inline-flex items-center rounded-sm bg-[#B77943]/10 border border-[#B77943]/30 px-2.5 py-1 text-[11px] font-semibold text-[#B77943]">
-                COD Available
-              </span>
-            </div>
-
-            {shopInfo.paymentMethods.length > 0 ? (
-              <div className="pt-2">
-                <ul
-                  role="list"
-                  aria-label="Supported Payment Methods"
-                  className="flex flex-wrap items-center gap-1.5"
-                >
-                  {shopInfo.paymentMethods.map((method) => (
-                    <li key={method} className="max-w-full">
-                      <PaymentMethodIcon method={method} />
-                    </li>
-                  ))}
-                </ul>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2 py-0.5 text-[10px] font-semibold text-[#282720]">
+                  UPI
+                </span>
+                <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2 py-0.5 text-[10px] font-semibold text-[#282720]">
+                  RuPay
+                </span>
+                <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2 py-0.5 text-[10px] font-semibold text-[#282720]">
+                  Cards / NetBanking
+                </span>
+                <span className="inline-flex items-center rounded-sm bg-[#B77943]/10 border border-[#B77943]/30 px-2 py-0.5 text-[10px] font-bold text-[#B77943]">
+                  COD Available
+                </span>
               </div>
-            ) : null}
-
-            <div className="pt-3 border-t border-[#E2DBD0]">
-              <p className="text-[11px] text-[#7D786D]">
-                ⚡ 100% Safe Checkout • Dispatched via BlueDart, Delhivery & Xpressbees.
-              </p>
             </div>
           </div>
         </div>
