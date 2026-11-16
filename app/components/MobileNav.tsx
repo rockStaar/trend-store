@@ -1,8 +1,9 @@
 import { Link } from "react-router";
 
 import { closeMobileNavDrawer, MOBILE_NAV_DRAWER_ID, openDialogFallback } from "~/lib/cart-drawer";
+import type { HeaderCollection } from "~/lib/root-layout";
 
-export function MobileNav() {
+export function MobileNav({ collections = [] }: { collections?: HeaderCollection[] }) {
   return (
     <dialog
       id={MOBILE_NAV_DRAWER_ID}
@@ -35,7 +36,7 @@ export function MobileNav() {
 
         <div className="flex-1 overflow-y-auto px-5 py-6">
           <nav aria-label="Mobile navigation">
-            <p className="text-xs uppercase font-semibold text-[#B77943] tracking-wider mb-3">
+            <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
               Explore HypeeeCart
             </p>
             <ul role="list" className="flex flex-col space-y-1">
@@ -57,29 +58,9 @@ export function MobileNav() {
                 >
                   <span className="flex items-center gap-2">
                     <span>Trending Finds</span>
-                    <span className="bg-[#B77943] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">HOT</span>
+                    <span className="bg-[#155EEF] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">HOT</span>
                   </span>
                   <span className="text-xs text-[#7D786D]">Best Sellers</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/#essentials"
-                  className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
-                  onClick={() => closeMobileNavDrawer()}
-                >
-                  <span>Home Essentials</span>
-                  <span className="text-xs text-[#7D786D]">Practical</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/#problem-solvers"
-                  className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
-                  onClick={() => closeMobileNavDrawer()}
-                >
-                  <span>Gadgets &amp; Accessories</span>
-                  <span className="text-xs text-[#7D786D]">Viral Finds</span>
                 </Link>
               </li>
               <li>
@@ -94,20 +75,54 @@ export function MobileNav() {
               </li>
               <li>
                 <Link
-                  to="/#why-us"
+                  to="/#home-kitchen"
                   className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
                   onClick={() => closeMobileNavDrawer()}
                 >
-                  <span>Why HypeeeCart</span>
-                  <span className="text-xs text-[#7D786D]">Our Promise</span>
+                  <span>Home &amp; Kitchen</span>
+                  <span className="text-xs text-[#7D786D]">Popular</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/#health-care"
+                  className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-base font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
+                  onClick={() => closeMobileNavDrawer()}
+                >
+                  <span>Health &amp; Care</span>
+                  <span className="text-xs text-[#7D786D]">Essentials</span>
                 </Link>
               </li>
             </ul>
 
+            {/* Dynamic Store Categories */}
+            {collections.length > 0 ? (
+              <>
+                <hr className="my-5 border-[#E2DBD0]" />
+                <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
+                  Shop by Category
+                </p>
+                <ul role="list" className="flex flex-col space-y-1">
+                  {collections.map((col) => (
+                    <li key={col.id || col.handle}>
+                      <Link
+                        to={`/collections/${col.handle}`}
+                        className="min-h-touch-target text-[#282720] flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-[#EFE9DE] motion-safe:transition-colors"
+                        onClick={() => closeMobileNavDrawer()}
+                      >
+                        <span className="truncate">{col.title}</span>
+                        <span className="text-xs text-[#7D786D]">›</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+
             <hr className="my-6 border-[#E2DBD0]" />
 
-            <p className="text-xs uppercase font-semibold text-[#B77943] tracking-wider mb-3">
-              Customer Support & Policies
+            <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
+              Customer Support &amp; Policies
             </p>
             <ul role="list" className="flex flex-col space-y-1">
               <li>
@@ -117,7 +132,7 @@ export function MobileNav() {
                   onClick={() => closeMobileNavDrawer()}
                 >
                   <span>🚚</span>
-                  <span>Pan-India Shipping & Delivery</span>
+                  <span>Pan-India Shipping &amp; Delivery</span>
                 </Link>
               </li>
               <li>
@@ -127,17 +142,7 @@ export function MobileNav() {
                   onClick={() => closeMobileNavDrawer()}
                 >
                   <span>🔄</span>
-                  <span>7-Day Replacement & Refunds</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/policies/faq"
-                  className="min-h-touch-target text-[#5E5B52] hover:text-[#282720] flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-normal hover:bg-[#EFE9DE] motion-safe:transition-colors"
-                  onClick={() => closeMobileNavDrawer()}
-                >
-                  <span>❓</span>
-                  <span>Frequently Asked Questions</span>
+                  <span>7-Day Replacement &amp; Refunds</span>
                 </Link>
               </li>
               <li>
@@ -147,7 +152,7 @@ export function MobileNav() {
                   onClick={() => closeMobileNavDrawer()}
                 >
                   <span>💬</span>
-                  <span>WhatsApp & Email Support</span>
+                  <span>Customer Support &amp; Contact</span>
                 </Link>
               </li>
             </ul>
@@ -161,7 +166,7 @@ export function MobileNav() {
           </div>
           <div className="flex items-center justify-between text-xs text-[#7D786D]">
             <span>100% Genuine Quality</span>
-            <span>COD & UPI Supported</span>
+            <span>COD &amp; UPI Supported</span>
           </div>
         </div>
       </div>

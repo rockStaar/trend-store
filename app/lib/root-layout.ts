@@ -24,6 +24,20 @@ export const ROOT_LAYOUT_QUERY = gql(`
         supportedDigitalWallets
       }
     }
+    collections(first: 50) {
+      nodes {
+        id
+        title
+        handle
+        description
+        image {
+          url
+          altText
+          width
+          height
+        }
+      }
+    }
     localization {
       country {
         currency {
@@ -36,9 +50,23 @@ export const ROOT_LAYOUT_QUERY = gql(`
 
 export type RootLayoutQueryResult = StorefrontApi.ResultOf<typeof ROOT_LAYOUT_QUERY>;
 
+export type HeaderCollection = {
+  id: string;
+  title: string;
+  handle: string;
+  description?: string | null;
+  image?: {
+    url: string;
+    altText?: string | null;
+    width?: number | null;
+    height?: number | null;
+  } | null;
+};
+
 type RootLayoutLoaderData = {
   shopId: string;
   shopInfo: StorefrontShop;
+  collections: HeaderCollection[];
   // Browse events carry no price, so shopify.js reads their currency from
   // window.Shopify.currency.active. The cart tracker only sets that once a cart exists,
   // so the bootstrap needs it up front.
@@ -59,10 +87,11 @@ export async function loadRootLayout(
   // Upstream error details are logged above, not exposed through the boundary.
   if (!layoutResult.data) throw new Error("Root layout data is unavailable.");
 
-  const { shop, localization } = layoutResult.data;
+  const { shop, localization, collections } = layoutResult.data;
   return {
     shopId: shop.id,
     shopInfo: normalizeStorefrontShop(shop),
+    collections: (collections?.nodes as HeaderCollection[]) ?? [],
     currency: localization.country.currency.isoCode,
   };
 }

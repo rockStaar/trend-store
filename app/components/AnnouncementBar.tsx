@@ -6,11 +6,11 @@ interface Announcement {
   highlight?: string;
 }
 
-// Store promotional and shipping announcements
+// Store promotional and shipping announcements with COD leading
 const ANNOUNCEMENTS: Announcement[] = [
   {
-    id: "tagline",
-    text: "Discover more at HypeeeCart | Everyday favourites, thoughtful finds",
+    id: "cod",
+    text: "💵 Cash on Delivery (COD) Available across all Indian pin codes",
   },
   {
     id: "shipping",
@@ -23,8 +23,8 @@ const ANNOUNCEMENTS: Announcement[] = [
     highlight: "3–5 Day Delivery",
   },
   {
-    id: "cod",
-    text: "💵 Cash on Delivery (COD) Available across all Indian pin codes",
+    id: "tagline",
+    text: "✨ Discover more at HypeeeCart | Everyday favourites, thoughtful finds",
   },
 ];
 
@@ -51,14 +51,18 @@ export function AnnouncementBar() {
     <div
       role="region"
       aria-label="Store Announcements"
-      className="bg-[#F8F7F3] border-b border-[#E4E7ED] text-[#192A46] px-4 py-2 text-xs font-medium"
+      className="bg-[#155EEF] text-white px-4 py-2 text-xs font-semibold tracking-wide border-b border-[#155EEF]/30 shadow-xs transition-colors"
     >
       <div
-        className={`max-w-page mx-auto flex items-center justify-center gap-1.5 text-center tracking-wide transition-opacity duration-200 ${visible ? "opacity-100" : "opacity-0"}`}
+        className={`max-w-page mx-auto flex items-center justify-center gap-1.5 text-center transition-opacity duration-200 text-white ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
       >
-        <span className="text-[#64748B]">{current.text}</span>
+        <span className="text-white drop-shadow-2xs">{current.text}</span>
         {current.highlight ? (
-          <span className="font-bold text-[#2457D6]">{current.highlight}</span>
+          <span className="font-extrabold text-white underline decoration-white/70 decoration-1 underline-offset-2">
+            {current.highlight}
+          </span>
         ) : null}
       </div>
     </div>
