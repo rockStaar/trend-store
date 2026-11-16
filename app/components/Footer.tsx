@@ -4,61 +4,61 @@ import type { StorefrontShop } from "~/lib/storefront-shop";
 import { PaymentMethodIcon } from "./PaymentMethodIcon";
 
 const linkClass =
-  "text-[#635F53] hover:text-[#B77943] focus-visible:outline-accent inline-flex items-center text-sm font-normal no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors py-1";
+  "text-[#64748B] hover:text-[#2457D6] focus-visible:outline-accent inline-flex items-center text-sm font-normal no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors py-1";
 
 export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-[#EFE9DE] border-t border-[#E2DBD0] mt-16 text-[#282720]">
+    <footer className="w-full bg-[#F8F7F3] border-t border-[#E4E7ED] mt-16 text-[#192A46]">
       {/* Brand Trust Strip */}
-      <div className="border-b border-[#E2DBD0] bg-[#FAF6F0] py-8">
+      <div className="border-b border-[#E4E7ED] bg-white py-8">
         <div className="max-w-page px-margin mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#B77943]/15 text-[#B77943]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#282720]">100% Quality Checked</h4>
-              <p className="text-xs text-[#635F53] mt-0.5">Every unit inspected before dispatch</p>
+              <h4 className="text-sm font-semibold text-[#192A46]">100% Quality Checked</h4>
+              <p className="text-xs text-[#64748B] mt-0.5">Every unit inspected before dispatch</p>
             </div>
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#B77943]/15 text-[#B77943]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#282720]">Pan-India Express Delivery</h4>
-              <p className="text-xs text-[#635F53] mt-0.5">Dispatches in 24h • 3–5 days transit</p>
+              <h4 className="text-sm font-semibold text-[#192A46]">Pan-India Express Delivery</h4>
+              <p className="text-xs text-[#64748B] mt-0.5">Dispatches in 24h • 3–5 days transit</p>
             </div>
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#B77943]/15 text-[#B77943]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#282720]">7-Day Replacement</h4>
-              <p className="text-xs text-[#635F53] mt-0.5">Hassle-free guarantee for damages</p>
+              <h4 className="text-sm font-semibold text-[#192A46]">7-Day Replacement</h4>
+              <p className="text-xs text-[#64748B] mt-0.5">Hassle-free guarantee for damages</p>
             </div>
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#B77943]/15 text-[#B77943]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#282720]">Verified Secure Payments</h4>
-              <p className="text-xs text-[#635F53] mt-0.5">UPI, Cards, NetBanking & COD</p>
+              <h4 className="text-sm font-semibold text-[#192A46]">Verified Secure Payments</h4>
+              <p className="text-xs text-[#64748B] mt-0.5">UPI, Cards, NetBanking & COD</p>
             </div>
           </div>
         </div>
@@ -77,23 +77,23 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
                   className="h-10 w-auto object-contain"
                 />
               </Link>
-              <span className="text-[10px] uppercase tracking-widest text-[#B77943] font-bold mt-1">
-                Trending Finds. Everyday Wins.
+              <span className="text-[11px] uppercase tracking-wider text-[#2457D6] font-bold mt-1">
+                Everyday finds. Smarter shopping.
               </span>
             </div>
-            <p className="text-xs text-[#635F53] leading-relaxed">
+            <p className="text-xs text-[#64748B] leading-relaxed">
               Discover clever home essentials, trending gadgets, and practical everyday upgrades made to bring convenience to your home.
             </p>
-            <div className="pt-2 text-xs text-[#635F53] space-y-1">
-              <p className="font-semibold text-[#282720]">Customer Support:</p>
-              <p>Email: <a href="mailto:support@hypeeecart.in" className="text-[#B77943] hover:underline font-medium">support@hypeeecart.in</a></p>
+            <div className="pt-2 text-xs text-[#64748B] space-y-1">
+              <p className="font-semibold text-[#192A46]">Customer Support:</p>
+              <p>Email: <a href="mailto:support@hypeeecart.in" className="text-[#2457D6] hover:underline font-medium">support@hypeeecart.in</a></p>
               <p>Mon–Sat: 10:00 AM – 6:30 PM IST</p>
             </div>
           </div>
 
           {/* Useful Links Column 1 */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
               Useful Links
             </h3>
             <ul role="list" className="space-y-1">
@@ -125,9 +125,9 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
             </ul>
           </div>
 
-          {/* Useful Links Column 2 */}
+          {/* Categories Column */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
               Categories
             </h3>
             <ul role="list" className="space-y-1">
@@ -161,7 +161,7 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
 
           {/* Policies & Help Column */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
               Policies &amp; Help
             </h3>
             <ul role="list" className="space-y-1">
@@ -205,7 +205,7 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
 
           {/* My Account Column */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#282720] mb-3.5">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
               My Account
             </h3>
             <ul role="list" className="space-y-1">
@@ -232,21 +232,21 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
             </ul>
 
             {/* Indian Payment Badges */}
-            <div className="mt-5 pt-4 border-t border-[#E2DBD0]">
-              <span className="text-[11px] font-bold text-[#282720] block mb-2">
+            <div className="mt-5 pt-4 border-t border-[#E4E7ED]">
+              <span className="text-[11px] font-bold text-[#192A46] block mb-2">
                 Secure Indian Payments
               </span>
               <div className="flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2 py-0.5 text-[10px] font-semibold text-[#282720]">
+                <span className="inline-flex items-center rounded-sm bg-white border border-[#E4E7ED] px-2 py-0.5 text-[10px] font-semibold text-[#192A46]">
                   UPI
                 </span>
-                <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2 py-0.5 text-[10px] font-semibold text-[#282720]">
+                <span className="inline-flex items-center rounded-sm bg-white border border-[#E4E7ED] px-2 py-0.5 text-[10px] font-semibold text-[#192A46]">
                   RuPay
                 </span>
-                <span className="inline-flex items-center rounded-sm bg-white border border-[#E2DBD0] px-2 py-0.5 text-[10px] font-semibold text-[#282720]">
+                <span className="inline-flex items-center rounded-sm bg-white border border-[#E4E7ED] px-2 py-0.5 text-[10px] font-semibold text-[#192A46]">
                   Cards / NetBanking
                 </span>
-                <span className="inline-flex items-center rounded-sm bg-[#B77943]/10 border border-[#B77943]/30 px-2 py-0.5 text-[10px] font-bold text-[#B77943]">
+                <span className="inline-flex items-center rounded-sm bg-[#EAF0FC] border border-[#2457D6]/30 px-2 py-0.5 text-[10px] font-bold text-[#2457D6]">
                   COD Available
                 </span>
               </div>
@@ -255,16 +255,16 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-[#E2DBD0] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7D786D]">
-          <p>© {currentYear} {shopInfo.name}. All rights reserved. Crafted with ❤️ for Indian Homes.</p>
+        <div className="border-t border-[#E4E7ED] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#64748B]">
+          <p>© {currentYear} {shopInfo.name}. All rights reserved. Crafted with care for Indian Homes.</p>
           <div className="flex items-center gap-4">
-            <Link to="/policies/privacy-policy" className="hover:text-[#B77943] transition-colors">Privacy</Link>
+            <Link to="/policies/privacy-policy" className="hover:text-[#2457D6] transition-colors">Privacy</Link>
             <span>•</span>
-            <Link to="/policies/terms-of-service" className="hover:text-[#B77943] transition-colors">Terms</Link>
+            <Link to="/policies/terms-of-service" className="hover:text-[#2457D6] transition-colors">Terms</Link>
             <span>•</span>
-            <Link to="/policies/shipping-policy" className="hover:text-[#B77943] transition-colors">Shipping</Link>
+            <Link to="/policies/shipping-policy" className="hover:text-[#2457D6] transition-colors">Shipping</Link>
             <span>•</span>
-            <Link to="/policies/refund-policy" className="hover:text-[#B77943] transition-colors">Refunds</Link>
+            <Link to="/policies/refund-policy" className="hover:text-[#2457D6] transition-colors">Refunds</Link>
           </div>
         </div>
       </div>

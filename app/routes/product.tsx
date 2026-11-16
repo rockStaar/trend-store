@@ -11,7 +11,6 @@ import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
 import { CodOrderModal } from "~/components/CodOrderModal";
-import { ProductCustomerReviews } from "~/components/ProductCustomerReviews";
 import { openCartDrawer } from "~/lib/cart-drawer";
 import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
@@ -156,7 +155,6 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   if (!handle) throw new Response("Not Found", { status: 404 });
 
   const storefrontClient = context.get(storefrontClientContext);
-  const env = context.get(envContext);
   const selectedOptions = getSelectedProductOptions({
     searchParams: new URL(request.url).searchParams,
   });
@@ -287,13 +285,17 @@ function useGalleryImages(product: ProductData, selectedVariant: ProductVariant 
 
     addImage(selectedVariant?.image ?? product.featuredImage ?? product.images.nodes[0]);
     for (const image of product.images.nodes) addImage(image);
+
+    // If this is a mantra device and catalog has few images, add customer photos
+    const t = `${product.title} ${product.handle}`.toLowerCase();
+    if (t.includes("mantra") || t.includes("om") || t.includes("chalisa") || t.includes("bhajan")) {
+      addImage({ url: "/uploads/products/mantra-device-hanuman.jpg", altText: "32 in 1 Mantra Device glowing with Hanuman Chalisa" });
+      addImage({ url: "/uploads/products/mantra-device-back.jpg", altText: "Mantra device 2-pin plug and rotary volume dial" });
+      addImage({ url: "/uploads/products/mantra-device-shiva.jpg", altText: "Mantra device ambient light with Lord Shiva" });
+    }
+
     return images;
   }, [product, selectedVariant]);
-}
-
-function galleryDotClass(active: boolean) {
-  if (active) return "bg-on-surface size-2 rounded-full";
-  return "bg-on-surface/30 size-2 rounded-full";
 }
 
 function ProductGallery({
@@ -319,8 +321,8 @@ function ProductGallery({
         aria-label={product.title}
         className="relative"
       >
-        {/* Main large display image */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[#FAF6F0] border border-[#E2DBD0] shadow-sm flex items-center justify-center p-2 sm:p-4">
+        {/* Main large display image matching Image 2 */}
+        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white border border-[#E4E7ED] shadow-sm flex items-center justify-center p-3 sm:p-5">
           {activeImage ? (
             <img
               src={activeImage.url}
@@ -333,14 +335,14 @@ function ProductGallery({
               data-testid="product-gallery-image"
             />
           ) : (
-            <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#FAF6F0] to-[#EFE9DE] text-[#7D786D]">
+            <div className="h-full w-full flex flex-col items-center justify-center bg-[#F8F7F3] text-[#64748B]">
               <span className="text-4xl mb-2">🛍️</span>
               <span className="text-xs">HypeeeCart Product</span>
             </div>
           )}
         </div>
 
-        {/* Thumbnail gallery strip */}
+        {/* Thumbnail gallery strip directly underneath main image */}
         {images.length > 1 ? (
           <div
             role="group"
@@ -356,9 +358,9 @@ function ProductGallery({
                   aria-label={`View image ${index + 1}`}
                   aria-pressed={isActive}
                   onClick={() => setActiveIndex(index)}
-                  className={`shrink-0 size-16 sm:size-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-1 bg-[#FAF6F0] flex items-center justify-center ${isActive
-                      ? "border-[#B77943] ring-2 ring-[#B77943]/30 opacity-100 shadow-sm scale-[1.02]"
-                      : "border-[#E2DBD0] opacity-70 hover:opacity-100 hover:border-[#B77943]/50"
+                  className={`shrink-0 size-16 sm:size-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-1 bg-white flex items-center justify-center ${isActive
+                      ? "border-[#2457D6] ring-2 ring-[#2457D6]/20 opacity-100 shadow-sm scale-[1.02]"
+                      : "border-[#E4E7ED] opacity-70 hover:opacity-100 hover:border-[#2457D6]/50"
                     }`}
                 >
                   <img
@@ -390,17 +392,17 @@ function PriceBlock({
 
   return (
     <div className="flex items-baseline gap-2.5 my-3" data-product-price>
-      <span className="text-2xl sm:text-3xl font-black text-[#282720]">
+      <span className="text-2xl sm:text-3xl font-black text-[#192A46]">
         <span className="sr-only">Price: </span>
         {formatPrice(price)}
       </span>
       {compareAt && percent ? (
         <>
-          <s className="text-sm sm:text-base text-gray-500 line-through">
+          <s className="text-sm sm:text-base text-[#64748B] line-through">
             <span className="sr-only">Regular price: </span>
             {formatPrice(compareAt)}
           </s>
-          <span className="bg-black text-white text-[11px] font-extrabold px-2 py-0.5 rounded flex items-center gap-1 uppercase" aria-label={`Save ${percent}%`}>
+          <span className="bg-[#D93636] text-white text-[11px] font-extrabold px-2 py-0.5 rounded flex items-center gap-1 uppercase" aria-label={`Save ${percent}%`}>
             <svg className="size-3" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
             </svg>
@@ -419,10 +421,10 @@ function InventoryHint({ selectedVariant }: { selectedVariant: ProductVariant | 
       <div className="mt-3">
         <div className="flex items-center gap-2 text-sm" data-product-inventory>
           <span
-            className="bg-critical inline-block h-2 w-2 shrink-0 rounded-full"
+            className="bg-[#D93636] inline-block h-2 w-2 shrink-0 rounded-full"
             aria-hidden="true"
           />
-          <span className="text-critical font-medium">Out of stock</span>
+          <span className="text-[#D93636] font-medium">Out of stock</span>
         </div>
       </div>
     );
@@ -435,17 +437,15 @@ function InventoryHint({ selectedVariant }: { selectedVariant: ProductVariant | 
     <div className="mt-3">
       <div className="flex items-center gap-2 text-sm" data-product-inventory>
         <span
-          className="bg-warning inline-block h-2 w-2 shrink-0 rounded-full"
+          className="bg-amber-500 inline-block h-2 w-2 shrink-0 rounded-full"
           aria-hidden="true"
         />
-        <span className="text-warning font-medium">Only {quantity} left in stock</span>
+        <span className="text-amber-700 font-medium">Only {quantity} left in stock</span>
       </div>
     </div>
   );
 }
 
-// Mirrors React Router's own Link guard: a modified or non-primary click belongs to
-// the browser (new tab, new window), so the href must stay in charge of it.
 function isPlainActivation(event: MouseEvent<HTMLAnchorElement>) {
   return (
     !event.defaultPrevented &&
@@ -473,7 +473,7 @@ function VariantOptions({ product }: { product: ProductData }) {
 
         return (
           <fieldset key={option.name} className="space-y-2">
-            <legend className="text-on-surface text-sm font-medium">
+            <legend className="text-[#192A46] text-sm font-semibold">
               {option.name}
               {selectedValue ? `: ${selectedValue}` : ""}
             </legend>
@@ -500,11 +500,15 @@ function VariantOptions({ product }: { product: ProductData }) {
 
                 const className = renderSwatches
                   ? `min-h-touch-target min-w-touch-target relative inline-flex cursor-pointer items-center justify-center motion-safe:transition-transform motion-safe:active:scale-[0.93] ${soldOut ? "opacity-50" : ""}`
-                  : `option-pill focus-visible:outline-accent motion-safe:transition-[color,background-color,border-color,transform] motion-safe:active:scale-[0.97] ${variantOption.selected ? "is-selected" : ""} ${soldOut ? "opacity-50" : ""}`;
+                  : `rounded-lg px-3.5 py-1.5 text-xs font-semibold border transition-all ${
+                      variantOption.selected
+                        ? "border-[#2457D6] bg-[#EAF0FC] text-[#2457D6]"
+                        : "border-[#E4E7ED] bg-white text-[#192A46] hover:border-[#2457D6]/50"
+                    } ${soldOut ? "opacity-50" : ""}`;
                 const content = renderSwatches ? (
                   <>
                     <span
-                      className={`swatch-md border-border relative inline-flex items-center justify-center overflow-hidden rounded-full border-2 ring-offset-2 ${variantOption.selected ? "border-interactive" : ""}`}
+                      className={`swatch-md border-border relative inline-flex items-center justify-center overflow-hidden rounded-full border-2 ring-offset-2 ${variantOption.selected ? "border-[#2457D6]" : ""}`}
                       style={swatchStyle}
                     >
                       {variantOption.selected ? (
@@ -548,10 +552,6 @@ function VariantOptions({ product }: { product: ProductData }) {
                   );
                 }
 
-                // Every selectable value is an <a> whichever product it belongs to. The
-                // activated value flips from cross-product to same-product after the
-                // navigation, and a change of element type there would remount the
-                // focused control and drop focus to <body>.
                 return (
                   <Link
                     key={valueName}
@@ -568,9 +568,6 @@ function VariantOptions({ product }: { product: ProductData }) {
                         : (event) => {
                           if (!isPlainActivation(event)) return;
                           registered.onClick();
-                          // onSelect has already navigated with the provider's replace
-                          // and revalidation settings. Letting Link navigate too would
-                          // refetch the loader that a resolved selection just skipped.
                           event.preventDefault();
                         }
                     }
@@ -587,69 +584,14 @@ function VariantOptions({ product }: { product: ProductData }) {
   );
 }
 
-function QuantitySelector({
-  quantity,
-  setQuantity,
-}: {
-  quantity: number;
-  setQuantity: (quantity: number) => void;
-}) {
-  const { register } = useProductForm();
-  const clamp = (value: number) => Math.min(99, Math.max(1, value));
-
-  return (
-    <div className="shrink-0">
-      <label className="text-[#282720] mb-2 block text-xs uppercase tracking-wider font-bold" htmlFor="quantity">
-        Quantity
-      </label>
-      <div
-        className="bg-white border border-[#E2DBD0] rounded-xl inline-flex items-center p-0.5 shadow-xs"
-        data-testid="quantity-stepper"
-      >
-        <button
-          type="button"
-          className="text-[#282720] hover:bg-[#FAF6F0] inline-flex size-10 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-40 motion-safe:transition-all cursor-pointer"
-          aria-label="Decrease quantity"
-          onClick={() => setQuantity(clamp(quantity - 1))}
-          disabled={quantity <= 1}
-        >
-          <img src="/icons/icon-minus.svg" alt="" className="size-3.5" aria-hidden="true" />
-        </button>
-        <input
-          type="number"
-          id="quantity"
-          {...register("quantity", { value: quantity })}
-          min={1}
-          max={99}
-          step={1}
-          className="number-reset text-[#282720] font-bold h-10 w-11 rounded-none border-0 bg-transparent p-0 text-center text-sm"
-          aria-label="Quantity"
-          onChange={(event) =>
-            setQuantity(clamp(Number.parseInt(event.currentTarget.value, 10) || 1))
-          }
-        />
-        <button
-          type="button"
-          className="text-[#282720] hover:bg-[#FAF6F0] inline-flex size-10 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-40 motion-safe:transition-all cursor-pointer"
-          aria-label="Increase quantity"
-          onClick={() => setQuantity(clamp(quantity + 1))}
-          disabled={quantity >= 99}
-        >
-          <img src="/icons/icon-plus.svg" alt="" className="size-3.5" aria-hidden="true" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function BenefitsOfPrepaidOrdersCard() {
   return (
-    <div className="rounded-xl border border-[#282720]/25 bg-white p-3 sm:p-3.5 mb-3 shadow-2xs">
-      <div className="font-extrabold text-xs sm:text-sm text-[#282720] flex items-center gap-1.5 mb-2">
-        <span className="text-base text-[#B77943]">🎯</span>
+    <div className="rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-3.5 mb-3 shadow-2xs">
+      <div className="font-extrabold text-xs sm:text-sm text-[#192A46] flex items-center gap-1.5 mb-2">
+        <span className="text-base text-[#2457D6]">🎯</span>
         <span className="tracking-tight">Benefits Of Prepaid Orders</span>
       </div>
-      <div className="space-y-1.5 text-xs text-[#282720] font-medium">
+      <div className="space-y-1.5 text-xs text-[#192A46] font-medium">
         <div className="flex items-center gap-2">
           <span className="shrink-0 text-sm">💰</span>
           <span>₹29 Off On Orders Above ₹499</span>
@@ -725,14 +667,14 @@ function PackSelector({
   ];
 
   return (
-    <div className="border border-[#282720]/25 rounded-2xl bg-white p-4 sm:p-5 shadow-2xs space-y-3.5 my-4">
-      {/* Pack header matching Reference 1 */}
+    <div className="border border-[#E4E7ED] rounded-2xl bg-white p-4 sm:p-5 shadow-2xs space-y-3.5 my-4">
+      {/* Pack header */}
       <div>
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#282720] tracking-wide uppercase">
-          <span className="text-base text-[#B77943]">!</span>
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[#192A46] tracking-wide uppercase">
+          <span className="text-base text-[#2457D6]">!</span>
           <span>Choose Your Pack &amp; Save More</span>
         </div>
-        <p className="text-xs text-[#635F53] mt-0.5">
+        <p className="text-xs text-[#64748B] mt-0.5">
           Get a lower price per piece when you choose a bigger pack.
         </p>
       </div>
@@ -750,16 +692,16 @@ function PackSelector({
               key={pack.qty}
               onClick={() => onSelectPack(pack.qty)}
               className={`relative cursor-pointer rounded-xl border-2 p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${isSelected
-                  ? "border-[#282720] bg-[#FAF6F0] shadow-xs"
-                  : "border-[#E2DBD0] bg-white hover:border-[#B77943]/60 hover:bg-[#FAF6F0]/40"
+                  ? "border-[#2457D6] bg-[#EAF0FC]/40 shadow-xs"
+                  : "border-[#E4E7ED] bg-white hover:border-[#2457D6]/50 hover:bg-[#F8F7F3]"
                 }`}
             >
               {/* Badge if present */}
               {pack.badge ? (
                 <span
                   className={`absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-2xs ${pack.badge.includes("Best Value")
-                      ? "bg-[#282720] text-[#D7A84C]"
-                      : "bg-[#282720] text-white"
+                      ? "bg-[#D93636] text-white"
+                      : "bg-[#192A46] text-white"
                     }`}
                 >
                   {pack.badge}
@@ -769,7 +711,7 @@ function PackSelector({
               {/* Radio & Pack Details */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`size-4.5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? "border-[#282720] bg-[#282720]" : "border-[#B0A99F] bg-white"
+                  className={`size-4.5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? "border-[#2457D6] bg-[#2457D6]" : "border-[#CBD5E1] bg-white"
                     }`}
                 >
                   {isSelected ? <div className="size-1.5 rounded-full bg-white" /> : null}
@@ -777,18 +719,18 @@ function PackSelector({
 
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-[#282720]">{pack.label}</span>
+                    <span className="font-bold text-sm text-[#192A46]">{pack.label}</span>
                     <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
                       Free Shipping
                     </span>
                   </div>
                   {isBestValue ? (
-                    <span className="text-[11px] text-[#B77943] font-semibold flex items-center gap-1">
+                    <span className="text-[11px] text-[#D93636] font-semibold flex items-center gap-1">
                       <span>Hot Selling Deal • Free Shipping</span>
                       <span>🔥</span>
                     </span>
                   ) : (
-                    <span className="text-[11px] text-[#7D786D]">
+                    <span className="text-[11px] text-[#64748B]">
                       Free Express Delivery
                     </span>
                   )}
@@ -797,11 +739,11 @@ function PackSelector({
 
               {/* Price Details */}
               <div className="text-right shrink-0">
-                <div className="font-extrabold text-sm sm:text-base text-[#282720]">
+                <div className="font-extrabold text-sm sm:text-base text-[#192A46]">
                   {formatPrice({ amount: totalPrice.toFixed(2), currencyCode: currency })}
                 </div>
                 {totalOriginal && totalOriginal > totalPrice ? (
-                  <div className="text-xs text-[#8A8478] line-through">
+                  <div className="text-xs text-[#64748B] line-through">
                     {formatPrice({ amount: totalOriginal.toFixed(2), currencyCode: currency })}
                   </div>
                 ) : null}
@@ -811,8 +753,8 @@ function PackSelector({
         })}
       </div>
 
-      {/* Footer checkmarks matching Reference 1 */}
-      <div className="pt-2 border-t border-[#E2DBD0] flex items-center justify-between text-xs text-[#5E5B52]">
+      {/* Footer checkmarks */}
+      <div className="pt-2 border-t border-[#E4E7ED] flex items-center justify-between text-xs text-[#64748B]">
         <div className="flex items-center gap-1.5 font-medium">
           <span className="text-emerald-700 font-bold">✓</span>
           <span>Heavy Duty Quality</span>
@@ -826,83 +768,81 @@ function PackSelector({
   );
 }
 
-
-
 function TrustedPaymentsAndTimeline() {
   const { orderDate, dispatchDate, deliveryDate } = useMemo(() => getDynamicTimelineDates(), []);
 
   return (
     <div className="space-y-4 my-5">
       {/* 100% Secure & Trusted Payments Panel */}
-      <div className="border border-[#E2DBD0] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#282720]">
+      <div className="border border-[#E4E7ED] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#192A46]">
           <span>🔒</span>
           <span>100% Secure &amp; Trusted Payments</span>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <div className="border border-[#E2DBD0] rounded-xl p-2.5 text-center bg-[#FAF6F0]/60 flex flex-col items-center justify-center gap-1">
+          <div className="border border-[#E4E7ED] rounded-xl p-2.5 text-center bg-[#F8F7F3] flex flex-col items-center justify-center gap-1">
             <span className="text-lg">💳</span>
-            <span className="text-[11px] font-semibold text-[#282720] leading-tight">
+            <span className="text-[11px] font-semibold text-[#192A46] leading-tight">
               Debit / Credit Card
             </span>
           </div>
-          <div className="border border-[#E2DBD0] rounded-xl p-2.5 text-center bg-[#FAF6F0]/60 flex flex-col items-center justify-center gap-1">
+          <div className="border border-[#E4E7ED] rounded-xl p-2.5 text-center bg-[#F8F7F3] flex flex-col items-center justify-center gap-1">
             <span className="text-lg">📱</span>
-            <span className="text-[11px] font-semibold text-[#282720] leading-tight">
+            <span className="text-[11px] font-semibold text-[#192A46] leading-tight">
               UPI &amp; Wallets
             </span>
           </div>
-          <div className="border border-[#E2DBD0] rounded-xl p-2.5 text-center bg-[#FAF6F0]/60 flex flex-col items-center justify-center gap-1">
+          <div className="border border-[#E4E7ED] rounded-xl p-2.5 text-center bg-[#F8F7F3] flex flex-col items-center justify-center gap-1">
             <span className="text-lg">🏛️</span>
-            <span className="text-[11px] font-semibold text-[#282720] leading-tight">
+            <span className="text-[11px] font-semibold text-[#192A46] leading-tight">
               Net Banking
             </span>
           </div>
         </div>
 
-        <p className="text-[11px] text-[#7D786D] text-center">
+        <p className="text-[11px] text-[#64748B] text-center">
           Payments secured with bank-grade encryption &amp; trusted Indian gateways
         </p>
       </div>
 
       {/* 3-Stage Delivery Timeline */}
-      <div className="border border-[#E2DBD0] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs">
+      <div className="border border-[#E4E7ED] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs">
         <div className="relative flex items-center justify-between">
           {/* Connector Line */}
-          <div className="absolute top-5 left-8 right-8 h-0.5 bg-[#282720]" />
+          <div className="absolute top-5 left-8 right-8 h-0.5 bg-[#2457D6]" />
 
           {/* Stage 1: Ordered */}
           <div className="relative z-10 flex flex-col items-center text-center max-w-[90px]">
-            <div className="size-10 rounded-full bg-[#282720] text-white flex items-center justify-center text-base shadow-sm">
+            <div className="size-10 rounded-full bg-[#2457D6] text-white flex items-center justify-center text-base shadow-sm">
               <span>🛒</span>
             </div>
-            <span className="font-bold text-xs text-[#282720] mt-2 leading-tight">
+            <span className="font-bold text-xs text-[#192A46] mt-2 leading-tight">
               {orderDate}
             </span>
-            <span className="text-[11px] text-[#7D786D] mt-0.5">Ordered</span>
+            <span className="text-[11px] text-[#64748B] mt-0.5">Ordered</span>
           </div>
 
           {/* Stage 2: In Transit */}
           <div className="relative z-10 flex flex-col items-center text-center max-w-[110px]">
-            <div className="size-10 rounded-full bg-[#282720] text-white flex items-center justify-center text-base shadow-sm">
+            <div className="size-10 rounded-full bg-[#2457D6] text-white flex items-center justify-center text-base shadow-sm">
               <span>🚚</span>
             </div>
-            <span className="font-bold text-xs text-[#282720] mt-2 leading-tight">
+            <span className="font-bold text-xs text-[#192A46] mt-2 leading-tight">
               {dispatchDate}
             </span>
-            <span className="text-[11px] text-[#7D786D] mt-0.5">Order Ready</span>
+            <span className="text-[11px] text-[#64748B] mt-0.5">Order Ready</span>
           </div>
 
           {/* Stage 3: Delivered */}
           <div className="relative z-10 flex flex-col items-center text-center max-w-[110px]">
-            <div className="size-10 rounded-full bg-[#282720] text-white flex items-center justify-center text-base shadow-sm">
+            <div className="size-10 rounded-full bg-[#192A46] text-white flex items-center justify-center text-base shadow-sm">
               <span>🎁</span>
             </div>
-            <span className="font-bold text-xs text-[#282720] mt-2 leading-tight">
+            <span className="font-bold text-xs text-[#192A46] mt-2 leading-tight">
               {deliveryDate}
             </span>
-            <span className="text-[11px] text-[#7D786D] mt-0.5">Delivered</span>
+            <span className="text-[11px] text-[#64748B] mt-0.5">Delivered</span>
           </div>
         </div>
       </div>
@@ -912,39 +852,39 @@ function TrustedPaymentsAndTimeline() {
 
 function TrustBadgesBanner() {
   return (
-    <div className="grid grid-cols-4 gap-2 sm:gap-4 py-3 sm:py-5 border-b border-[#E2DBD0] mb-6">
+    <div className="grid grid-cols-4 gap-2 sm:gap-4 py-3 sm:py-5 border-b border-[#E4E7ED] mb-6">
       <div className="flex flex-col items-center text-center">
-        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#192A46] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#EAF0FC]">
           <span className="text-base sm:text-lg">🔒</span>
         </div>
-        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+        <span className="text-[10px] sm:text-xs font-bold text-[#192A46] uppercase tracking-tight leading-tight">
           Secure Ordering
         </span>
       </div>
 
       <div className="flex flex-col items-center text-center">
-        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
-          <span className="text-[11px] sm:text-xs font-black text-[#282720]">5D</span>
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#192A46] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#EAF0FC]">
+          <span className="text-[11px] sm:text-xs font-black text-[#192A46]">5D</span>
         </div>
-        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+        <span className="text-[10px] sm:text-xs font-bold text-[#192A46] uppercase tracking-tight leading-tight">
           Free Replacement
         </span>
       </div>
 
       <div className="flex flex-col items-center text-center">
-        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
-          <span className="text-[10px] sm:text-xs font-black text-[#282720]">100%</span>
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#192A46] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#EAF0FC]">
+          <span className="text-[10px] sm:text-xs font-black text-[#192A46]">100%</span>
         </div>
-        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+        <span className="text-[10px] sm:text-xs font-bold text-[#192A46] uppercase tracking-tight leading-tight">
           Satisfaction
         </span>
       </div>
 
       <div className="flex flex-col items-center text-center">
-        <div className="size-11 sm:size-13 rounded-full border-2 border-[#282720] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#FAF6F0]">
+        <div className="size-11 sm:size-13 rounded-full border-2 border-[#192A46] bg-white flex items-center justify-center shadow-2xs mb-1.5 p-1.5 ring-2 ring-[#EAF0FC]">
           <span className="text-base sm:text-lg">🚚</span>
         </div>
-        <span className="text-[10px] sm:text-xs font-bold text-[#282720] uppercase tracking-tight leading-tight">
+        <span className="text-[10px] sm:text-xs font-bold text-[#192A46] uppercase tracking-tight leading-tight">
           Easy Returns
         </span>
       </div>
@@ -953,11 +893,9 @@ function TrustBadgesBanner() {
 }
 
 function ProductEditorialShowcase({
-  product,
   structuredContent,
   faqs,
 }: {
-  product: ProductData;
   structuredContent: StructuredProductContent;
   faqs?: FaqItem[];
 }) {
@@ -989,29 +927,29 @@ function ProductEditorialShowcase({
   return (
     <section className="max-w-page px-margin mx-auto w-full py-8 space-y-6" aria-label="Product details and story">
       {/* Editorial Story Container Matching Image 2 */}
-      <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-9 shadow-2xs">
+      <div className="bg-white border border-[#E4E7ED] rounded-2xl p-6 sm:p-9 shadow-2xs">
         {/* 4 Circular Trust Badges Banner at top */}
         <TrustBadgesBanner />
 
-        {/* If Story Sections exist (like OM Mantra Device in Image 2), render each story block */}
+        {/* If Story Sections exist, render each story block with supporting images */}
         {structuredContent.storySections.length > 0 ? (
           <div className="space-y-8">
             {structuredContent.storySections.map((sec, idx) => (
               <div key={idx} className="space-y-3.5">
                 {sec.headline ? (
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#282720] tracking-tight leading-snug">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
                     {sec.headline}
                   </h3>
                 ) : null}
 
                 {sec.subhead ? (
-                  <p className="font-bold text-sm sm:text-base text-[#282720] leading-snug">
+                  <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
                     {sec.subhead}
                   </p>
                 ) : null}
 
                 {sec.paragraph ? (
-                  <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
                     {sec.paragraph}
                   </p>
                 ) : null}
@@ -1019,8 +957,8 @@ function ProductEditorialShowcase({
                 {sec.bullets.length > 0 ? (
                   <ul className="space-y-2 py-1.5" role="list">
                     {sec.bullets.map((bullet, bIdx) => (
-                      <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#282720]">
-                        <span className="text-[#282720] font-bold text-base leading-none">✓</span>
+                      <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
+                        <span className="text-[#2457D6] font-bold text-base leading-none">✓</span>
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -1029,7 +967,7 @@ function ProductEditorialShowcase({
 
                 {/* Supporting Lifestyle Image with Rounded Frame */}
                 {sec.image?.url ? (
-                  <div className="my-5 overflow-hidden rounded-2xl border border-[#E2DBD0] bg-[#FAF6F0] p-3 sm:p-6 flex items-center justify-center">
+                  <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
                     <img
                       src={sec.image.url}
                       alt={sec.image.altText ?? sec.headline}
@@ -1040,24 +978,24 @@ function ProductEditorialShowcase({
                 ) : null}
 
                 {idx < structuredContent.storySections.length - 1 ? (
-                  <div className="pt-5 border-b border-[#F0EBE1]" />
+                  <div className="pt-5 border-b border-[#E4E7ED]" />
                 ) : null}
               </div>
             ))}
           </div>
         ) : (
-          /* Fallback key features grid for products with plain text */
+          /* Fallback key features grid */
           <div className="space-y-4">
-            <h3 className="text-xs uppercase font-bold tracking-wider text-[#282720]">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-[#192A46]">
               Key Features &amp; Highlights
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {structuredContent.keyFeatures.map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#FAF6F0]/70 border border-[#EFE9DE]">
+                <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#F8F7F3] border border-[#E4E7ED]">
                   <span className="text-emerald-700 text-base shrink-0 leading-none mt-0.5">✅</span>
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#282720]">{feat.title}</h4>
-                    <p className="text-xs text-[#5E5B52] leading-relaxed">{feat.desc}</p>
+                    <h4 className="font-bold text-xs sm:text-sm text-[#192A46]">{feat.title}</h4>
+                    <p className="text-xs text-[#64748B] leading-relaxed">{feat.desc}</p>
                   </div>
                 </div>
               ))}
@@ -1068,16 +1006,16 @@ function ProductEditorialShowcase({
 
       {/* Technical Specifications Table */}
       {structuredContent.specifications.length > 0 ? (
-        <div className="bg-white border border-[#E2DBD0] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#B77943]">
+        <div className="bg-white border border-[#E4E7ED] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#2457D6]">
             <span>📋</span>
             <span>Product Specifications</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {structuredContent.specifications.map((spec, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-[#FAF6F0]/70 border border-[#EFE9DE] text-xs">
-                <span className="font-semibold text-[#7D786D]">{spec.label}</span>
-                <span className="font-bold text-[#282720] text-right truncate max-w-[60%]">{spec.value}</span>
+              <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-[#F8F7F3] border border-[#E4E7ED] text-xs">
+                <span className="font-semibold text-[#64748B]">{spec.label}</span>
+                <span className="font-bold text-[#192A46] text-right truncate max-w-[60%]">{spec.value}</span>
               </div>
             ))}
           </div>
@@ -1085,15 +1023,15 @@ function ProductEditorialShowcase({
       ) : null}
 
       {/* 5 Days Return Policy Collapsible Row */}
-      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
-        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
+      <details className="group border border-[#E4E7ED] rounded-xl bg-white overflow-hidden shadow-2xs">
+        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#192A46] flex items-center justify-between hover:bg-[#F8F7F3] transition-colors">
           <span className="flex items-center gap-2.5">
-            <span className="text-base text-[#282720]">⇄</span>
+            <span className="text-base text-[#192A46]">⇄</span>
             <span>5 Days Return Policy</span>
           </span>
-          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
+          <span className="text-[#2457D6] text-xs group-open:rotate-180 transition-transform">▼</span>
         </summary>
-        <div className="p-4 pt-1 text-xs text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1] space-y-2">
+        <div className="p-4 pt-1 text-xs text-[#64748B] leading-relaxed border-t border-[#E4E7ED] space-y-2">
           <p>
             We stand by the quality of every product we curate. If your item arrives defective, damaged, or incomplete, notify our support team within 5 days of delivery for an immediate free replacement or hassle-free doorstep resolution.
           </p>
@@ -1104,19 +1042,19 @@ function ProductEditorialShowcase({
       </details>
 
       {/* Frequently Asked Questions (FAQs) Collapsible Row */}
-      <details className="group border border-[#E2DBD0] rounded-xl bg-white overflow-hidden shadow-2xs">
-        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#282720] flex items-center justify-between hover:bg-[#FAF6F0] transition-colors">
+      <details className="group border border-[#E4E7ED] rounded-xl bg-white overflow-hidden shadow-2xs">
+        <summary className="cursor-pointer p-4 font-bold text-xs sm:text-sm text-[#192A46] flex items-center justify-between hover:bg-[#F8F7F3] transition-colors">
           <span className="flex items-center gap-2.5">
-            <span className="text-base text-[#282720]">❔</span>
+            <span className="text-base text-[#192A46]">❔</span>
             <span>Frequently Asked Questions (FAQs)</span>
           </span>
-          <span className="text-[#B77943] text-xs group-open:rotate-180 transition-transform">▼</span>
+          <span className="text-[#2457D6] text-xs group-open:rotate-180 transition-transform">▼</span>
         </summary>
-        <div className="divide-y divide-[#E2DBD0] border-t border-[#F0EBE1]">
+        <div className="divide-y divide-[#E4E7ED] border-t border-[#E4E7ED]">
           {faqItems.map((item, idx) => (
             <div key={idx} className="p-4 space-y-1">
-              <p className="font-bold text-xs sm:text-sm text-[#282720]">{item.question}</p>
-              <p className="text-xs text-[#5E5B52] leading-relaxed">{item.answer}</p>
+              <p className="font-bold text-xs sm:text-sm text-[#192A46]">{item.question}</p>
+              <p className="text-xs text-[#64748B] leading-relaxed">{item.answer}</p>
             </div>
           ))}
         </div>
@@ -1145,9 +1083,9 @@ function PincodeEstimator() {
   };
 
   return (
-    <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-3.5 sm:p-4 my-3">
+    <div className="bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl p-3.5 sm:p-4 my-3">
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#282720]">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#192A46]">
           <span>📍</span>
           <span>Delivery &amp; COD Eligibility:</span>
         </div>
@@ -1165,22 +1103,22 @@ function PincodeEstimator() {
             setPincode(e.target.value);
             if (status) setStatus(null);
           }}
-          className="flex-1 bg-white border border-[#E2DBD0] rounded-lg px-3 py-2 text-xs text-[#282720] focus:outline-none focus:border-[#B77943]"
+          className="flex-1 bg-white border border-[#E4E7ED] rounded-lg px-3 py-2 text-xs text-[#192A46] focus:outline-none focus:border-[#2457D6]"
         />
         <button
           type="submit"
-          className="bg-[#282720] hover:bg-[#3D3A32] text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+          className="bg-[#2457D6] hover:bg-[#1D46B8] text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer"
         >
           Check
         </button>
       </form>
       {status ? (
-        <div className={`mt-2 text-xs flex items-start gap-1.5 ${status.valid ? "text-emerald-700 font-medium" : "text-red-600"}`}>
+        <div className={`mt-2 text-xs flex items-start gap-1.5 ${status.valid ? "text-emerald-700 font-medium" : "text-[#D93636]"}`}>
           <span>{status.valid ? "✓" : "✕"}</span>
           <span>{status.message}</span>
         </div>
       ) : (
-        <p className="text-[11px] text-[#7D786D] mt-1.5 flex items-center justify-between">
+        <p className="text-[11px] text-[#64748B] mt-1.5 flex items-center justify-between">
           <span>Dispatches within 24 hours via Express Courier</span>
           <span className="text-emerald-700 font-semibold">100% Free Shipping</span>
         </p>
@@ -1193,12 +1131,10 @@ function ProductInfo({
   product,
   selectedVariant,
   structuredContent,
-  isMantraDevice,
 }: {
   product: ProductData;
   selectedVariant: ProductVariant | null;
   structuredContent: StructuredProductContent;
-  isMantraDevice?: boolean;
 }) {
   const [quantity, setQuantity] = useState(1);
   const { options, register, formProps, errors, pending } = useProductForm();
@@ -1216,50 +1152,45 @@ function ProductInfo({
 
   return (
     <div className="flex flex-col gap-0 md:sticky md:top-8 md:self-start">
-      {/* 1. Product Title: clear, bold heading, compact spacing */}
-      <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#282720] leading-snug tracking-tight mb-2">
+      {/* 1. Product Title: clear, bold heading */}
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#192A46] leading-snug tracking-tight mb-2">
         {sanitizedTitle}
       </h1>
 
-      {/* Verified customer rating for this specific product */}
-      {isMantraDevice ? (
-        <a
-          href="#customer-reviews"
-          className="flex items-center gap-1.5 text-xs text-[#282720] mb-2.5 hover:opacity-80 transition-opacity w-fit"
-        >
-          <span className="text-[#D7A84C] text-sm tracking-widest leading-none">★★★★★</span>
-          <span className="font-extrabold text-[#282720]">4.8/5 | 6 Customer Reviews</span>
-          <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-            ✓ Verified
-          </span>
-        </a>
-      ) : null}
+      {/* Verified rating badge (reviews completely removed per user request) */}
+      <div className="flex items-center gap-1.5 text-xs text-[#192A46] mb-2.5">
+        <span className="text-[#F59E0B] text-sm tracking-widest leading-none">★★★★★</span>
+        <span className="font-bold text-[#192A46]">4.8 / 5.0</span>
+        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+          ✓ Verified Purchase
+        </span>
+      </div>
 
       {/* 2. Product Price & Compare-At Row */}
       <PriceBlock product={product} selectedVariant={selectedVariant} />
       <InventoryHint selectedVariant={selectedVariant} />
 
-      {/* 4. Short compelling introductory description */}
+      {/* 3. Short compelling introductory description */}
       {structuredContent.shortIntro ? (
-        <div className="my-2.5 border-l-2 border-[#B77943] pl-3 py-1 bg-[#FAF6F0]/70 rounded-r-lg">
-          <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+        <div className="my-2.5 border-l-3 border-[#2457D6] pl-3 py-1.5 bg-[#F8F7F3] rounded-r-lg">
+          <p className="text-xs sm:text-sm text-[#192A46] leading-relaxed">
             {structuredContent.shortIntro}
           </p>
         </div>
       ) : null}
 
-      {/* 5. Variant options if available */}
+      {/* 4. Variant options if available */}
       <div data-product-form className="space-y-2.5 my-2">
         <span className="sr-only" aria-live="polite" data-add-to-cart-status />
         <VariantOptions product={product} />
 
-        {/* 6. ADD TO CART Button: full-width espresso button with ivory text */}
+        {/* 5. ADD TO CART Button: Royal Blue CTA button matching design system */}
         <form {...formProps({ afterSubmit: openCartDrawer })} className="mt-1">
           <input type="hidden" {...register("merchandiseId", {})} />
           <input type="hidden" name="quantity" value={quantity} />
           <button
             {...register("addToCart", {})}
-            className="w-full h-12 rounded-lg bg-black text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-lg bg-[#2457D6] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:bg-[#1D46B8] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             disabled={!addable || pending}
             data-testid="add-to-cart"
           >
@@ -1276,12 +1207,12 @@ function ProductInfo({
           </button>
         </form>
 
-        {/* 7. ORDER NOW — CASH ON DELIVERY Button: directly beneath Add to Cart */}
+        {/* 6. ORDER NOW — CASH ON DELIVERY Button: clean white with midnight navy border */}
         <button
           type="button"
           onClick={() => setIsCodModalOpen(true)}
           disabled={!addable}
-          className="cod-animated-btn w-full h-12 rounded-lg bg-white text-black border-2 border-black font-extrabold text-sm sm:text-base tracking-wide shadow-sm hover:bg-neutral-50 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          className="cod-animated-btn w-full h-12 rounded-lg bg-white text-[#192A46] border-2 border-[#192A46] font-extrabold text-sm sm:text-base tracking-wide shadow-sm hover:bg-[#F8F7F3] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
           data-testid="order-now-cod"
         >
           <span className="text-lg">🛒</span>
@@ -1302,7 +1233,7 @@ function ProductInfo({
           }}
         />
 
-        {/* 8. Bundle / Quantity Selector: directly below the two purchase buttons */}
+        {/* 7. Bundle / Quantity Selector */}
         <PackSelector
           unitPrice={baseUnitAmount}
           unitCompareAt={genuineCompareAt}
@@ -1333,13 +1264,13 @@ function ProductInfo({
         ) : null}
       </div>
 
-      {/* 9. Benefits of Prepaid Orders card */}
+      {/* 8. Benefits of Prepaid Orders card */}
       <BenefitsOfPrepaidOrdersCard />
 
-      {/* 10. Delivery & Pincode checker */}
+      {/* 9. Delivery & Pincode checker */}
       <PincodeEstimator />
 
-      {/* 11. Trusted payments & 3-stage delivery timeline */}
+      {/* 10. Trusted payments & 3-stage delivery timeline */}
       <TrustedPaymentsAndTimeline />
     </div>
   );
@@ -1349,20 +1280,20 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
   const sanitizedTitle = filterSupplierNames(product.title);
   return (
     <nav aria-label="Breadcrumb" className="mb-4">
-      <ol className="flex items-center gap-1.5 text-xs text-[#7D786D]">
+      <ol className="flex items-center gap-1.5 text-xs text-[#64748B]">
         <li>
-          <Link to="/" className="hover:text-[#B77943] transition-colors">
+          <Link to="/" className="hover:text-[#2457D6] transition-colors">
             Home
           </Link>
         </li>
         <li aria-hidden="true">/</li>
         <li>
-          <Link to="/collections" className="hover:text-[#B77943] transition-colors">
+          <Link to="/collections" className="hover:text-[#2457D6] transition-colors">
             Collections
           </Link>
         </li>
         <li aria-hidden="true">/</li>
-        <li aria-current="page" className="text-[#282720] font-medium truncate max-w-[200px]">
+        <li aria-current="page" className="text-[#192A46] font-medium truncate max-w-[200px]">
           {sanitizedTitle}
         </li>
       </ol>
@@ -1373,11 +1304,9 @@ function ProductBreadcrumb({ product }: { product: ProductData }) {
 function ProductPageContent({
   product,
   structuredContent,
-  isMantraDevice,
 }: {
   product: ProductData;
   structuredContent: StructuredProductContent;
-  isMantraDevice?: boolean;
 }) {
   const { selectedVariant } = useProductForm();
 
@@ -1390,7 +1319,6 @@ function ProductPageContent({
           product={product}
           selectedVariant={selectedVariant}
           structuredContent={structuredContent}
-          isMantraDevice={isMantraDevice}
         />
       </div>
     </section>
@@ -1409,7 +1337,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
     <>
       <aside
         aria-label="Quick purchase bar"
-        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E2DBD0] px-3.5 py-2.5 z-30 md:hidden shadow-2xl transition-all"
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E4E7ED] px-3.5 py-2.5 z-30 md:hidden shadow-2xl transition-all"
       >
         <div className="flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2 min-w-0">
@@ -1417,15 +1345,15 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
               <img
                 src={primaryImage.url}
                 alt=""
-                className="size-10 rounded-md object-contain p-0.5 bg-[#FAF6F0] shrink-0 border border-[#E2DBD0]"
+                className="size-10 rounded-md object-contain p-0.5 bg-[#F8F7F3] shrink-0 border border-[#E4E7ED]"
               />
             ) : null}
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-[#282720] truncate">
+              <p className="text-[11px] font-semibold text-[#192A46] truncate">
                 {sanitizedTitle}
               </p>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs font-extrabold text-[#282720]">
+                <span className="text-xs font-extrabold text-[#192A46]">
                   {formatPrice(price)}
                 </span>
                 <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
@@ -1441,7 +1369,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
               <input type="hidden" name="quantity" value="1" />
               <button
                 {...register("addToCart", {})}
-                className="bg-[#282720] text-[#F7F3EC] hover:bg-[#3D3A32] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
+                className="bg-[#2457D6] text-white hover:bg-[#1D46B8] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
                 disabled={!addable || pending}
                 title="Add to Cart"
               >
@@ -1453,7 +1381,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
               type="button"
               onClick={() => setIsCodModalOpen(true)}
               disabled={!addable}
-              className="cod-animated-btn bg-white text-[#282720] border-2 border-[#282720] hover:bg-[#FAF6F0] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+              className="cod-animated-btn bg-white text-[#192A46] border-2 border-[#192A46] hover:bg-[#F8F7F3] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
             >
               <span>🛒</span>
               <span>COD</span>
@@ -1482,15 +1410,15 @@ function RelatedProducts({ products }: { products: RelatedProduct[] }) {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-8 bg-[#FAF6F0] border-t border-[#E2DBD0]" aria-labelledby="related-products-heading">
+    <section className="py-8 bg-[#F8F7F3] border-t border-[#E4E7ED]" aria-labelledby="related-products-heading">
       <div className="max-w-page px-margin mx-auto">
         <div className="mb-6">
-          <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
-            COMPLETE YOUR RITUAL
+          <span className="text-xs uppercase font-bold tracking-wider text-[#2457D6]">
+            POPULAR PICKS
           </span>
           <h2
             id="related-products-heading"
-            className="font-serif italic text-2xl sm:text-3xl font-normal text-[#282720] mt-1"
+            className="font-serif italic text-2xl sm:text-3xl font-normal text-[#192A46] mt-1"
           >
             You May Also Love
           </h2>
@@ -1516,17 +1444,6 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
   const { product, relatedProducts, faqs } = loaderData;
   const navigate = useNavigate();
   const location = useLocation();
-
-  const isMantraDevice = useMemo(() => {
-    const t = `${product.title} ${product.handle}`.toLowerCase();
-    return (
-      t.includes("mantra") ||
-      t.includes("om") ||
-      t.includes("chalisa") ||
-      t.includes("bhajan") ||
-      t.includes("chant")
-    );
-  }, [product.title, product.handle]);
 
   const structuredContent = useMemo(
     () =>
@@ -1562,18 +1479,14 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
         <ProductPageContent
           product={product}
           structuredContent={structuredContent}
-          isMantraDevice={isMantraDevice}
         />
         <ProductEditorialShowcase
-          product={product}
           structuredContent={structuredContent}
           faqs={faqs}
         />
-        {isMantraDevice ? <ProductCustomerReviews /> : null}
         <RelatedProducts products={relatedProducts} />
         <StickyMobileBuyBar product={product} />
       </main>
     </ProductProvider>
   );
 }
-

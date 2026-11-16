@@ -42,10 +42,10 @@ const HOME_QUERY = gql(
 export function meta({ matches }: Route.MetaArgs) {
   const shopName = getShopNameFromRootMatch(matches[0]);
   return [
-    { title: formatPageTitle("Trending Finds. Everyday Wins.", shopName || "HypeeeCart") },
+    { title: formatPageTitle("Everyday finds. Smarter shopping.", shopName || "HypeeeCart") },
     {
       name: "description",
-      content: `HypeeeCart — Trending Finds. Everyday Wins. Explore clever home essentials, practical everyday upgrades, and trending gadgets with Pan-India delivery and Cash on Delivery.`,
+      content: `HypeeeCart — Everyday finds. Smarter shopping. Explore clever home essentials, practical upgrades, and trending gadgets with Pan-India delivery and Cash on Delivery.`,
     },
   ];
 }
@@ -68,7 +68,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section A: Top Categories (KitKart inspired 12 category grid)
+// Section A: Top Categories (Image-led 12 Category Grid)
 // ─────────────────────────────────────────────────────────────────────────────
 interface CategoryTileData {
   title: string;
@@ -146,11 +146,9 @@ function TopCategoriesSection({
   collections: readonly CollectionCardData[];
   products: readonly ProductCardData[];
 }) {
-  // Merge live store collections and dynamic product categories
   const categories = useMemo<CategoryTileData[]>(() => {
     const list: CategoryTileData[] = [];
 
-    // Prioritize collections from Shopify
     for (const c of collections) {
       if (c.title && c.handle) {
         const img = c.image?.url || products.find((p) => p.featuredImage?.url)?.featuredImage?.url;
@@ -162,7 +160,6 @@ function TopCategoriesSection({
       }
     }
 
-    // Fill remaining up to 12 from DEFAULT_CATEGORIES
     for (const def of DEFAULT_CATEGORIES) {
       if (list.length >= 12) break;
       if (!list.some((item) => item.title.toLowerCase() === def.title.toLowerCase())) {
@@ -174,54 +171,51 @@ function TopCategoriesSection({
   }, [collections, products]);
 
   return (
-    <section id="top-categories" className="w-full py-10 md:py-14 bg-white border-b border-[#E2DBD0]">
+    <section id="top-categories" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Top categories
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] mt-1.5 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
               Find what you need, and a little more to love.
             </p>
           </div>
           <Link
             to="/collections"
-            className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1.5 transition-colors group self-start sm:self-auto"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1.5 transition-colors group self-start sm:self-auto"
           >
             <span>Explore all categories</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </Link>
         </div>
 
-        {/* 12 Category Grid (KitKart 6-per-row layout on desktop) */}
+        {/* 12 Category Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4 md:gap-5">
           {categories.map((cat, idx) => (
             <Link
               key={idx}
               to={cat.link}
-              className="group flex flex-col items-center text-center p-3 rounded-2xl bg-[#FAF6F0] hover:bg-white border border-[#E2DBD0] hover:border-[#B77943]/40 transition-all duration-200 hover:shadow-md"
+              className="group flex flex-col items-center text-center p-3 rounded-2xl bg-[#F8F7F3] hover:bg-white border border-[#E4E7ED] hover:border-[#2457D6]/40 transition-all duration-200 hover:shadow-sm"
             >
-              {/* Category Image container with circular pill button */}
               <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-white mb-3 shadow-2xs">
                 <img
                   src={cat.image}
                   alt={cat.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                {/* Circular arrow icon on bottom right */}
-                <div className="absolute bottom-2 end-2 size-7 rounded-full bg-white/95 border border-[#E2DBD0] flex items-center justify-center text-[#B77943] text-xs font-bold shadow-xs transition-transform group-hover:translate-x-0.5 group-hover:bg-[#B77943] group-hover:text-white">
+                <div className="absolute bottom-2 end-2 size-7 rounded-full bg-white/95 border border-[#E4E7ED] flex items-center justify-center text-[#2457D6] text-xs font-bold shadow-xs transition-transform group-hover:translate-x-0.5 group-hover:bg-[#2457D6] group-hover:text-white">
                   →
                 </div>
               </div>
 
-              {/* Title & subtitle */}
-              <h3 className="text-xs sm:text-sm font-bold text-[#282720] line-clamp-2 leading-tight group-hover:text-[#B77943] transition-colors">
+              <h3 className="text-xs sm:text-sm font-bold text-[#192A46] line-clamp-2 leading-tight group-hover:text-[#2457D6] transition-colors">
                 {cat.title}
               </h3>
-              <span className="text-[11px] text-[#7D786D] font-medium mt-1">
+              <span className="text-[11px] text-[#64748B] font-medium mt-1">
                 Explore collection
               </span>
             </Link>
@@ -233,62 +227,58 @@ function TopCategoriesSection({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section B: Shopping Benefits Strip (KitKart screenshot 4)
+// Section B: Shopping Benefits Strip
 // ─────────────────────────────────────────────────────────────────────────────
 function ShoppingBenefitsStrip() {
   return (
-    <section className="w-full bg-[#FAF6F0] border-b border-[#E2DBD0] py-5">
+    <section className="w-full bg-[#EAF0FC] border-b border-[#d2def5] py-5">
       <div className="max-w-page px-margin mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-[#E2DBD0]">
-          {/* Benefit 1 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-[#d2def5]">
           <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#E2DBD0] flex items-center justify-center text-[#B77943] shrink-0 shadow-2xs">
+            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
               <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-[#282720]">Delivery options</h4>
-              <p className="text-xs text-[#5E5B52]">Details at checkout</p>
+              <h4 className="text-sm font-bold text-[#192A46]">Delivery options</h4>
+              <p className="text-xs text-[#64748B]">Details at checkout</p>
             </div>
           </div>
 
-          {/* Benefit 2 */}
           <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#E2DBD0] flex items-center justify-center text-[#B77943] shrink-0 shadow-2xs">
+            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
               <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-[#282720]">Order tracking</h4>
-              <p className="text-xs text-[#5E5B52]">Updates in your account</p>
+              <h4 className="text-sm font-bold text-[#192A46]">Order tracking</h4>
+              <p className="text-xs text-[#64748B]">Updates in your account</p>
             </div>
           </div>
 
-          {/* Benefit 3 */}
           <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#E2DBD0] flex items-center justify-center text-[#B77943] shrink-0 shadow-2xs">
+            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
               <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-[#282720]">Secure checkout</h4>
-              <p className="text-xs text-[#5E5B52]">Shop with confidence</p>
+              <h4 className="text-sm font-bold text-[#192A46]">Secure checkout</h4>
+              <p className="text-xs text-[#64748B]">Shop with confidence</p>
             </div>
           </div>
 
-          {/* Benefit 4 */}
           <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#E2DBD0] flex items-center justify-center text-[#B77943] shrink-0 shadow-2xs">
+            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
               <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-[#282720]">Customer support</h4>
-              <p className="text-xs text-[#5E5B52]">We are here to help</p>
+              <h4 className="text-sm font-bold text-[#192A46]">Customer support</h4>
+              <p className="text-xs text-[#64748B]">We are here to help</p>
             </div>
           </div>
         </div>
@@ -298,7 +288,7 @@ function ShoppingBenefitsStrip() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section C: Shop by Price (KitKart screenshot 3 / ccb5bc93)
+// Section C: Shop by Price
 // ─────────────────────────────────────────────────────────────────────────────
 function ShopByPriceSection() {
   const priceTiers = [
@@ -313,29 +303,28 @@ function ShopByPriceSection() {
   ];
 
   return (
-    <section id="shop-by-price" className="w-full py-10 md:py-14 bg-white border-b border-[#E2DBD0]">
+    <section id="shop-by-price" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         <div className="text-center max-w-xl mx-auto mb-8">
-          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#282720] tracking-tight">
+          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#192A46] tracking-tight">
             Small prices. Great finds.
           </h2>
-          <p className="text-xs sm:text-sm text-[#5E5B52] mt-1.5 font-medium">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 font-medium">
             Everyday essentials, at a price that works for you.
           </p>
         </div>
 
-        {/* Price Tiles Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-3.5">
           {priceTiers.map((tier, idx) => (
             <Link
               key={idx}
               to={`/search?q=under+${tier.query}`}
-              className="flex flex-col items-center justify-center p-3.5 rounded-xl bg-[#FAF6F0] hover:bg-[#B77943] border border-[#E2DBD0] hover:border-[#B77943] text-center transition-all duration-200 group shadow-2xs hover:shadow-md"
+              className="flex flex-col items-center justify-center p-3.5 rounded-xl bg-[#F8F7F3] hover:bg-[#2457D6] border border-[#E4E7ED] hover:border-[#2457D6] text-center transition-all duration-200 group shadow-2xs hover:shadow-sm"
             >
-              <span className="text-[10px] uppercase font-bold text-[#7D786D] group-hover:text-white/80">
+              <span className="text-[10px] uppercase font-bold text-[#64748B] group-hover:text-white/80">
                 Under
               </span>
-              <span className="text-base sm:text-lg font-black text-[#282720] group-hover:text-white mt-0.5">
+              <span className="text-base sm:text-lg font-black text-[#192A46] group-hover:text-white mt-0.5">
                 {tier.label}
               </span>
             </Link>
@@ -347,7 +336,7 @@ function ShopByPriceSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section D: Trending Now (KitKart screenshot 6 with tabs)
+// Section D: Trending Now
 // ─────────────────────────────────────────────────────────────────────────────
 function TrendingNowSection({
   products,
@@ -379,15 +368,14 @@ function TrendingNowSection({
   };
 
   return (
-    <section id="trending" className="w-full py-12 md:py-16 bg-[#FAF6F0] border-b border-[#E2DBD0]">
+    <section id="trending" className="w-full py-12 md:py-16 bg-[#F8F7F3] border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
-        {/* Header & Tabs */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Trending Now
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] mt-1.5 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 font-medium">
               Clever problem-solvers and practical everyday essentials hand-picked to make life smoother.
             </p>
           </div>
@@ -395,19 +383,18 @@ function TrendingNowSection({
           <div className="flex items-center gap-3">
             <Link
               to="/collections"
-              className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group"
+              className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
             >
               <span>Shop all</span>
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </Link>
 
-            {/* Desktop Chevrons */}
             <div className="hidden sm:flex items-center gap-1.5 ms-3">
               <button
                 type="button"
                 onClick={() => scroll("left")}
                 aria-label="Scroll left"
-                className="size-8 rounded-full bg-white border border-[#E2DBD0] hover:border-[#B77943] text-[#282720] flex items-center justify-center text-xs font-bold shadow-2xs cursor-pointer transition-colors"
+                className="size-8 rounded-full bg-white border border-[#E4E7ED] hover:border-[#2457D6] text-[#192A46] flex items-center justify-center text-xs font-bold shadow-2xs cursor-pointer transition-colors"
               >
                 ‹
               </button>
@@ -415,7 +402,7 @@ function TrendingNowSection({
                 type="button"
                 onClick={() => scroll("right")}
                 aria-label="Scroll right"
-                className="size-8 rounded-full bg-white border border-[#E2DBD0] hover:border-[#B77943] text-[#282720] flex items-center justify-center text-xs font-bold shadow-2xs cursor-pointer transition-colors"
+                className="size-8 rounded-full bg-white border border-[#E4E7ED] hover:border-[#2457D6] text-[#192A46] flex items-center justify-center text-xs font-bold shadow-2xs cursor-pointer transition-colors"
               >
                 ›
               </button>
@@ -432,8 +419,8 @@ function TrendingNowSection({
             aria-selected={activeTab === "all"}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               activeTab === "all"
-                ? "bg-[#B77943] text-white shadow-xs"
-                : "bg-white text-[#282720] border border-[#E2DBD0] hover:border-[#B77943]"
+                ? "bg-[#2457D6] text-white shadow-xs"
+                : "bg-white text-[#192A46] border border-[#E4E7ED] hover:border-[#2457D6]"
             }`}
           >
             All Finds
@@ -445,8 +432,8 @@ function TrendingNowSection({
             aria-selected={activeTab === "new"}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               activeTab === "new"
-                ? "bg-[#B77943] text-white shadow-xs"
-                : "bg-white text-[#282720] border border-[#E2DBD0] hover:border-[#B77943]"
+                ? "bg-[#2457D6] text-white shadow-xs"
+                : "bg-white text-[#192A46] border border-[#E4E7ED] hover:border-[#2457D6]"
             }`}
           >
             New Arrivals
@@ -458,8 +445,8 @@ function TrendingNowSection({
             aria-selected={activeTab === "offers"}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               activeTab === "offers"
-                ? "bg-[#B77943] text-white shadow-xs"
-                : "bg-white text-[#282720] border border-[#E2DBD0] hover:border-[#B77943]"
+                ? "bg-[#2457D6] text-white shadow-xs"
+                : "bg-white text-[#192A46] border border-[#E4E7ED] hover:border-[#2457D6]"
             }`}
           >
             Best Offers
@@ -487,7 +474,7 @@ function TrendingNowSection({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section E: Category Collection: Home & Kitchen Favourites (KitKart screenshot 7)
+// Section E: Category Collection: Home & Kitchen Favourites
 // ─────────────────────────────────────────────────────────────────────────────
 function HomeAndKitchenSection({
   products,
@@ -506,23 +493,23 @@ function HomeAndKitchenSection({
   }, [products]);
 
   return (
-    <section id="home-kitchen" className="w-full py-12 md:py-16 bg-white border-b border-[#E2DBD0]">
+    <section id="home-kitchen" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#2457D6] block mb-1">
               CURATED ESSENTIALS
             </span>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Home &amp; Kitchen favourites
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] mt-1 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
               Practical organizers, smart cooking tools, and clever cleaning problem-solvers.
             </p>
           </div>
           <Link
             to="/search?q=home+kitchen"
-            className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
           >
             <span>Explore Home &amp; Kitchen</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -542,7 +529,7 @@ function HomeAndKitchenSection({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section F: Special Offers / The Offers Edit
+// Section F: Special Offers / The Offers Edit (Ice blue section, Sale Red badge)
 // ─────────────────────────────────────────────────────────────────────────────
 function SpecialOffersSection({
   products,
@@ -559,23 +546,23 @@ function SpecialOffersSection({
   }, [products]);
 
   return (
-    <section id="special-offers" className="w-full py-12 md:py-16 bg-[#FAF6F0] border-b border-[#E2DBD0]">
+    <section id="special-offers" className="w-full py-12 md:py-16 bg-[#EAF0FC] border-b border-[#d2def5]">
       <div className="max-w-page px-margin mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#D93636] block mb-1">
               LIMITED TIME VALUES
             </span>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               The Offers Edit
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] mt-1 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
               Hand-picked discounts on popular everyday essentials. Genuine savings verified at checkout.
             </p>
           </div>
           <Link
             to="/search?q=sale"
-            className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
           >
             <span>View All Deals</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -605,16 +592,16 @@ function SmartEssentialsSection({
   const gadgetProducts = products.slice(4, 12);
 
   return (
-    <section id="smart-upgrades" className="w-full py-12 md:py-16 bg-white border-b border-[#E2DBD0]">
+    <section id="smart-upgrades" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[#2457D6] block mb-1">
             CONVENIENT UPGRADES
           </span>
-          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
             Smart little upgrades
           </h2>
-          <p className="text-xs sm:text-sm text-[#5E5B52] mt-1.5 font-medium">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 font-medium">
             Useful accessories, clever gadgets, and daily tools that upgrade your everyday routine.
           </p>
         </div>
@@ -636,23 +623,23 @@ function SmartEssentialsSection({
 // ─────────────────────────────────────────────────────────────────────────────
 function FeaturedBannerSection() {
   return (
-    <section className="w-full py-10 md:py-14 bg-[#FAF6F0] border-b border-[#E2DBD0]">
+    <section className="w-full py-10 md:py-14 bg-[#F8F7F3] border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
-        <div className="bg-gradient-to-r from-[#282720] to-[#3D3A32] text-white rounded-2xl p-6 sm:p-10 md:p-12 relative overflow-hidden shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-gradient-to-r from-[#192A46] to-[#253d66] text-white rounded-2xl p-6 sm:p-10 md:p-12 relative overflow-hidden shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="max-w-xl z-10">
-            <span className="inline-block text-[10px] uppercase font-bold tracking-widest text-[#D7A84C] bg-white/10 px-3 py-1 rounded-full mb-3">
-              ✨ NEW ARRIVALS
+            <span className="inline-block text-[10px] uppercase font-bold tracking-widest text-[#EAF0FC] bg-white/10 px-3 py-1 rounded-full mb-3">
+              NEW ARRIVALS
             </span>
             <h2 className="font-heading font-extrabold text-2xl sm:text-3xl md:text-4xl tracking-tight leading-tight">
               Fresh Finds Designed to Make Life Better.
             </h2>
-            <p className="text-xs sm:text-sm text-stone-300 mt-2.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed">
               Explore the newest wave of trending problem solvers, useful kitchen upgrades, and smart accessories added this week.
             </p>
             <div className="mt-5">
               <Link
                 to="/collections"
-                className="inline-flex items-center gap-2 bg-[#B77943] hover:bg-[#9E6433] text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-lg shadow-sm transition-all"
+                className="inline-flex items-center gap-2 bg-[#2457D6] hover:bg-[#1D44B8] text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs transition-all"
               >
                 <span>Explore New Arrivals</span>
                 <span>→</span>
@@ -664,12 +651,12 @@ function FeaturedBannerSection() {
             <div className="size-24 sm:size-32 rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-center p-3">
               <span className="text-xl sm:text-2xl mb-1">🚚</span>
               <span className="text-[10px] sm:text-xs font-bold">Fast Pan-India</span>
-              <span className="text-[9px] text-stone-300">Dispatch in 24h</span>
+              <span className="text-[9px] text-slate-300">Dispatch in 24h</span>
             </div>
             <div className="size-24 sm:size-32 rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-center p-3">
               <span className="text-xl sm:text-2xl mb-1">💵</span>
               <span className="text-[10px] sm:text-xs font-bold">COD Available</span>
-              <span className="text-[9px] text-stone-300">Pay at Doorstep</span>
+              <span className="text-[9px] text-slate-300">Pay at Doorstep</span>
             </div>
           </div>
         </div>
@@ -699,23 +686,23 @@ function HealthCareSection({
   }, [products]);
 
   return (
-    <section id="health-care" className="w-full py-12 md:py-16 bg-white border-b border-[#E2DBD0]">
+    <section id="health-care" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#2457D6] block mb-1">
               WELLNESS &amp; DAILY CARE
             </span>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Health &amp; Personal Care
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] mt-1 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
               Everyday grooming, relaxation devices, and personal care essentials for your well-being.
             </p>
           </div>
           <Link
             to="/search?q=health+personal+care"
-            className="text-xs sm:text-sm font-bold text-[#B77943] hover:text-[#9E6433] inline-flex items-center gap-1 group"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
           >
             <span>Explore Health &amp; Personal Care</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -760,16 +747,16 @@ function CategoryDiscoverySection() {
   ];
 
   return (
-    <section className="w-full py-12 md:py-16 bg-[#FAF6F0] border-b border-[#E2DBD0]">
+    <section className="w-full py-12 md:py-16 bg-[#F8F7F3] border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[#2457D6] block mb-1">
             EXPLORE COLLECTIONS
           </span>
-          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
             Curated For Modern Living
           </h2>
-          <p className="text-xs sm:text-sm text-[#5E5B52] mt-1.5 font-medium">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 font-medium">
             Explore curated collections tailored to simplify everyday chores and living spaces.
           </p>
         </div>
@@ -779,9 +766,9 @@ function CategoryDiscoverySection() {
             <Link
               key={idx}
               to={card.link}
-              className="group relative rounded-2xl overflow-hidden bg-white border border-[#E2DBD0] shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col"
+              className="group relative rounded-2xl overflow-hidden bg-white border border-[#E4E7ED] shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col"
             >
-              <div className="aspect-[16/10] w-full overflow-hidden bg-[#FAF6F0]">
+              <div className="aspect-[16/10] w-full overflow-hidden bg-[#F8F7F3]">
                 <img
                   src={card.image}
                   alt={card.title}
@@ -791,14 +778,14 @@ function CategoryDiscoverySection() {
               </div>
               <div className="p-5 flex flex-col justify-between flex-1">
                 <div>
-                  <h3 className="font-heading font-bold text-base sm:text-lg text-[#282720] group-hover:text-[#B77943] transition-colors">
+                  <h3 className="font-heading font-bold text-base sm:text-lg text-[#192A46] group-hover:text-[#2457D6] transition-colors">
                     {card.title}
                   </h3>
-                  <p className="text-xs text-[#5E5B52] mt-1.5 leading-relaxed">
+                  <p className="text-xs text-[#64748B] mt-1.5 leading-relaxed">
                     {card.desc}
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#F0EBE1] flex items-center justify-between text-xs font-bold text-[#B77943]">
+                <div className="mt-4 pt-3 border-t border-[#F8F7F3] flex items-center justify-between text-xs font-bold text-[#2457D6]">
                   <span>Explore Collection</span>
                   <span className="transition-transform group-hover:translate-x-1">→</span>
                 </div>
@@ -816,25 +803,25 @@ function CategoryDiscoverySection() {
 // ─────────────────────────────────────────────────────────────────────────────
 function GiftingBanner() {
   return (
-    <section className="w-full py-10 bg-white border-b border-[#E2DBD0]">
+    <section className="w-full py-10 bg-white border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
-        <div className="rounded-2xl bg-[#FAF6F0] border border-[#E2DBD0] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="rounded-2xl bg-[#EAF0FC] border border-[#d2def5] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="size-14 rounded-2xl bg-[#B77943]/15 text-[#B77943] flex items-center justify-center text-2xl shrink-0">
+            <div className="size-14 rounded-2xl bg-white border border-[#d2def5] text-[#2457D6] flex items-center justify-center text-2xl shrink-0 shadow-2xs">
               🎁
             </div>
             <div>
-              <h3 className="font-heading font-bold text-lg sm:text-xl text-[#282720]">
+              <h3 className="font-heading font-bold text-lg sm:text-xl text-[#192A46]">
                 Looking for Thoughtful Gifts &amp; Everyday Wins?
               </h3>
-              <p className="text-xs sm:text-sm text-[#5E5B52] mt-0.5">
+              <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
                 Surprise your loved ones with practical, clever upgrades that make everyday moments special.
               </p>
             </div>
           </div>
           <Link
             to="/collections"
-            className="shrink-0 bg-[#282720] hover:bg-[#3D3A32] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-lg transition-colors shadow-2xs"
+            className="shrink-0 bg-[#2457D6] hover:bg-[#1D44B8] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shadow-2xs"
           >
             Browse Gift Ideas →
           </Link>
@@ -845,7 +832,7 @@ function GiftingBanner() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section L: Shopping Guide / FAQ (KitKart screenshot 5 / 731db47e)
+// Section L: Shopping Guide / FAQ
 // ─────────────────────────────────────────────────────────────────────────────
 function ShoppingGuideFAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -869,32 +856,32 @@ function ShoppingGuideFAQ() {
   ];
 
   return (
-    <section id="shopping-guide" className="w-full py-12 md:py-16 bg-[#FAF6F0] border-b border-[#E2DBD0]">
+    <section id="shopping-guide" className="w-full py-12 md:py-16 bg-[#F8F7F3] border-b border-[#E4E7ED]">
       <div className="max-w-page px-margin mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Column: Heading & Trust */}
           <div className="lg:col-span-5 space-y-4">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#2457D6] block">
               SHOPPING GUIDE
             </span>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#282720] tracking-tight">
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Shop with confidence
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E5B52] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
               We curate practical finds that make everyday life simpler. Here is everything you need to know about shopping, delivery, and guarantees at HypeeeCart.
             </p>
 
             <div className="pt-4 space-y-3">
-              <div className="flex items-center gap-2.5 text-xs text-[#282720] font-semibold">
-                <span className="text-[#B77943]">✓</span>
+              <div className="flex items-center gap-2.5 text-xs text-[#192A46] font-semibold">
+                <span className="text-[#2457D6] font-bold">✓</span>
                 <span>Genuine product quality &amp; accurate descriptions</span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-[#282720] font-semibold">
-                <span className="text-[#B77943]">✓</span>
+              <div className="flex items-center gap-2.5 text-xs text-[#192A46] font-semibold">
+                <span className="text-[#2457D6] font-bold">✓</span>
                 <span>Pan-India express logistics with live tracking</span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-[#282720] font-semibold">
-                <span className="text-[#B77943]">✓</span>
+              <div className="flex items-center gap-2.5 text-xs text-[#192A46] font-semibold">
+                <span className="text-[#2457D6] font-bold">✓</span>
                 <span>Safe payments via UPI, Cards, NetBanking or COD</span>
               </div>
             </div>
@@ -907,28 +894,28 @@ function ShoppingGuideFAQ() {
               return (
                 <div
                   key={idx}
-                  className="bg-white border border-[#E2DBD0] rounded-xl overflow-hidden transition-colors shadow-2xs"
+                  className="bg-white border border-[#E4E7ED] rounded-xl overflow-hidden transition-colors shadow-2xs"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenIdx(isOpen ? null : idx)}
-                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-[#FAF6F0]/60 transition-colors"
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-[#F8F7F3] transition-colors"
                     aria-expanded={isOpen}
                   >
                     <div className="flex items-center gap-3.5">
-                      <span className="font-heading font-extrabold text-sm sm:text-base text-[#B77943]">
+                      <span className="font-heading font-extrabold text-sm sm:text-base text-[#2457D6]">
                         {item.num}
                       </span>
-                      <span className="font-bold text-xs sm:text-sm text-[#282720]">
+                      <span className="font-bold text-xs sm:text-sm text-[#192A46]">
                         {item.q}
                       </span>
                     </div>
-                    <span className="text-[#B77943] text-lg font-bold shrink-0">
+                    <span className="text-[#2457D6] text-lg font-bold shrink-0">
                       {isOpen ? "−" : "+"}
                     </span>
                   </button>
                   {isOpen ? (
-                    <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-[#5E5B52] leading-relaxed border-t border-[#F0EBE1]">
+                    <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-[#64748B] leading-relaxed border-t border-[#F8F7F3]">
                       {item.a}
                     </div>
                   ) : null}
@@ -943,7 +930,7 @@ function ShoppingGuideFAQ() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section M: Newsletter (KitKart screenshot 3 / 6077de1d)
+// Section M: Newsletter (Pale Ice Blue Section)
 // ─────────────────────────────────────────────────────────────────────────────
 function NewsletterSection() {
   const [email, setEmail] = useState("");
@@ -966,19 +953,19 @@ function NewsletterSection() {
   };
 
   return (
-    <section className="w-full py-12 md:py-16 bg-white border-b border-[#E2DBD0]">
+    <section className="w-full py-12 md:py-16 bg-[#EAF0FC] border-b border-[#d2def5]">
       <div className="max-w-page px-margin mx-auto">
-        <div className="bg-[#FAF6F0] rounded-2xl border border-[#E2DBD0] p-6 sm:p-10 md:p-12">
+        <div className="bg-white rounded-2xl border border-[#d2def5] p-6 sm:p-10 md:p-12 shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left text */}
             <div className="lg:col-span-6 space-y-2">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#B77943] block">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#2457D6] block">
                 KEEP IN TOUCH
               </span>
-              <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#282720] tracking-tight">
+              <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#192A46] tracking-tight">
                 Be first to discover.
               </h2>
-              <p className="text-xs sm:text-sm text-[#5E5B52]">
+              <p className="text-xs sm:text-sm text-[#64748B]">
                 New arrivals, fresh finds and offers, straight to your inbox.
               </p>
             </div>
@@ -997,28 +984,28 @@ function NewsletterSection() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Your email address"
-                      className="flex-1 bg-white border border-[#E2DBD0] rounded-xl px-4 py-2.5 text-xs text-[#282720] placeholder:text-[#8D887D] focus:outline-none focus:border-[#B77943] transition-colors"
+                      className="flex-1 bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl px-4 py-2.5 text-xs text-[#192A46] placeholder:text-[#64748B] focus:outline-none focus:border-[#2457D6] focus:bg-white transition-colors"
                     />
                     <button
                       type="submit"
-                      className="bg-[#B77943] hover:bg-[#9E6433] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                      className="bg-[#2457D6] hover:bg-[#1D44B8] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
                     >
                       →
                     </button>
                   </div>
 
-                  <label className="flex items-center gap-2 cursor-pointer text-[11px] text-[#5E5B52]">
+                  <label className="flex items-center gap-2 cursor-pointer text-[11px] text-[#64748B]">
                     <input
                       type="checkbox"
                       checked={agreed}
                       onChange={(e) => setAgreed(e.target.checked)}
-                      className="rounded border-[#E2DBD0] text-[#B77943] focus:ring-[#B77943]"
+                      className="rounded border-[#E4E7ED] text-[#2457D6] focus:ring-[#2457D6]"
                     />
                     <span>I agree to receive emails from HypeeeCart.</span>
                   </label>
 
                   {error ? (
-                    <p className="text-xs text-red-600 font-medium">{error}</p>
+                    <p className="text-xs text-[#D93636] font-medium">{error}</p>
                   ) : null}
                 </form>
               )}
@@ -1037,12 +1024,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <main className="flex-1" id="main-content" tabIndex={-1}>
       {loaderData.isMockMode ? (
-        <div className="bg-[#FAF3E3] border-b border-[#D7A84C]/40 px-4 py-2 text-center text-xs text-[#282720]">
-          <span className="font-semibold text-[#B77943]">🛠️ Catalog Preview:</span> Showing demo inventory from mock.shop. Connect your Shopify store via <code className="bg-white px-1.5 py-0.5 rounded border border-[#D7A84C]/40 text-[11px]">npx shopify hydrogen link</code> to render live inventory.
+        <div className="bg-[#EAF0FC] border-b border-[#d2def5] px-4 py-2 text-center text-xs text-[#192A46]">
+          <span className="font-semibold text-[#2457D6]">🛠️ Catalog Preview:</span> Showing demo inventory from mock.shop. Connect your Shopify store via <code className="bg-white px-1.5 py-0.5 rounded border border-[#d2def5] text-[11px]">npx shopify hydrogen link</code> to render live inventory.
         </div>
       ) : null}
 
-      {/* 1. VIBRANT HERO SECTION (KitKart inspired - 1st before everything) */}
+      {/* 1. CLEAN RESTRAINED TWO-COLUMN HERO (1st at the top) */}
       <HomeHero products={loaderData.allProducts} />
 
       {/* A. Top Categories / Shop by Category */}

@@ -120,6 +120,7 @@ export function sanitizeRawDescription(rawText: string | null | undefined): stri
 export function parseEditorialStorySections(
   cleanText: string,
   images: ProductImage[] = [],
+  isMantraDevice: boolean = false,
 ): StorySection[] {
   if (!cleanText || cleanText.length < 20) return [];
 
@@ -127,21 +128,41 @@ export function parseEditorialStorySections(
   let str = cleanText.replace(/✓\s*/g, "\n✓ ");
   str = str.replace(/✔\s*/g, "\n✓ ");
 
-  // Put newlines before major section starts (emoji followed by capital words and period)
+  // Known section starters in Indian spiritual / home products
+  const sectionStarters = [
+    "🔱 Bring the Power",
+    "🙏 Calm Your Mind",
+    "🕉 32 Mantras",
+    "🕉️ 32 Mantras",
+    "✨ Make OM Part",
+    "✨ One Sound",
+    "🕉 Remove Negative",
+    "🕉️ Remove Negative",
+  ];
+
+  for (const starter of sectionStarters) {
+    str = str.replace(new RegExp(starter, "g"), "\n\n" + starter);
+  }
+
+  // Put newlines before generic emoji headers if they have title-like words
   str = str.replace(
     /([.!?]|✓\s*[^\n]+?)\s+([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}🔱🕉️🧘✨🙏🌺🌿]\s*[A-Z0-9][^.!?\n]{3,60}\.)/gu,
-    "$1\n\n$2",
-  );
-  str = str.replace(
-    /([a-zA-Z0-9])\s+(🕉️\s*32 Mantras|🧘\s*Calm Your Mind|✨\s*Make OM|✨\s*One Sound|🕉️\s*Remove Negative|🔱\s*Bring the Power)/gu,
     "$1\n\n$2",
   );
 
   const rawBlocks = str.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
   const sections: StorySection[] = [];
 
+  // Local fallback images for mantra device if catalog has few images
+  const mantraFallbackImages: ProductImage[] = [
+    { url: "/uploads/products/mantra-device-hanuman.jpg", altText: "32 in 1 Mantra Device glowing with Hanuman Chalisa" },
+    { url: "/uploads/products/mantra-device-back.jpg", altText: "Mantra device 2-pin plug and rotary volume dial" },
+    { url: "/uploads/products/mantra-device-shiva.jpg", altText: "Mantra device ambient light with Lord Shiva" },
+  ];
+
   // Start assigning from secondary images (images[1], images[2], ...)
   let imageIdx = 1;
+  let fallbackIdx = 0;
 
   for (const block of rawBlocks) {
     const lines = block.split(/\n/).map((l) => l.trim()).filter(Boolean);
@@ -198,8 +219,14 @@ export function parseEditorialStorySections(
     }
 
     // Assign a distinct secondary product image to this section if available
-    const assignedImage = images && images.length > imageIdx ? images[imageIdx] : undefined;
-    if (assignedImage) imageIdx++;
+    let assignedImage: ProductImage | undefined =
+      images && images.length > imageIdx ? images[imageIdx] : undefined;
+
+    if (assignedImage) {
+      imageIdx++;
+    } else if (isMantraDevice && fallbackIdx < mantraFallbackImages.length) {
+      assignedImage = mantraFallbackImages[fallbackIdx++];
+    }
 
     sections.push({
       headline,
@@ -227,7 +254,10 @@ function getCategoryFallbackFeatures(cleanTitle: string): KeyFeature[] {
     combined.includes("audio") ||
     combined.includes("speaker") ||
     combined.includes("sound") ||
-    combined.includes("puja")
+    combined.includes("puja") ||
+    combined.includes("om ") ||
+    combined.includes("chalisa") ||
+    combined.includes("bhajan")
   ) {
     return [
       {
@@ -284,12 +314,10 @@ function getCategoryFallbackFeatures(cleanTitle: string): KeyFeature[] {
     ];
   }
 
-  // 3. Bathroom Shelf / Storage Rack (ONLY if explicitly a shelf or rack)
+  // 3. Bathroom Shelf / Storage Rack (STRICT CHECK: must be an actual shelf, never spiritual devices)
   if (
-    combined.includes("bathroom shelf") ||
-    combined.includes("corner shelf") ||
-    combined.includes("storage rack") ||
-    combined.includes("shower caddy")
+    (combined.includes("shelf") || combined.includes("rack") || combined.includes("caddy")) &&
+    (combined.includes("bathroom") || combined.includes("shower") || combined.includes("storage"))
   ) {
     return [
       {
@@ -386,8 +414,16 @@ export function parseProductContent({
   const cleanTitle = filterSupplierNames(title);
   const cleanText = sanitizeRawDescription(description);
 
+  const isMantra =
+    cleanTitle.toLowerCase().includes("mantra") ||
+    cleanTitle.toLowerCase().includes("chanting") ||
+    cleanTitle.toLowerCase().includes("om ") ||
+    cleanTitle.toLowerCase().includes("chalisa") ||
+    cleanTitle.toLowerCase().includes("bhajan") ||
+    cleanText.toLowerCase().includes("mantra");
+
   // Parse rich story sections matching the reference screenshot in Image 2
-  const storySections = parseEditorialStorySections(cleanText, images);
+  const storySections = parseEditorialStorySections(cleanText, images, isMantra);
 
   const keyFeatures: KeyFeature[] = [];
   const specifications: ProductSpec[] = [];

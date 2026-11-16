@@ -9,45 +9,46 @@
 
 @theme {
   /* Surfaces */
-  --color-surface: #F7F3EC;
-  --color-surface-secondary: #EFE9DE;
+  --color-surface: #F8F7F3;
+  --color-surface-secondary: #EAF0FC;
   --color-surface-elevated: #FFFFFF;
-  --color-on-surface: #282720;
-  --color-on-surface-secondary: #5E5B52;
-  --color-border: #E2DBD0;
+  --color-on-surface: #192A46;
+  --color-on-surface-secondary: #64748B;
+  --color-border: #E4E7ED;
 
-  /* ─── Brand: Warm Ivory & Muted Copper ──────────────────────────────── */
-  --color-primary: #B77943;
-  --color-copper: #B77943;
-  --color-gold: #D7A84C;
-  --color-espresso: #282720;
-  --color-ivory: #F7F3EC;
+  /* ─── Modern Marketplace Palette ──────────────────────────────── */
+  --color-primary: #2457D6;
+  --color-navy: #192A46;
+  --color-royal-blue: #2457D6;
+  --color-ice-blue: #EAF0FC;
+  --color-sale-red: #D93636;
+  --color-ivory: #F8F7F3;
 
-  /* Interactive — derived from brand palette */
-  --color-interactive: #B77943;
-  --color-interactive-hover: color-mix(in oklab, #B77943 85%, black);
-  --color-interactive-active: color-mix(in oklab, #B77943 72%, black);
+  /* Interactive — Royal Blue */
+  --color-interactive: #2457D6;
+  --color-interactive-hover: #1D44B8;
+  --color-interactive-active: #163694;
   --color-interactive-text: #ffffff;
 
-  /* Accent — subtle tint of copper */
-  --color-accent: #B77943;
+  /* Accent */
+  --color-accent: #2457D6;
 
   /* Button variants */
-  --color-button-primary: #B77943;
-  --color-button-primary-hover: #9E6433;
-  --color-button-primary-active: #845025;
+  --color-button-primary: #2457D6;
+  --color-button-primary-hover: #1D44B8;
+  --color-button-primary-active: #163694;
   --color-button-primary-text: #ffffff;
-  --color-button-secondary: #EFE9DE;
-  --color-button-secondary-text: #282720;
-  --color-button-outline-border: #B77943;
-  --color-button-outline-text: #B77943;
+  --color-button-secondary: #EAF0FC;
+  --color-button-secondary-text: #192A46;
+  --color-button-outline-border: #E4E7ED;
+  --color-button-outline-text: #192A46;
   /* Shop Pay brand button */
   --color-button-shop-pay: #5433eb;
   --color-button-shop-pay-text: #ffffff;
 
   /* Commerce */
-  --color-sale: #C2452D;
-  --color-compare: #7D786D;
+  --color-sale: #D93636;
+  --color-compare: #94A3B8;
 
   /* Semantic states (success/warning darkened from the theme source to meet WCAG AA 4.5:1 as text on white and as badge fills behind white text) */
   --color-success: #047857;
