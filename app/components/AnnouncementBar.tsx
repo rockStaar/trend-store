@@ -9,6 +9,10 @@ interface Announcement {
 // Store promotional and shipping announcements
 const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "tagline",
+    text: "Discover more at HypeeeCart | Everyday favourites, thoughtful finds",
+  },
+  {
     id: "shipping",
     text: "🚚 100% Free Express Delivery across India on",
     highlight: "ALL Orders",
@@ -19,9 +23,8 @@ const ANNOUNCEMENTS: Announcement[] = [
     highlight: "3–5 Day Delivery",
   },
   {
-    id: "discount",
-    text: "✨ Flat ₹150 OFF on your first prepaid order — use code",
-    highlight: "HYPE150",
+    id: "cod",
+    text: "💵 Cash on Delivery (COD) Available across all Indian pin codes",
   },
 ];
 
@@ -48,14 +51,14 @@ export function AnnouncementBar() {
     <div
       role="region"
       aria-label="Store Announcements"
-      className="bg-[#282720] text-[#F7F3EC] px-4 py-1.5 text-xs"
+      className="bg-[#0755D9] text-white px-4 py-2 text-xs font-semibold"
     >
       <div
         className={`max-w-page mx-auto flex items-center justify-center gap-1.5 text-center tracking-wide transition-opacity duration-200 ${visible ? "opacity-100" : "opacity-0"}`}
       >
-        <span className="opacity-90">{current.text}</span>
+        <span className="opacity-95">{current.text}</span>
         {current.highlight ? (
-          <span className="font-bold text-[#D7A84C]">{current.highlight}</span>
+          <span className="font-extrabold text-[#FACC15] underline underline-offset-2">{current.highlight}</span>
         ) : null}
       </div>
     </div>

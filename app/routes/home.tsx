@@ -8,6 +8,7 @@ import {
   type CollectionCardData,
 } from "~/components/CollectionCard";
 import { ProductCard, PRODUCT_CARD_FRAGMENT, type ProductCardData } from "~/components/ProductCard";
+import { HomeHero } from "~/components/HomeHero";
 import { storefrontClientContext } from "~/lib/storefront";
 import { envContext } from "~/lib/env";
 import { compareMoney, formatPrice, salePercent } from "~/lib/money";
@@ -1040,6 +1041,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <span className="font-semibold text-[#B77943]">🛠️ Catalog Preview:</span> Showing demo inventory from mock.shop. Connect your Shopify store via <code className="bg-white px-1.5 py-0.5 rounded border border-[#D7A84C]/40 text-[11px]">npx shopify hydrogen link</code> to render live inventory.
         </div>
       ) : null}
+
+      {/* 1. VIBRANT HERO SECTION (KitKart inspired - 1st before everything) */}
+      <HomeHero products={loaderData.allProducts} />
 
       {/* A. Top Categories / Shop by Category */}
       <TopCategoriesSection
