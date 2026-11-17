@@ -22,6 +22,7 @@ export type ProductImage = {
 export type KeyFeature = {
   title: string;
   desc: string;
+  bullets?: string[];
 };
 
 export type ProductSpec = {
@@ -43,6 +44,8 @@ export type StructuredProductContent = {
   keyFeatures: KeyFeature[];
   specifications: ProductSpec[];
   howToUse: string[];
+  packageIncludes?: string[];
+  sellerInfo?: { soldBy?: string; marketedBy?: string };
 };
 
 /**
@@ -73,10 +76,18 @@ export function sanitizeRawDescription(rawText: string | null | undefined): stri
   const lines = text.split(/\r?\n/);
   const cleanLines: string[] = [];
   const seenLines = new Set<string>();
+  let prevEmpty = false;
 
-  for (let line of lines) {
-    line = line.trim();
-    if (!line) continue;
+  for (let rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      if (!prevEmpty && cleanLines.length > 0) {
+        cleanLines.push("");
+        prevEmpty = true;
+      }
+      continue;
+    }
+    prevEmpty = false;
 
     const lower = line.toLowerCase();
 
@@ -106,12 +117,269 @@ export function sanitizeRawDescription(rawText: string | null | undefined): stri
     }
 
     // Collapse excessive duplicate emojis
-    line = line.replace(/([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}])\s*(\1\s*)+/gu, "$1 ");
+    const cleanLine = line.replace(/([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}])\s*(\1\s*)+/gu, "$1 ");
 
-    cleanLines.push(line);
+    cleanLines.push(cleanLine);
   }
 
   return cleanLines.join("\n");
+}
+
+/**
+ * Checks whether text contains structured e-commerce sections (Key Features, Package Includes, Numbered lists).
+ */
+export function isStructuredEcommerceDescription(text: string | null | undefined): boolean {
+  if (!text) return false;
+  return /key features|package includes|package contains|in the box|what['’]s included|why choose|\b\d+[\.\)]\s+[A-Za-z]/i.test(
+    text,
+  );
+}
+
+/**
+ * Parses structured e-commerce descriptions (common in dropshipping and modern retail listings)
+ * into rich, discrete sections, numbered feature cards, package inclusions, and technical specifications.
+ */
+export function parseStructuredEcommerceContent(
+  rawText: string,
+  title: string,
+  images: ProductImage[] = [],
+): StructuredProductContent {
+  const isHeater = (title + " " + rawText).toLowerCase().includes("heater");
+  const heaterHeroImage: ProductImage = {
+    url: "/uploads/products/handy-heater-demo.jpg",
+    altText: "Say NO to Cold - Wall Outlet Handy Heater Demo",
+  };
+
+  const lines = rawText.split(/\r?\n/).map((l) => l.trim());
+
+  let state: "INTRO" | "KEY_FEATURES" | "PACKAGE_INCLUDES" | "WHY_CHOOSE" | "CTA" | "SELLER" = "INTRO";
+  const introLines: string[] = [];
+  let currentFeature: KeyFeature | null = null;
+  const keyFeatures: KeyFeature[] = [];
+  const packageIncludes: string[] = [];
+  let whyChooseHeadline = "";
+  const whyChooseBullets: string[] = [];
+  let ctaHeadline = "";
+  const ctaLines: string[] = [];
+  const sellerInfo: { soldBy?: string; marketedBy?: string } = {};
+  const specifications: ProductSpec[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) continue;
+
+    if (/^(key features|features|product highlights)\s*:?$/i.test(line)) {
+      if (currentFeature) {
+        keyFeatures.push(currentFeature);
+        currentFeature = null;
+      }
+      state = "KEY_FEATURES";
+      continue;
+    }
+
+    if (/^(package includes?|package contents?|in the box|what['’]s included)\s*:?$/i.test(line)) {
+      if (currentFeature) {
+        keyFeatures.push(currentFeature);
+        currentFeature = null;
+      }
+      state = "PACKAGE_INCLUDES";
+      continue;
+    }
+
+    if (/^why choose (our\s+)?/i.test(line)) {
+      if (currentFeature) {
+        keyFeatures.push(currentFeature);
+        currentFeature = null;
+      }
+      state = "WHY_CHOOSE";
+      whyChooseHeadline = line.replace(/\?*$/, "?");
+      continue;
+    }
+
+    if (/^transform your [^!.]+!*$/i.test(line)) {
+      if (currentFeature) {
+        keyFeatures.push(currentFeature);
+        currentFeature = null;
+      }
+      state = "CTA";
+      ctaHeadline = line;
+      continue;
+    }
+
+    if (/^sold by\s*:/i.test(line)) {
+      if (currentFeature) {
+        keyFeatures.push(currentFeature);
+        currentFeature = null;
+      }
+      state = "SELLER";
+      sellerInfo.soldBy = line.replace(/^sold by\s*:\s*/i, "").trim();
+      continue;
+    }
+
+    if (/^marketed by\s*:/i.test(line)) {
+      state = "SELLER";
+      sellerInfo.marketedBy = line.replace(/^marketed by\s*:\s*/i, "").trim();
+      continue;
+    }
+
+    const numMatch = line.match(/^(\d+[\.\)]\s+[^:]+):?$/);
+    if (numMatch && (state === "KEY_FEATURES" || state === "INTRO")) {
+      if (currentFeature) {
+        keyFeatures.push(currentFeature);
+      }
+      state = "KEY_FEATURES";
+      currentFeature = {
+        title: numMatch[1].trim(),
+        desc: "",
+        bullets: [],
+      };
+      continue;
+    }
+
+    if (state === "KEY_FEATURES") {
+      if (currentFeature) {
+        const cleanBullet = line.replace(/^[•✓✔\-\*]\s*/, "").trim();
+        if (cleanBullet) {
+          currentFeature.bullets = currentFeature.bullets || [];
+          currentFeature.bullets.push(cleanBullet);
+          currentFeature.desc = currentFeature.bullets.join(" ");
+        }
+      }
+      continue;
+    }
+
+    if (state === "PACKAGE_INCLUDES") {
+      const cleanItem = line.replace(/^[•✓✔\-\*]\s*/, "").trim();
+      if (cleanItem) packageIncludes.push(cleanItem);
+      continue;
+    }
+
+    if (state === "WHY_CHOOSE") {
+      const cleanBullet = line.replace(/^[•✓✔\-\*]\s*/, "").trim();
+      if (cleanBullet) whyChooseBullets.push(cleanBullet);
+      continue;
+    }
+
+    if (state === "CTA") {
+      ctaLines.push(line);
+      continue;
+    }
+
+    if (state === "INTRO") {
+      introLines.push(line);
+      continue;
+    }
+  }
+
+  if (currentFeature) {
+    keyFeatures.push(currentFeature);
+  }
+
+  // Extract specs from feature bullets
+  for (const feat of keyFeatures) {
+    if (feat.bullets) {
+      for (const b of feat.bullets) {
+        if (/heats up to (\d+\s*(?:square feet|sq\.?\s*ft\.?))/i.test(b)) {
+          const m = b.match(/heats up to (\d+\s*(?:square feet|sq\.?\s*ft\.?))/i);
+          if (m) specifications.push({ label: "Coverage Area", value: `Up to ${m[1]}` });
+        }
+        if (/consumes only (\d+[-–]\d+\s*watts?)/i.test(b)) {
+          const m = b.match(/consumes only (\d+[-–]\d+\s*watts?)/i);
+          if (m) specifications.push({ label: "Power Consumption", value: m[1] });
+        }
+        if (/(\d+[-–]hour timer)/i.test(b)) {
+          const m = b.match(/(\d+[-–]hour timer)/i);
+          if (m) specifications.push({ label: "Timer", value: `${m[1]} with Auto Shut-Off` });
+        }
+        if (/adjustable from (\d+°F to \d+°F)/i.test(b)) {
+          const m = b.match(/adjustable from (\d+°F to \d+°F)/i);
+          if (m) specifications.push({ label: "Digital Thermostat", value: m[1] });
+        }
+      }
+    }
+  }
+
+  if (packageIncludes.length > 0) {
+    specifications.push({
+      label: "Package Contents",
+      value: packageIncludes.join(", "),
+    });
+  }
+
+  if (sellerInfo.soldBy) {
+    specifications.push({ label: "Sold By", value: sellerInfo.soldBy });
+  }
+  if (sellerInfo.marketedBy) {
+    specifications.push({ label: "Marketed By", value: sellerInfo.marketedBy });
+  }
+
+  // Fallback specs
+  specifications.push(
+    { label: "Product", value: title },
+    { label: "Quality Grade", value: "Premium Certified Build" },
+    { label: "Replacement", value: "5 Days Free Doorstep Replacement" },
+    { label: "Delivery", value: "100% Free Express Shipping" },
+  );
+
+  // Construct story sections
+  const storySections: StorySection[] = [];
+
+  let introHeadline = introLines[0] || `Stay Warm and Cozy with ${title}!`;
+  let introSubhead = "";
+  let introParagraph = "";
+
+  if (introLines.length > 1) {
+    if (introLines[1].endsWith("?")) {
+      introSubhead = introLines[1];
+      introParagraph = introLines.slice(2).join(" ");
+    } else {
+      introParagraph = introLines.slice(1).join(" ");
+    }
+  }
+
+  // 1. Intro section: gets the user's requested demo image!
+  storySections.push({
+    headline: introHeadline,
+    subhead: introSubhead || undefined,
+    paragraph: introParagraph || undefined,
+    bullets: [],
+    image: isHeater ? heaterHeroImage : (images.length > 1 ? images[1] : undefined),
+  });
+
+  // 2. Why Choose section
+  if (whyChooseHeadline || whyChooseBullets.length > 0) {
+    storySections.push({
+      headline: whyChooseHeadline || `Why Choose Our ${title}?`,
+      subhead: "Engineered for maximum comfort, instant warmth, and reliable safety",
+      paragraph: "",
+      bullets: whyChooseBullets,
+      image: isHeater && images.length > 1 ? images[1] : (images.length > 2 ? images[2] : undefined),
+    });
+  }
+
+  // 3. CTA section
+  if (ctaHeadline || ctaLines.length > 0) {
+    storySections.push({
+      headline: ctaHeadline || "Transform Your Daily Routine Today!",
+      subhead: undefined,
+      paragraph: ctaLines.join(" "),
+      bullets: [],
+    });
+  }
+
+  const shortIntro =
+    introParagraph ||
+    `Experience premium convenience and reliable performance with the ${title}. Thoughtfully designed for modern Indian homes.`;
+
+  return {
+    shortIntro,
+    storySections,
+    keyFeatures,
+    specifications,
+    howToUse: [],
+    packageIncludes,
+    sellerInfo,
+  };
 }
 
 /**
@@ -413,6 +681,13 @@ export function parseProductContent({
 }): StructuredProductContent {
   const cleanTitle = filterSupplierNames(title);
   const cleanText = sanitizeRawDescription(description);
+
+  // If this product description contains structured e-commerce sections
+  // (Key features, package inclusions, numbered lists, why choose us),
+  // parse it into dedicated high-conversion sections and feature cards!
+  if (isStructuredEcommerceDescription(cleanText)) {
+    return parseStructuredEcommerceContent(cleanText, cleanTitle, images);
+  }
 
   const isMantra =
     cleanTitle.toLowerCase().includes("mantra") ||

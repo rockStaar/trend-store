@@ -294,6 +294,19 @@ function useGalleryImages(product: ProductData, selectedVariant: ProductVariant 
       addImage({ url: "/uploads/products/mantra-device-shiva.jpg", altText: "Mantra device ambient light with Lord Shiva" });
     }
 
+    // For Handy Heater, substitute the second image with the real lifestyle demo image
+    if (t.includes("heater")) {
+      const demoImage: ProductImage = {
+        url: "/uploads/products/handy-heater-demo.jpg",
+        altText: "Say NO to Cold - Wall Outlet Handy Heater Demo",
+      };
+      if (images.length > 1) {
+        images[1] = demoImage;
+      } else {
+        images.push(demoImage);
+      }
+    }
+
     return images;
   }, [product, selectedVariant]);
 }
@@ -931,57 +944,162 @@ function ProductEditorialShowcase({
         {/* 4 Circular Trust Badges Banner at top */}
         <TrustBadgesBanner />
 
-        {/* If Story Sections exist, render each story block with supporting images */}
+        {/* If Story Sections exist, render story blocks, key features, and package inclusions */}
         {structuredContent.storySections.length > 0 ? (
           <div className="space-y-8">
-            {structuredContent.storySections.map((sec, idx) => (
-              <div key={idx} className="space-y-3.5">
-                {sec.headline ? (
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
-                    {sec.headline}
-                  </h3>
-                ) : null}
+            {/* Primary Story Section (Intro & Hero Demo Image) */}
+            <div className="space-y-3.5">
+              {structuredContent.storySections[0].headline ? (
+                <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
+                  {structuredContent.storySections[0].headline}
+                </h3>
+              ) : null}
 
-                {sec.subhead ? (
-                  <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
-                    {sec.subhead}
-                  </p>
-                ) : null}
+              {structuredContent.storySections[0].subhead ? (
+                <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
+                  {structuredContent.storySections[0].subhead}
+                </p>
+              ) : null}
 
-                {sec.paragraph ? (
-                  <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
-                    {sec.paragraph}
-                  </p>
-                ) : null}
+              {structuredContent.storySections[0].paragraph ? (
+                <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
+                  {structuredContent.storySections[0].paragraph}
+                </p>
+              ) : null}
 
-                {sec.bullets.length > 0 ? (
-                  <ul className="space-y-2 py-1.5" role="list">
-                    {sec.bullets.map((bullet, bIdx) => (
-                      <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
-                        <span className="text-[#2457D6] font-bold text-base leading-none">✓</span>
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+              {structuredContent.storySections[0].bullets.length > 0 ? (
+                <ul className="space-y-2 py-1.5" role="list">
+                  {structuredContent.storySections[0].bullets.map((bullet, bIdx) => (
+                    <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
+                      <span className="text-[#2457D6] font-bold text-base leading-none">✓</span>
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
 
-                {/* Supporting Lifestyle Image with Rounded Frame */}
-                {sec.image?.url ? (
-                  <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
-                    <img
-                      src={sec.image.url}
-                      alt={sec.image.altText ?? sec.headline}
-                      className="w-full h-auto max-h-[420px] object-contain rounded-xl"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : null}
+              {/* Supporting Lifestyle Image with Rounded Frame */}
+              {structuredContent.storySections[0].image?.url ? (
+                <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
+                  <img
+                    src={structuredContent.storySections[0].image.url}
+                    alt={structuredContent.storySections[0].image.altText ?? structuredContent.storySections[0].headline}
+                    className="w-full h-auto max-h-[440px] object-contain rounded-xl"
+                    loading="lazy"
+                  />
+                </div>
+              ) : null}
+            </div>
 
-                {idx < structuredContent.storySections.length - 1 ? (
-                  <div className="pt-5 border-b border-[#E4E7ED]" />
-                ) : null}
+            {/* Structured Key Features Grid (Numbered Cards) */}
+            {structuredContent.keyFeatures && structuredContent.keyFeatures.length > 0 ? (
+              <div className="pt-6 border-t border-[#E4E7ED] space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-base text-[#155EEF]">⚡</span>
+                  <h4 className="text-base sm:text-lg font-black text-[#192A46] tracking-tight">
+                    Key Features &amp; Performance
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {structuredContent.keyFeatures.map((feat, idx) => (
+                    <div key={idx} className="p-4 rounded-xl bg-[#F8F7F3] border border-[#E4E7ED] space-y-2">
+                      <h5 className="font-bold text-xs sm:text-sm text-[#192A46] flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center size-5 rounded-full bg-[#155EEF] text-white text-[11px] font-bold shrink-0">
+                          {idx + 1}
+                        </span>
+                        <span>{feat.title.replace(/^\d+[\.\)]\s*/, "")}</span>
+                      </h5>
+                      {feat.bullets && feat.bullets.length > 0 ? (
+                        <ul className="space-y-1.5 pl-7 text-xs text-[#64748B]">
+                          {feat.bullets.map((b, bIdx) => (
+                            <li key={bIdx} className="flex items-start gap-1.5">
+                              <span className="text-[#155EEF] font-bold">•</span>
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs text-[#64748B] pl-7 leading-relaxed">{feat.desc}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            ) : null}
+
+            {/* Subsequent Story Sections (e.g. Why Choose, Transform Winters CTA) */}
+            {structuredContent.storySections.length > 1 ? (
+              <div className="pt-6 border-t border-[#E4E7ED] space-y-8">
+                {structuredContent.storySections.slice(1).map((sec, idx) => (
+                  <div key={idx} className="space-y-3.5">
+                    {sec.headline ? (
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
+                        {sec.headline}
+                      </h3>
+                    ) : null}
+
+                    {sec.subhead ? (
+                      <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
+                        {sec.subhead}
+                      </p>
+                    ) : null}
+
+                    {sec.paragraph ? (
+                      <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
+                        {sec.paragraph}
+                      </p>
+                    ) : null}
+
+                    {sec.bullets.length > 0 ? (
+                      <ul className="space-y-2 py-1.5" role="list">
+                        {sec.bullets.map((bullet, bIdx) => (
+                          <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
+                            <span className="text-[#155EEF] font-bold text-base leading-none">✓</span>
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+
+                    {sec.image?.url ? (
+                      <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
+                        <img
+                          src={sec.image.url}
+                          alt={sec.image.altText ?? sec.headline}
+                          className="w-full h-auto max-h-[440px] object-contain rounded-xl"
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : null}
+
+                    {idx < structuredContent.storySections.length - 2 ? (
+                      <div className="pt-5 border-b border-[#E4E7ED]" />
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {/* Package Includes / In The Box */}
+            {structuredContent.packageIncludes && structuredContent.packageIncludes.length > 0 ? (
+              <div className="p-4 sm:p-5 rounded-xl bg-[#F0F5FF] border border-[#D0E1FD] space-y-3 mt-6">
+                <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#155EEF]">
+                  <span>📦</span>
+                  <span>Package Includes</span>
+                </div>
+                <div className="flex flex-wrap gap-2.5">
+                  {structuredContent.packageIncludes.map((item, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D0E1FD] text-xs font-semibold text-[#192A46] shadow-2xs"
+                    >
+                      <span className="text-[#155EEF] font-bold">✓</span>
+                      <span>{item}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : (
           /* Fallback key features grid */
