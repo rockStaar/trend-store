@@ -136,6 +136,44 @@ export function isStructuredEcommerceDescription(text: string | null | undefined
 }
 
 /**
+ * Normalizes unformatted, run-on, or raw HTML product descriptions into clean line-separated text.
+ * Ensures headers (Key Features, Package Includes, Numbered lists, Bullets) get isolated line breaks.
+ */
+export function normalizeEcommerceText(raw: string): string {
+  let text = raw;
+
+  // 1. Decode HTML & common entities
+  text = text.replace(/<br\s*\/?>/gi, "\n");
+  text = text.replace(/<\/p>/gi, "\n\n");
+  text = text.replace(/<\/li>/gi, "\n");
+  text = text.replace(/<[^>]+>/g, " ");
+  text = text
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+
+  // 2. Insert line breaks before major section markers (even if inline or stuck to previous words)
+  text = text.replace(/\s*(Key Features|Features|Product Highlights)\s*[:\-]/gi, "\n\nKey Features:\n");
+  text = text.replace(/\s*(Package Includes?|Package Contents?|In The Box|What['’]s Included)\s*[:\-]/gi, "\n\nPackage Includes:\n");
+  text = text.replace(/\s*(Why Choose (?:Our\s+)?[^?!\n]+\??)/gi, "\n\n$1\n");
+  text = text.replace(/\s*(Transform Your [^!.\n]+!*)/gi, "\n\n$1\n");
+  text = text.replace(/\s*(Sold By\s*:\s*[^\n]+)/gi, "\n\n$1\n");
+  text = text.replace(/\s*(Marketed By\s*:\s*[^\n]+)/gi, "\n$1\n");
+
+  // 3. Insert line breaks before numbered items: "1. Compact...", "2. Safe...", etc.
+  text = text.replace(/\s*(\b\d+[\.\)]\s+[A-Za-z][^:\n•✓✔]{2,50}:?)/g, "\n\n$1\n");
+
+  // 4. Insert line breaks before bullet points: "• Lightweight...", "✓ Energy...", etc.
+  // Note: Only match '-' if followed by whitespace so hyphenated words like 'energy-consuming' are kept intact!
+  text = text.replace(/\s*([•✓✔*]|-(?=\s))\s*/g, "\n• ");
+
+  return text;
+}
+
+/**
  * Parses structured e-commerce descriptions (common in dropshipping and modern retail listings)
  * into rich, discrete sections, numbered feature cards, package inclusions, and technical specifications.
  */
@@ -150,7 +188,8 @@ export function parseStructuredEcommerceContent(
     altText: "Say NO to Cold - Wall Outlet Handy Heater Demo",
   };
 
-  const lines = rawText.split(/\r?\n/).map((l) => l.trim());
+  const normalized = normalizeEcommerceText(rawText);
+  const lines = normalized.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
   let state: "INTRO" | "KEY_FEATURES" | "PACKAGE_INCLUDES" | "WHY_CHOOSE" | "CTA" | "SELLER" = "INTRO";
   const introLines: string[] = [];
@@ -321,21 +360,27 @@ export function parseStructuredEcommerceContent(
     { label: "Delivery", value: "100% Free Express Shipping" },
   );
 
-  // Construct story sections
-  const storySections: StorySection[] = [];
+  // Construct story sections with intelligent headline/subhead extraction
+  const fullIntroText = introLines.join(" ");
+  const sentences = fullIntroText.split(/(?<=[.!?])\s+/);
 
-  let introHeadline = introLines[0] || `Stay Warm and Cozy with ${title}!`;
+  let introHeadline = `Stay Warm and Cozy with ${title}!`;
   let introSubhead = "";
   let introParagraph = "";
 
-  if (introLines.length > 1) {
-    if (introLines[1].endsWith("?")) {
-      introSubhead = introLines[1];
-      introParagraph = introLines.slice(2).join(" ");
+  if (sentences.length > 0 && sentences[0].length < 90) {
+    introHeadline = sentences[0];
+    if (sentences.length > 1 && sentences[1].endsWith("?") && sentences[1].length < 120) {
+      introSubhead = sentences[1];
+      introParagraph = sentences.slice(2).join(" ");
     } else {
-      introParagraph = introLines.slice(1).join(" ");
+      introParagraph = sentences.slice(1).join(" ");
     }
+  } else {
+    introParagraph = fullIntroText;
   }
+
+  const storySections: StorySection[] = [];
 
   // 1. Intro section: gets the user's requested demo image!
   storySections.push({

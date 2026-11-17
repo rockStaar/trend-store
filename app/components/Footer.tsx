@@ -1,64 +1,63 @@
 import { Link } from "react-router";
 
 import type { StorefrontShop } from "~/lib/storefront-shop";
-import { PaymentMethodIcon } from "./PaymentMethodIcon";
 
 const linkClass =
-  "text-[#64748B] hover:text-[#2457D6] focus-visible:outline-accent inline-flex items-center text-sm font-normal no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors py-1";
+  "text-white/80 hover:text-white focus-visible:outline-white inline-flex items-center gap-1.5 text-xs sm:text-sm font-normal no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-colors py-1";
 
 export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-[#F8F7F3] border-t border-[#E4E7ED] mt-16 text-[#192A46]">
-      {/* Brand Trust Strip */}
-      <div className="border-b border-[#E4E7ED] bg-white py-8">
+    <footer className="w-full bg-[#155EEF] text-white mt-16 shadow-lg">
+      {/* Brand Trust Strip in deep vibrant blue */}
+      <div className="border-b border-white/15 bg-[#1250CF] py-6 sm:py-8">
         <div className="max-w-page px-margin mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M5 13l4 4L19 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#192A46]">100% Quality Checked</h4>
-              <p className="text-xs text-[#64748B] mt-0.5">Every unit inspected before dispatch</p>
+              <h4 className="text-sm font-bold text-white">100% Quality Checked</h4>
+              <p className="text-xs text-white/75 mt-0.5">Every unit inspected before dispatch</p>
             </div>
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#192A46]">Pan-India Express Delivery</h4>
-              <p className="text-xs text-[#64748B] mt-0.5">Dispatches in 24h • 3–5 days transit</p>
+              <h4 className="text-sm font-bold text-white">Pan-India Express Delivery</h4>
+              <p className="text-xs text-white/75 mt-0.5">Dispatches in 24h • 3–5 days transit</p>
             </div>
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#192A46]">7-Day Replacement</h4>
-              <p className="text-xs text-[#64748B] mt-0.5">Hassle-free guarantee for damages</p>
+              <h4 className="text-sm font-bold text-white">5-Day Replacement</h4>
+              <p className="text-xs text-white/75 mt-0.5">Hassle-free guarantee for damages</p>
             </div>
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0FC] text-[#2457D6]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
               <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-[#192A46]">Verified Secure Payments</h4>
-              <p className="text-xs text-[#64748B] mt-0.5">UPI, Cards, NetBanking & COD</p>
+              <h4 className="text-sm font-bold text-white">Verified Secure Payments</h4>
+              <p className="text-xs text-white/75 mt-0.5">UPI, Cards, NetBanking & COD</p>
             </div>
           </div>
         </div>
@@ -66,205 +65,170 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
 
       {/* Main Footer Links */}
       <div className="max-w-page px-margin mx-auto py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {/* Brand Column */}
           <div className="space-y-4 lg:col-span-1">
             <div className="flex flex-col items-start gap-1">
-              <Link to="/" className="inline-block">
+              <Link to="/" className="inline-block bg-white p-2 rounded-xl shadow-xs">
                 <img
                   src="/logo.png"
                   alt="HypeeeCart"
-                  className="h-10 w-auto object-contain"
+                  className="h-9 w-auto object-contain"
                 />
               </Link>
-              <span className="text-[11px] uppercase tracking-wider text-[#2457D6] font-bold mt-1">
-                Everyday finds. Smarter shopping.
+              <span className="text-xs uppercase tracking-wider text-white font-extrabold mt-2">
+                Shop Smart... Live Better
               </span>
             </div>
-            <p className="text-xs text-[#64748B] leading-relaxed">
-              Discover clever home essentials, trending gadgets, and practical everyday upgrades made to bring convenience to your home.
+            <p className="text-xs text-white/80 leading-relaxed">
+              Experience the difference. Discover clever home essentials, trending gadgets, and practical upgrades at unbeatable prices — delivered across India.
             </p>
-            <div className="pt-2 text-xs text-[#64748B] space-y-1">
-              <p className="font-semibold text-[#192A46]">Customer Support:</p>
-              <p>Email: <a href="mailto:support@hypeeecart.in" className="text-[#2457D6] hover:underline font-medium">support@hypeeecart.in</a></p>
-              <p>Mon–Sat: 10:00 AM – 6:30 PM IST</p>
+            <div className="flex items-center gap-3 pt-2 text-white">
+              {/* Social links */}
+              <span className="size-8 rounded-full bg-white/15 flex items-center justify-center text-xs font-bold hover:bg-white/25 transition-colors cursor-pointer">
+                f
+              </span>
+              <span className="size-8 rounded-full bg-white/15 flex items-center justify-center text-xs font-bold hover:bg-white/25 transition-colors cursor-pointer">
+                📸
+              </span>
+              <span className="size-8 rounded-full bg-white/15 flex items-center justify-center text-xs font-bold hover:bg-white/25 transition-colors cursor-pointer">
+                𝕏
+              </span>
+              <span className="size-8 rounded-full bg-white/15 flex items-center justify-center text-xs font-bold hover:bg-white/25 transition-colors cursor-pointer">
+                ▶
+              </span>
             </div>
           </div>
 
-          {/* Useful Links Column 1 */}
+          {/* Quick Links Column */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
-              Useful Links
-            </h3>
-            <ul role="list" className="space-y-1">
-              <li>
-                <Link to="/#home-kitchen" className={linkClass}>
-                  Home &amp; Kitchen
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?q=storage" className={linkClass}>
-                  Storage &amp; Household
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?q=decor" className={linkClass}>
-                  Home Decor &amp; Lighting
-                </Link>
-              </li>
-              <li>
-                <Link to="/#smart-upgrades" className={linkClass}>
-                  Tools &amp; Home Improvement
-                </Link>
-              </li>
-              <li>
-                <Link to="/collections" className={linkClass}>
-                  All Collections
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Categories Column */}
-          <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
-              Categories
-            </h3>
-            <ul role="list" className="space-y-1">
-              <li>
-                <Link to="/#health-care" className={linkClass}>
-                  Health &amp; Personal Care
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?q=mobile" className={linkClass}>
-                  Mobile Accessories
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?q=bags" className={linkClass}>
-                  Bags, Wallets &amp; Travel
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?q=toys" className={linkClass}>
-                  Toys &amp; Kids Essentials
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?q=stationery" className={linkClass}>
-                  Stationery &amp; Office
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Policies & Help Column */}
-          <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
-              Policies &amp; Help
+            <h3 className="text-xs uppercase tracking-wider font-extrabold text-white mb-3.5 pb-1 border-b border-white/20 inline-block">
+              Quick Links
             </h3>
             <ul role="list" className="space-y-1">
               <li>
                 <Link to="/#why-us" className={linkClass}>
-                  About HypeeeCart
+                  <span>›</span> About Us
                 </Link>
               </li>
               <li>
                 <Link to="/policies/contact" className={linkClass}>
-                  Contact Us
+                  <span>›</span> Contact Us
                 </Link>
               </li>
               <li>
-                <Link to="/account" className={linkClass}>
-                  Track Your Order
+                <Link to="/collections" className={linkClass}>
+                  <span>›</span> All Products
                 </Link>
               </li>
               <li>
-                <Link to="/policies/shipping-policy" className={linkClass}>
-                  Shipping &amp; Delivery
+                <Link to="/#trending" className={linkClass}>
+                  <span>›</span> New Arrivals
                 </Link>
               </li>
               <li>
-                <Link to="/policies/refund-policy" className={linkClass}>
-                  7-Day Replacements
-                </Link>
-              </li>
-              <li>
-                <Link to="/policies/privacy-policy" className={linkClass}>
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/policies/terms-of-service" className={linkClass}>
-                  Terms of Service
+                <Link to="/#top-products" className={linkClass}>
+                  <span>›</span> Best Sellers
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* My Account Column */}
+          {/* Customer Service / Policies Column */}
           <div>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#192A46] mb-3.5">
-              My Account
+            <h3 className="text-xs uppercase tracking-wider font-extrabold text-white mb-3.5 pb-1 border-b border-white/20 inline-block">
+              Customer Service
             </h3>
             <ul role="list" className="space-y-1">
               <li>
-                <Link to="/account" className={linkClass}>
-                  Sign In / Register
+                <Link to="/policies/privacy-policy" className={linkClass}>
+                  <span>›</span> Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/account" className={linkClass}>
-                  Order History
+                <Link to="/policies/terms-of-service" className={linkClass}>
+                  <span>›</span> Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/#trending" className={linkClass}>
-                  My Wishlist
+                <Link to="/policies/refund-policy" className={linkClass}>
+                  <span>›</span> Return &amp; Refund Policy
                 </Link>
               </li>
               <li>
-                <Link to="/cart" className={linkClass}>
-                  View Cart
+                <Link to="/policies/shipping-policy" className={linkClass}>
+                  <span>›</span> Shipping &amp; Delivery Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/#faq" className={linkClass}>
+                  <span>›</span> FAQ &amp; Support
                 </Link>
               </li>
             </ul>
+          </div>
 
-            {/* Indian Payment Badges */}
-            <div className="mt-5 pt-4 border-t border-[#E4E7ED]">
-              <span className="text-[11px] font-bold text-[#192A46] block mb-2">
-                Secure Indian Payments
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center rounded-sm bg-white border border-[#E4E7ED] px-2 py-0.5 text-[10px] font-semibold text-[#192A46]">
-                  UPI
-                </span>
-                <span className="inline-flex items-center rounded-sm bg-white border border-[#E4E7ED] px-2 py-0.5 text-[10px] font-semibold text-[#192A46]">
-                  RuPay
-                </span>
-                <span className="inline-flex items-center rounded-sm bg-white border border-[#E4E7ED] px-2 py-0.5 text-[10px] font-semibold text-[#192A46]">
-                  Cards / NetBanking
-                </span>
-                <span className="inline-flex items-center rounded-sm bg-[#EAF0FC] border border-[#2457D6]/30 px-2 py-0.5 text-[10px] font-bold text-[#2457D6]">
-                  COD Available
-                </span>
+          {/* Contact Us Column */}
+          <div className="space-y-3.5">
+            <h3 className="text-xs uppercase tracking-wider font-extrabold text-white mb-3.5 pb-1 border-b border-white/20 inline-block">
+              Contact Us
+            </h3>
+            <div className="space-y-2.5 text-xs text-white/85">
+              <div className="flex items-start gap-2.5">
+                <span className="text-sm shrink-0">✉️</span>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-white/60 block">Email</span>
+                  <a href="mailto:support@hypeeecart.in" className="text-white hover:underline font-medium">
+                    support@hypeeecart.in
+                  </a>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="text-sm shrink-0">📞</span>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-white/60 block">Customer Care</span>
+                  <span className="font-medium text-white">+91 93071-40983</span>
+                  <span className="block text-[11px] text-white/70 mt-0.5">Mon–Sat: 10:00 AM – 6:30 PM IST</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="text-sm shrink-0">📍</span>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-white/60 block">Location</span>
+                  <span className="text-white/80">Express Hub, Maharashtra, India</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-[#E4E7ED] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#64748B]">
-          <p>© {currentYear} {shopInfo.name}. All rights reserved. Crafted with care for Indian Homes.</p>
-          <div className="flex items-center gap-4">
-            <Link to="/policies/privacy-policy" className="hover:text-[#2457D6] transition-colors">Privacy</Link>
-            <span>•</span>
-            <Link to="/policies/terms-of-service" className="hover:text-[#2457D6] transition-colors">Terms</Link>
-            <span>•</span>
-            <Link to="/policies/shipping-policy" className="hover:text-[#2457D6] transition-colors">Shipping</Link>
-            <span>•</span>
-            <Link to="/policies/refund-policy" className="hover:text-[#2457D6] transition-colors">Refunds</Link>
+        {/* Bottom Bar: Developed by Manaswi Swar & Payment Badges */}
+        <div className="border-t border-white/15 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/80">
+          <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
+            <span>© {currentYear} {shopInfo.name || "HypeeeCart"}. All rights reserved.</span>
+            <span className="hidden sm:inline text-white/40">|</span>
+            <span className="font-semibold text-white">
+              Developed by <span className="underline decoration-white/40 underline-offset-2">Manaswi Swar</span>
+            </span>
+          </div>
+
+          {/* Payment Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+              VISA
+            </span>
+            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+              MASTERCARD
+            </span>
+            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+              UPI
+            </span>
+            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+              RUPAY
+            </span>
+            <span className="inline-flex items-center rounded bg-[#1043AC] text-white border border-white/30 px-2 py-0.5 text-[10px] font-bold">
+              COD AVAILABLE
+            </span>
           </div>
         </div>
       </div>

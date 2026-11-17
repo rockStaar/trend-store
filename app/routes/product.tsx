@@ -659,127 +659,7 @@ function getDynamicTimelineDates() {
   return { orderDate, dispatchDate, deliveryDate };
 }
 
-function PackSelector({
-  unitPrice,
-  unitCompareAt,
-  currency,
-  selectedPack,
-  onSelectPack,
-}: {
-  unitPrice: number;
-  unitCompareAt: number | null;
-  currency: string;
-  selectedPack: number;
-  onSelectPack: (packQty: number) => void;
-}) {
-  const packs = [
-    { qty: 1, label: "Buy 1 Pc", badge: null },
-    { qty: 2, label: "Buy 2 Pc", badge: null },
-    { qty: 4, label: "Buy 4 Pc", badge: "Most popular" },
-    { qty: 10, label: "Buy 10 Pc", badge: "Best Value 🔥" },
-  ];
 
-  return (
-    <div className="border border-[#E4E7ED] rounded-2xl bg-white p-4 sm:p-5 shadow-2xs space-y-3.5 my-4">
-      {/* Pack header */}
-      <div>
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#192A46] tracking-wide uppercase">
-          <span className="text-base text-[#2457D6]">!</span>
-          <span>Choose Your Pack &amp; Save More</span>
-        </div>
-        <p className="text-xs text-[#64748B] mt-0.5">
-          Get a lower price per piece when you choose a bigger pack.
-        </p>
-      </div>
-
-      {/* Pack Options List */}
-      <div className="space-y-2.5">
-        {packs.map((pack) => {
-          const isSelected = selectedPack === pack.qty;
-          const totalPrice = unitPrice * pack.qty;
-          const totalOriginal = unitCompareAt ? unitCompareAt * pack.qty : null;
-          const isBestValue = pack.qty === 10;
-
-          return (
-            <div
-              key={pack.qty}
-              onClick={() => onSelectPack(pack.qty)}
-              className={`relative cursor-pointer rounded-xl border-2 p-3 sm:p-3.5 transition-all flex items-center justify-between gap-3 ${isSelected
-                  ? "border-[#2457D6] bg-[#EAF0FC]/40 shadow-xs"
-                  : "border-[#E4E7ED] bg-white hover:border-[#2457D6]/50 hover:bg-[#F8F7F3]"
-                }`}
-            >
-              {/* Badge if present */}
-              {pack.badge ? (
-                <span
-                  className={`absolute -top-2.5 right-3 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-2xs ${pack.badge.includes("Best Value")
-                      ? "bg-[#D93636] text-white"
-                      : "bg-[#192A46] text-white"
-                    }`}
-                >
-                  {pack.badge}
-                </span>
-              ) : null}
-
-              {/* Radio & Pack Details */}
-              <div className="flex items-center gap-3">
-                <div
-                  className={`size-4.5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? "border-[#2457D6] bg-[#2457D6]" : "border-[#CBD5E1] bg-white"
-                    }`}
-                >
-                  {isSelected ? <div className="size-1.5 rounded-full bg-white" /> : null}
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-[#192A46]">{pack.label}</span>
-                    <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                      Free Shipping
-                    </span>
-                  </div>
-                  {isBestValue ? (
-                    <span className="text-[11px] text-[#D93636] font-semibold flex items-center gap-1">
-                      <span>Hot Selling Deal • Free Shipping</span>
-                      <span>🔥</span>
-                    </span>
-                  ) : (
-                    <span className="text-[11px] text-[#64748B]">
-                      Free Express Delivery
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Price Details */}
-              <div className="text-right shrink-0">
-                <div className="font-extrabold text-sm sm:text-base text-[#192A46]">
-                  {formatPrice({ amount: totalPrice.toFixed(2), currencyCode: currency })}
-                </div>
-                {totalOriginal && totalOriginal > totalPrice ? (
-                  <div className="text-xs text-[#64748B] line-through">
-                    {formatPrice({ amount: totalOriginal.toFixed(2), currencyCode: currency })}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Footer checkmarks */}
-      <div className="pt-2 border-t border-[#E4E7ED] flex items-center justify-between text-xs text-[#64748B]">
-        <div className="flex items-center gap-1.5 font-medium">
-          <span className="text-emerald-700 font-bold">✓</span>
-          <span>Heavy Duty Quality</span>
-        </div>
-        <div className="flex items-center gap-1.5 font-medium">
-          <span className="text-emerald-700 font-bold">✓</span>
-          <span>7 Days Free Replacement</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function TrustedPaymentsAndTimeline() {
   const { orderDate, dispatchDate, deliveryDate } = useMemo(() => getDynamicTimelineDates(), []);
@@ -1351,14 +1231,30 @@ function ProductInfo({
           }}
         />
 
-        {/* 7. Bundle / Quantity Selector */}
-        <PackSelector
-          unitPrice={baseUnitAmount}
-          unitCompareAt={genuineCompareAt}
-          currency={currency}
-          selectedPack={quantity}
-          onSelectPack={(packQty) => setQuantity(packQty)}
-        />
+        {/* 7. Quantity Stepper */}
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[#F8F7F3] border border-[#E4E7ED] my-3">
+          <span className="text-xs font-bold text-[#192A46]">Quantity</span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              disabled={quantity <= 1}
+              className="size-8 rounded-lg bg-white border border-[#E4E7ED] font-bold text-sm text-[#192A46] hover:bg-[#EAF0FC] transition-colors disabled:opacity-40 flex items-center justify-center cursor-pointer"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="text-sm font-extrabold text-[#192A46] min-w-5 text-center">{quantity}</span>
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => q + 1)}
+              className="size-8 rounded-lg bg-white border border-[#E4E7ED] font-bold text-sm text-[#192A46] hover:bg-[#EAF0FC] transition-colors flex items-center justify-center cursor-pointer"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         {/* Errors & Notifications */}
         {[...errors.userErrors, ...errors.warnings, ...errors.networkErrors].length ? (
@@ -1567,10 +1463,10 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
     () =>
       parseProductContent({
         title: product.title,
-        description: product.description,
+        description: product.descriptionHtml || product.description,
         images: product.images.nodes,
       }),
-    [product.title, product.description, product.images.nodes],
+    [product.title, product.description, product.descriptionHtml, product.images.nodes],
   );
 
   return (
