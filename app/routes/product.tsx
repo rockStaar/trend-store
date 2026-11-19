@@ -1359,32 +1359,8 @@ function ProductInfo({
       <PriceBlock product={product} selectedVariant={selectedVariant} />
       <InventoryHint selectedVariant={selectedVariant} />
 
-      {/* 5. Key Highlights Capsule Strip (High-Scannability Trust Features) */}
-      {isHeater ? (
-        <div className="grid grid-cols-3 gap-2 my-2.5">
-          <div className="bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-base mb-0.5">⚡</span>
-            <span className="text-[11px] font-bold text-[#192A46] leading-tight">3-Sec Heat</span>
-            <span className="text-[9px] text-[#64748B] mt-0.5">PTC Ceramic</span>
-          </div>
-          <div className="bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-base mb-0.5">🔌</span>
-            <span className="text-[11px] font-bold text-[#192A46] leading-tight">Wall Plug</span>
-            <span className="text-[9px] text-[#64748B] mt-0.5">No Messy Cables</span>
-          </div>
-          <div className="bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl p-2.5 text-center flex flex-col items-center justify-center">
-            <span className="text-base mb-0.5">💡</span>
-            <span className="text-[11px] font-bold text-[#192A46] leading-tight">350W Smart</span>
-            <span className="text-[9px] text-[#64748B] mt-0.5">Saves Power Bill</span>
-          </div>
-        </div>
-      ) : structuredContent.shortIntro ? (
-        <div className="my-2.5 border-l-3 border-[#2457D6] pl-3 py-1.5 bg-[#F8F7F3] rounded-r-lg">
-          <p className="text-xs sm:text-sm text-[#192A46] leading-relaxed">
-            {structuredContent.shortIntro}
-          </p>
-        </div>
-      ) : null}
+      {/* 5. Exclusive Customer Benefits & Special Offers placed above */}
+      <BenefitsOfPrepaidOrdersCard />
 
       {/* 6. Variant Options & Quantity Form Container */}
       <div data-product-form className="space-y-3 my-2">
@@ -1520,16 +1496,13 @@ function ProductInfo({
         ) : null}
       </div>
 
-      {/* 10. Unlocked Customer Discounts & Perks */}
-      <BenefitsOfPrepaidOrdersCard />
-
-      {/* 11. Delivery & Pincode checker */}
+      {/* 8. Delivery & Pincode checker */}
       <PincodeEstimator />
 
-      {/* 12. Trusted payments & 3-stage delivery timeline */}
+      {/* 9. Trusted payments & 3-stage delivery timeline */}
       <TrustedPaymentsAndTimeline />
 
-      {/* 13. Rich Product Story / GIFs (Dreamzhub style for Handy Heater) */}
+      {/* 10. Rich Product Story / GIFs (Dreamzhub style for Handy Heater) */}
       {isHeater ? <HandyHeaterStory /> : null}
     </div>
   );
