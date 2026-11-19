@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 
 import { ProductCard, PRODUCT_CARD_FRAGMENT } from "~/components/ProductCard";
 import { CodOrderModal } from "~/components/CodOrderModal";
+import { ProductReviewsSection } from "~/components/ProductReviewsSection";
 import { openCartDrawer } from "~/lib/cart-drawer";
 import { envContext } from "~/lib/env";
 import { formatPrice, salePercent } from "~/lib/money";
@@ -1071,10 +1072,12 @@ function HandyHeaterStory() {
 }
 
 function ProductEditorialShowcase({
+  product,
   structuredContent,
   faqs,
   isHeater = false,
 }: {
+  product: ProductData;
   structuredContent: StructuredProductContent;
   faqs?: FaqItem[];
   isHeater?: boolean;
@@ -1178,6 +1181,9 @@ function ProductEditorialShowcase({
           </div>
         </div>
       ) : null}
+
+      {/* Customer Reviews Section */}
+      <ProductReviewsSection product={product} />
 
       {/* 5 Days Return Policy Collapsible Row */}
       <details className="group border border-[#E4E7ED] rounded-xl bg-white overflow-hidden shadow-2xs">
@@ -1707,6 +1713,7 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
           structuredContent={structuredContent}
         />
         <ProductEditorialShowcase
+          product={product}
           structuredContent={structuredContent}
           faqs={faqs}
           isHeater={isHeater}
