@@ -796,7 +796,7 @@ function HandyHeaterStory() {
       {/* 2. GIF 1: Say NO to Cold */}
       <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
         <img
-          src="/uploads/products/heater-say-no-to-cold.jpg"
+          src="/uploads/products/heater-say-no-to-cold.gif"
           alt="Say NO to Cold - Shivering in winter"
           className="w-full h-auto object-cover"
           loading="lazy"
@@ -812,7 +812,7 @@ function HandyHeaterStory() {
       {/* 4. GIF 2: Plugging into wall socket */}
       <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
         <img
-          src="/uploads/products/handy-heater-demo.jpg"
+          src="/uploads/products/handy-heater-demo.gif"
           alt="Plug and Play - Handy Heater in wall socket"
           className="w-full h-auto object-cover"
           loading="lazy"
@@ -872,7 +872,7 @@ function HandyHeaterStory() {
       {/* 6. GIF 3: Mini Electric Smart Radiator Dial */}
       <div className="overflow-hidden rounded-xl border border-[#DCE5F3] bg-[#F8F7F3] shadow-xs">
         <img
-          src="/uploads/products/heater-smart-radiator.jpg"
+          src="/uploads/products/heater-smart-radiator.gif"
           alt="Mini Electric Smart Radiator Temperature Controls"
           className="w-full h-auto object-cover"
           loading="lazy"
@@ -917,7 +917,7 @@ function HandyHeaterStory() {
       {/* 8. GIF 4: Woman with cat on sofa */}
       <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
         <img
-          src="/uploads/products/heater-cat-sofa.jpg"
+          src="/uploads/products/heater-cat-sofa.gif"
           alt="Cozy Home Warming - Pet and Family Friendly"
           className="w-full h-auto object-cover"
           loading="lazy"
@@ -967,7 +967,7 @@ function HandyHeaterStory() {
       {/* 12. GIF 5: 25000+ Happy Customers */}
       <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
         <img
-          src="/uploads/products/heater-happy-customers.jpg"
+          src="/uploads/products/heater-happy-customers.gif"
           alt="25000+ Happy Customers enjoying warmth in winter"
           className="w-full h-auto object-cover"
           loading="lazy"
