@@ -785,12 +785,212 @@ function TrustBadgesBanner() {
   );
 }
 
+function HandyHeaterStory() {
+  return (
+    <div className="pt-6 border-t border-[#E4E7ED] space-y-5 text-[#192A46]">
+      {/* 1. Main Header */}
+      <h3 className="text-base sm:text-lg font-bold text-[#192A46] tracking-tight">
+        Stay Warm and Cozy with Handy Heater!
+      </h3>
+
+      {/* 2. GIF 1: Say NO to Cold */}
+      <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
+        <img
+          src="/uploads/products/heater-say-no-to-cold.jpg"
+          alt="Say NO to Cold - Shivering in winter"
+          className="w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      {/* 3. Intro Paragraph */}
+      <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
+        Are you tired of bulky, energy-consuming heaters that fail to deliver? Look no further! Our{" "}
+        <strong className="text-[#192A46]">Wall-Outlet Handy Heater</strong> is the ultimate solution to keep you warm this winter. Whether it&apos;s your office, garage, or even a camping trip, this portable heater provides quick, efficient heat wherever you need it.
+      </p>
+
+      {/* 4. GIF 2: Plugging into wall socket */}
+      <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
+        <img
+          src="/uploads/products/handy-heater-demo.jpg"
+          alt="Plug and Play - Handy Heater in wall socket"
+          className="w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      {/* 5. Key Features */}
+      <div className="space-y-3 pt-2">
+        <h4 className="text-sm sm:text-base font-bold text-[#192A46]">
+          Key Features:
+        </h4>
+
+        <div className="space-y-2.5 text-xs sm:text-sm text-[#475569] leading-relaxed">
+          <div>
+            <p className="font-semibold text-[#192A46]">1. Compact and Portable Design:</p>
+            <ul className="pl-4 space-y-1 mt-1 text-xs sm:text-sm text-[#64748B]">
+              <li>• Lightweight and easy to carry.</li>
+              <li>• Perfect for small spaces without occupying much room.</li>
+              <li>• Ideal for travel, motels, hotels, or office use.</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold text-[#192A46]">2. Safe and Reliable:</p>
+            <ul className="pl-4 space-y-1 mt-1 text-xs sm:text-sm text-[#64748B]">
+              <li>• Stays cool to the touch, ensuring no accidental burns.</li>
+              <li>• Safe for any environment, making it worry-free for kids and pets.</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold text-[#192A46]">3. Plug and Play Convenience:</p>
+            <ul className="pl-4 space-y-1 mt-1 text-xs sm:text-sm text-[#64748B]">
+              <li>• Just plug it into any standard outlet for instant warmth.</li>
+              <li>• Heats up to 250 square feet efficiently.</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold text-[#192A46]">4. Programmable Digital Heater:</p>
+            <ul className="pl-4 space-y-1 mt-1 text-xs sm:text-sm text-[#64748B]">
+              <li>• Features a 12-hour timer and auto shut-off for energy savings.</li>
+              <li>• Digital thermostat adjustable from 60°F to 90°F for your perfect comfort level.</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold text-[#192A46]">5. Energy Smart:</p>
+            <ul className="pl-4 space-y-1 mt-1 text-xs sm:text-sm text-[#64748B]">
+              <li>• Consumes only 350–400 watts, saving you money on electricity bills.</li>
+              <li>• Turns cold, chilly spaces into warm, cozy areas at minimal cost.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 6. GIF 3: Mini Electric Smart Radiator Dial */}
+      <div className="overflow-hidden rounded-xl border border-[#DCE5F3] bg-[#F8F7F3] shadow-xs">
+        <img
+          src="/uploads/products/heater-smart-radiator.jpg"
+          alt="Mini Electric Smart Radiator Temperature Controls"
+          className="w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      {/* 7. Specifications Table matching Dreamzhub reference */}
+      <div className="overflow-hidden rounded-xl border border-[#DCE5F3] shadow-2xs">
+        <div className="bg-[#F1F5F9] px-4 py-2.5 border-b border-[#DCE5F3]">
+          <h4 className="font-bold text-xs sm:text-sm text-[#192A46]">Specifications</h4>
+        </div>
+        <table className="w-full text-xs text-left border-collapse">
+          <tbody>
+            <tr className="border-b border-[#E4E7ED] hover:bg-[#F8F7F3] transition-colors">
+              <td className="px-4 py-2.5 font-semibold text-[#64748B] w-1/2">Plug Types Available:</td>
+              <td className="px-4 py-2.5 font-bold text-[#192A46]">Indian 2-Pin Plug / Standard Socket</td>
+            </tr>
+            <tr className="border-b border-[#E4E7ED] bg-[#FAFAFA] hover:bg-[#F8F7F3] transition-colors">
+              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Voltage:</td>
+              <td className="px-4 py-2.5 font-bold text-[#192A46]">100-240V</td>
+            </tr>
+            <tr className="border-b border-[#E4E7ED] hover:bg-[#F8F7F3] transition-colors">
+              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Power Consumption:</td>
+              <td className="px-4 py-2.5 font-bold text-[#192A46]">350W - 400W</td>
+            </tr>
+            <tr className="border-b border-[#E4E7ED] bg-[#FAFAFA] hover:bg-[#F8F7F3] transition-colors">
+              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Adjustable Thermostat Range:</td>
+              <td className="px-4 py-2.5 font-bold text-[#192A46]">60°F - 90°F</td>
+            </tr>
+            <tr className="border-b border-[#E4E7ED] hover:bg-[#F8F7F3] transition-colors">
+              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Material:</td>
+              <td className="px-4 py-2.5 font-bold text-[#192A46]">Durable Heat-Resistant ABS Plastic</td>
+            </tr>
+            <tr className="hover:bg-[#F8F7F3] transition-colors">
+              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Dimensions:</td>
+              <td className="px-4 py-2.5 font-bold text-[#192A46]">125 x 85 x 160 mm</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* 8. GIF 4: Woman with cat on sofa */}
+      <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
+        <img
+          src="/uploads/products/heater-cat-sofa.jpg"
+          alt="Cozy Home Warming - Pet and Family Friendly"
+          className="w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      {/* 9. Package Includes */}
+      <div className="space-y-2 pt-1">
+        <h4 className="text-sm font-bold text-[#192A46]">Package Includes:</h4>
+        <ul className="pl-4 space-y-1 text-xs sm:text-sm text-[#64748B]">
+          <li>• 1 x Wall-Outlet Handy Heater</li>
+          <li>• 1 x Power Adapter / Socket Manual</li>
+        </ul>
+      </div>
+
+      {/* 10. Why Choose Our Handy Heater? */}
+      <div className="space-y-2 pt-2">
+        <h4 className="text-sm font-bold text-[#192A46]">Why Choose Our Handy Heater?</h4>
+        <ul className="space-y-1.5 text-xs sm:text-sm text-[#192A46]">
+          <li className="flex items-start gap-2">
+            <span className="text-emerald-700 font-bold shrink-0">✓</span>
+            <span><strong className="text-[#192A46]">Energy-Efficient:</strong> Reduce your winter energy costs.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-emerald-700 font-bold shrink-0">✓</span>
+            <span><strong className="text-[#192A46]">Fast Heating:</strong> Experience warmth in seconds.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-emerald-700 font-bold shrink-0">✓</span>
+            <span><strong className="text-[#192A46]">Portable:</strong> Take it anywhere you go – home, office, or trips.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-emerald-700 font-bold shrink-0">✓</span>
+            <span><strong className="text-[#192A46]">Space-Saving Design:</strong> Fits snugly into any outlet without cluttering the room.</span>
+          </li>
+        </ul>
+      </div>
+
+      {/* 11. Transform Your Winters Today! */}
+      <div className="space-y-2 pt-2">
+        <h4 className="text-sm font-bold text-[#192A46]">Transform Your Winters Today!</h4>
+        <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
+          Don&apos;t let the cold keep you down. With the Wall-Outlet Handy Heater, staying warm has never been so convenient and affordable. Add comfort to your daily life without breaking the bank!
+        </p>
+      </div>
+
+      {/* 12. GIF 5: 25000+ Happy Customers */}
+      <div className="overflow-hidden rounded-xl border border-[#E4E7ED] bg-[#F8F7F3] shadow-xs">
+        <img
+          src="/uploads/products/heater-happy-customers.jpg"
+          alt="25000+ Happy Customers enjoying warmth in winter"
+          className="w-full h-auto object-cover"
+          loading="lazy"
+        />
+      </div>
+
+      {/* 13. Marketed By */}
+      <div className="pt-2 text-xs text-[#64748B] flex items-center justify-between border-t border-[#E4E7ED]">
+        <span>Sold By: <strong className="text-[#192A46]">HypeeeCart</strong></span>
+        <span>Marketed By: <strong className="text-[#192A46]">HypeeeCart</strong></span>
+      </div>
+    </div>
+  );
+}
+
 function ProductEditorialShowcase({
   structuredContent,
   faqs,
+  isHeater = false,
 }: {
   structuredContent: StructuredProductContent;
   faqs?: FaqItem[];
+  isHeater?: boolean;
 }) {
   const defaultFaqs: FaqItem[] = [
     {
@@ -819,191 +1019,63 @@ function ProductEditorialShowcase({
 
   return (
     <section className="max-w-page px-margin mx-auto w-full py-8 space-y-6" aria-label="Product details and story">
-      {/* Editorial Story Container Matching Image 2 */}
-      <div className="bg-white border border-[#E4E7ED] rounded-2xl p-6 sm:p-9 shadow-2xs">
-        {/* 4 Circular Trust Badges Banner at top */}
-        <TrustBadgesBanner />
+      {/* Editorial Story Container for non-heater products */}
+      {!isHeater ? (
+        <div className="bg-white border border-[#E4E7ED] rounded-2xl p-6 sm:p-9 shadow-2xs">
+          {/* 4 Circular Trust Badges Banner at top */}
+          <TrustBadgesBanner />
 
-        {/* If Story Sections exist, render story blocks, key features, and package inclusions */}
-        {structuredContent.storySections.length > 0 ? (
-          <div className="space-y-8">
-            {/* Primary Story Section (Intro & Hero Demo Image) */}
-            <div className="space-y-3.5">
-              {structuredContent.storySections[0].headline ? (
-                <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
-                  {structuredContent.storySections[0].headline}
-                </h3>
-              ) : null}
+          {/* If Story Sections exist, render dynamic story */}
+          {structuredContent.storySections.length > 0 ? (
+            <div className="space-y-8 mt-8 pt-8 border-t border-[#E4E7ED]">
+              <div className="space-y-3.5">
+                {structuredContent.storySections[0].headline ? (
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
+                    {structuredContent.storySections[0].headline}
+                  </h3>
+                ) : null}
 
-              {structuredContent.storySections[0].subhead ? (
-                <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
-                  {structuredContent.storySections[0].subhead}
-                </p>
-              ) : null}
+                {structuredContent.storySections[0].subhead ? (
+                  <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
+                    {structuredContent.storySections[0].subhead}
+                  </p>
+                ) : null}
 
-              {structuredContent.storySections[0].paragraph ? (
-                <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
-                  {structuredContent.storySections[0].paragraph}
-                </p>
-              ) : null}
+                {structuredContent.storySections[0].paragraph ? (
+                  <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
+                    {structuredContent.storySections[0].paragraph}
+                  </p>
+                ) : null}
 
-              {structuredContent.storySections[0].bullets.length > 0 ? (
-                <ul className="space-y-2 py-1.5" role="list">
-                  {structuredContent.storySections[0].bullets.map((bullet, bIdx) => (
-                    <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
-                      <span className="text-[#2457D6] font-bold text-base leading-none">✓</span>
-                      <span>{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+                {structuredContent.storySections[0].bullets.length > 0 ? (
+                  <ul className="space-y-2 py-1.5" role="list">
+                    {structuredContent.storySections[0].bullets.map((bullet, bIdx) => (
+                      <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
+                        <span className="text-[#2457D6] font-bold text-base leading-none">✓</span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
 
-              {/* Supporting Lifestyle Image with Rounded Frame */}
-              {structuredContent.storySections[0].image?.url ? (
-                <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
-                  <img
-                    src={structuredContent.storySections[0].image.url}
-                    alt={structuredContent.storySections[0].image.altText ?? structuredContent.storySections[0].headline}
-                    className="w-full h-auto max-h-[440px] object-contain rounded-xl"
-                    loading="lazy"
-                  />
-                </div>
-              ) : null}
-            </div>
-
-            {/* Structured Key Features Grid (Numbered Cards) */}
-            {structuredContent.keyFeatures && structuredContent.keyFeatures.length > 0 ? (
-              <div className="pt-6 border-t border-[#E4E7ED] space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-base text-[#155EEF]">⚡</span>
-                  <h4 className="text-base sm:text-lg font-black text-[#192A46] tracking-tight">
-                    Key Features &amp; Performance
-                  </h4>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {structuredContent.keyFeatures.map((feat, idx) => (
-                    <div key={idx} className="p-4 rounded-xl bg-[#F8F7F3] border border-[#E4E7ED] space-y-2">
-                      <h5 className="font-bold text-xs sm:text-sm text-[#192A46] flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center size-5 rounded-full bg-[#155EEF] text-white text-[11px] font-bold shrink-0">
-                          {idx + 1}
-                        </span>
-                        <span>{feat.title.replace(/^\d+[\.\)]\s*/, "")}</span>
-                      </h5>
-                      {feat.bullets && feat.bullets.length > 0 ? (
-                        <ul className="space-y-1.5 pl-7 text-xs text-[#64748B]">
-                          {feat.bullets.map((b, bIdx) => (
-                            <li key={bIdx} className="flex items-start gap-1.5">
-                              <span className="text-[#155EEF] font-bold">•</span>
-                              <span>{b}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-xs text-[#64748B] pl-7 leading-relaxed">{feat.desc}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {/* Subsequent Story Sections (e.g. Why Choose, Transform Winters CTA) */}
-            {structuredContent.storySections.length > 1 ? (
-              <div className="pt-6 border-t border-[#E4E7ED] space-y-8">
-                {structuredContent.storySections.slice(1).map((sec, idx) => (
-                  <div key={idx} className="space-y-3.5">
-                    {sec.headline ? (
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#192A46] tracking-tight leading-snug">
-                        {sec.headline}
-                      </h3>
-                    ) : null}
-
-                    {sec.subhead ? (
-                      <p className="font-bold text-sm sm:text-base text-[#192A46] leading-snug">
-                        {sec.subhead}
-                      </p>
-                    ) : null}
-
-                    {sec.paragraph ? (
-                      <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
-                        {sec.paragraph}
-                      </p>
-                    ) : null}
-
-                    {sec.bullets.length > 0 ? (
-                      <ul className="space-y-2 py-1.5" role="list">
-                        {sec.bullets.map((bullet, bIdx) => (
-                          <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-[#192A46]">
-                            <span className="text-[#155EEF] font-bold text-base leading-none">✓</span>
-                            <span>{bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-
-                    {sec.image?.url ? (
-                      <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
-                        <img
-                          src={sec.image.url}
-                          alt={sec.image.altText ?? sec.headline}
-                          className="w-full h-auto max-h-[440px] object-contain rounded-xl"
-                          loading="lazy"
-                        />
-                      </div>
-                    ) : null}
-
-                    {idx < structuredContent.storySections.length - 2 ? (
-                      <div className="pt-5 border-b border-[#E4E7ED]" />
-                    ) : null}
+                {structuredContent.storySections[0].image?.url ? (
+                  <div className="my-5 overflow-hidden rounded-2xl border border-[#E4E7ED] bg-[#F8F7F3] p-3 sm:p-6 flex items-center justify-center">
+                    <img
+                      src={structuredContent.storySections[0].image.url}
+                      alt={structuredContent.storySections[0].image.altText ?? structuredContent.storySections[0].headline}
+                      className="w-full h-auto max-h-[440px] object-contain rounded-xl"
+                      loading="lazy"
+                    />
                   </div>
-                ))}
+                ) : null}
               </div>
-            ) : null}
-
-            {/* Package Includes / In The Box */}
-            {structuredContent.packageIncludes && structuredContent.packageIncludes.length > 0 ? (
-              <div className="p-4 sm:p-5 rounded-xl bg-[#F0F5FF] border border-[#D0E1FD] space-y-3 mt-6">
-                <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#155EEF]">
-                  <span>📦</span>
-                  <span>Package Includes</span>
-                </div>
-                <div className="flex flex-wrap gap-2.5">
-                  {structuredContent.packageIncludes.map((item, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D0E1FD] text-xs font-semibold text-[#192A46] shadow-2xs"
-                    >
-                      <span className="text-[#155EEF] font-bold">✓</span>
-                      <span>{item}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        ) : (
-          /* Fallback key features grid */
-          <div className="space-y-4">
-            <h3 className="text-xs uppercase font-bold tracking-wider text-[#192A46]">
-              Key Features &amp; Highlights
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {structuredContent.keyFeatures.map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#F8F7F3] border border-[#E4E7ED]">
-                  <span className="text-emerald-700 text-base shrink-0 leading-none mt-0.5">✅</span>
-                  <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#192A46]">{feat.title}</h4>
-                    <p className="text-xs text-[#64748B] leading-relaxed">{feat.desc}</p>
-                  </div>
-                </div>
-              ))}
             </div>
-          </div>
-        )}
-      </div>
+          ) : null}
+        </div>
+      ) : null}
 
-      {/* Technical Specifications Table */}
-      {structuredContent.specifications.length > 0 ? (
+      {/* Technical Specifications Table for non-heater products */}
+      {!isHeater && structuredContent.specifications.length > 0 ? (
         <div className="bg-white border border-[#E4E7ED] rounded-2xl p-6 sm:p-7 shadow-2xs space-y-4">
           <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-wider text-[#2457D6]">
             <span>📋</span>
@@ -1147,9 +1219,10 @@ function ProductInfo({
   const currency = price.currencyCode || "INR";
 
   const sanitizedTitle = filterSupplierNames(product.title);
+  const isHeater = (product.title + " " + product.handle).toLowerCase().includes("heater");
 
   return (
-    <div className="flex flex-col gap-0 md:sticky md:top-8 md:self-start">
+    <div className="flex flex-col gap-0">
       {/* 1. Product Title: clear, bold heading */}
       <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#192A46] leading-snug tracking-tight mb-2">
         {sanitizedTitle}
@@ -1286,6 +1359,9 @@ function ProductInfo({
 
       {/* 10. Trusted payments & 3-stage delivery timeline */}
       <TrustedPaymentsAndTimeline />
+
+      {/* 11. Rich Product Story / GIFs (Dreamzhub style for Handy Heater) */}
+      {isHeater ? <HandyHeaterStory /> : null}
     </div>
   );
 }
@@ -1469,6 +1545,8 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
     [product.title, product.description, product.descriptionHtml, product.images.nodes],
   );
 
+  const isHeater = (product.title + " " + product.handle).toLowerCase().includes("heater");
+
   return (
     <ProductProvider
       product={product}
@@ -1497,6 +1575,7 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
         <ProductEditorialShowcase
           structuredContent={structuredContent}
           faqs={faqs}
+          isHeater={isHeater}
         />
         <RelatedProducts products={relatedProducts} />
         <StickyMobileBuyBar product={product} />
