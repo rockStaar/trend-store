@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate, useRouteLoaderData } from "react-router";
 
 import { useCart } from "~/lib/cart";
@@ -60,6 +60,22 @@ function CategoryDropdown({
     setIsOpen(false);
   }, [location.pathname, location.search]);
 
+  const filteredCollections = useMemo(
+    () =>
+      collections.filter((col: HeaderCollection) => {
+        const lower = col.title?.toLowerCase().trim() || "";
+        const handleLower = col.handle?.toLowerCase().trim() || "";
+        return (
+          lower !== "home page" &&
+          lower !== "homepage" &&
+          handleLower !== "frontpage" &&
+          handleLower !== "home-page" &&
+          handleLower !== "home"
+        );
+      }),
+    [collections],
+  );
+
   return (
     <div className="relative inline-block" ref={dropdownRef}>
       <button
@@ -112,9 +128,9 @@ function CategoryDropdown({
 
           {/* Collections List: 2-column on desktop, 1-column on mobile */}
           <div className="p-3 sm:p-4 max-h-[65vh] overflow-y-auto scrollbar-thin">
-            {collections.length > 0 ? (
+            {filteredCollections.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {collections.map((col) => (
+                {filteredCollections.map((col: HeaderCollection) => (
                   <Link
                     key={col.id || col.handle}
                     to={`/collections/${col.handle}`}
@@ -435,7 +451,7 @@ export function Header({
           Offers %
         </Link>
         <Link
-          to="/#shop-by-price"
+          to="/search?q=under+299"
           className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#2457D6] transition-colors"
         >
           Under ₹299
@@ -475,7 +491,7 @@ export function Header({
           <Link to="/#health-care" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
             Health &amp; Care
           </Link>
-          <Link to="/#shop-by-price" className="text-[#2457D6] hover:text-[#2457D6] whitespace-nowrap transition-colors">
+          <Link to="/search?q=under+299" className="text-[#2457D6] hover:text-[#2457D6] whitespace-nowrap transition-colors">
             Under ₹299
           </Link>
           <Link to="/#shopping-guide" className="hover:text-[#2457D6] whitespace-nowrap transition-colors ms-auto">

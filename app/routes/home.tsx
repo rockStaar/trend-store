@@ -79,65 +79,106 @@ interface CategoryTileData {
 const DEFAULT_CATEGORIES: CategoryTileData[] = [
   {
     title: "Home & Kitchen",
-    image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
     link: "/#home-kitchen",
   },
   {
     title: "Health & Personal Care",
-    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80",
     link: "/#health-care",
   },
   {
     title: "Mobile Accessories",
-    image: "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=mobile+accessories",
   },
   {
     title: "Home Decor & Lighting",
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=decor",
   },
   {
     title: "Toys & Games",
-    image: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=toys",
   },
   {
     title: "Stationery, Art & Office",
-    image: "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=stationery",
   },
   {
     title: "Bags, Wallets & Travel",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=bags",
   },
   {
     title: "Garden & Outdoor",
-    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=garden",
   },
   {
     title: "Sports & Fitness",
-    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=fitness",
   },
   {
     title: "Car, Bike & Vehicle",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=car+accessories",
   },
   {
     title: "Tools & Home Improvement",
-    image: "https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1581147036324-c17ac41dfa6c?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=tools",
   },
   {
     title: "Baby & Child Care",
-    image: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=600&q=80",
     link: "/search?q=baby",
   },
 ];
+
+function getSpecificCategoryImage(title: string, handle: string): string {
+  const key = `${title} ${handle}`.toLowerCase();
+  if (key.includes("kitchen") || key.includes("cook")) {
+    return "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("health") || key.includes("personal") || key.includes("care") || key.includes("beauty")) {
+    return "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("mobile") || key.includes("phone") || key.includes("gadget") || key.includes("tech") || key.includes("electronic")) {
+    return "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("decor") || key.includes("lighting") || key.includes("lamp") || key.includes("light")) {
+    return "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("toy") || key.includes("game") || key.includes("play")) {
+    return "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("stationery") || key.includes("office") || key.includes("art") || key.includes("pen") || key.includes("desk")) {
+    return "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("bag") || key.includes("wallet") || key.includes("travel") || key.includes("backpack") || key.includes("luggage")) {
+    return "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("garden") || key.includes("outdoor") || key.includes("plant") || key.includes("yard")) {
+    return "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("sport") || key.includes("fitness") || key.includes("gym") || key.includes("workout")) {
+    return "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("car") || key.includes("bike") || key.includes("auto") || key.includes("vehicle")) {
+    return "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("tool") || key.includes("improvement") || key.includes("hardware") || key.includes("diy") || key.includes("repair")) {
+    return "https://images.unsplash.com/photo-1581147036324-c17ac41dfa6c?auto=format&fit=crop&w=600&q=80";
+  }
+  if (key.includes("baby") || key.includes("infant") || key.includes("child")) {
+    return "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=600&q=80";
+  }
+  return "";
+}
 
 function TopCategoriesSection({
   collections,
@@ -150,14 +191,30 @@ function TopCategoriesSection({
     const list: CategoryTileData[] = [];
 
     for (const c of collections) {
-      if (c.title && c.handle) {
-        const img = c.image?.url || products.find((p) => p.featuredImage?.url)?.featuredImage?.url;
-        list.push({
-          title: c.title,
-          image: img || DEFAULT_CATEGORIES[list.length % DEFAULT_CATEGORIES.length].image,
-          link: `/collections/${c.handle}`,
-        });
+      if (!c.title || !c.handle) continue;
+      const lower = c.title.toLowerCase().trim();
+      const handleLower = c.handle.toLowerCase().trim();
+
+      // REMOVE "Home page" / "frontpage" category completely per user request
+      if (
+        lower === "home page" ||
+        lower === "homepage" ||
+        handleLower === "frontpage" ||
+        handleLower === "home-page" ||
+        handleLower === "home"
+      ) {
+        continue;
       }
+
+      // Check specific matching category image
+      const specificImg = getSpecificCategoryImage(c.title, c.handle);
+      const img = specificImg || c.image?.url;
+
+      list.push({
+        title: c.title,
+        image: img || DEFAULT_CATEGORIES[list.length % DEFAULT_CATEGORIES.length].image,
+        link: `/collections/${c.handle}`,
+      });
     }
 
     for (const def of DEFAULT_CATEGORIES) {
@@ -168,7 +225,7 @@ function TopCategoriesSection({
     }
 
     return list.slice(0, 12);
-  }, [collections, products]);
+  }, [collections]);
 
   return (
     <section id="top-categories" className="w-full py-8 md:py-16 bg-white border-b border-[#E4E7ED]">
@@ -281,54 +338,6 @@ function ShoppingBenefitsStrip() {
               <p className="text-[10px] sm:text-xs text-[#64748B] truncate">Here to help</p>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Section C: Shop by Price
-// ─────────────────────────────────────────────────────────────────────────────
-function ShopByPriceSection() {
-  const priceTiers = [
-    { label: "₹99", query: "99" },
-    { label: "₹149", query: "149" },
-    { label: "₹199", query: "199" },
-    { label: "₹249", query: "249" },
-    { label: "₹299", query: "299" },
-    { label: "₹349", query: "349" },
-    { label: "₹399", query: "399" },
-    { label: "₹499 & under", query: "499" },
-  ];
-
-  return (
-    <section id="shop-by-price" className="w-full py-8 md:py-16 bg-white border-b border-[#E4E7ED]">
-      <div className="max-w-page px-3 sm:px-margin mx-auto">
-        <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
-          <h2 className="font-heading font-extrabold text-xl sm:text-3xl text-[#192A46] tracking-tight">
-            Small prices. Great finds.
-          </h2>
-          <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
-            Everyday essentials, at a price that works for you.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3.5">
-          {priceTiers.map((tier, idx) => (
-            <Link
-              key={idx}
-              to={`/search?q=under+${tier.query}`}
-              className="flex flex-col items-center justify-center p-2 sm:p-3.5 rounded-xl bg-[#F8F7F3] hover:bg-[#2457D6] border border-[#E4E7ED] hover:border-[#2457D6] text-center transition-all duration-200 group shadow-2xs hover:shadow-sm"
-            >
-              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#64748B] group-hover:text-white/80">
-                Under
-              </span>
-              <span className="text-xs sm:text-lg font-black text-[#192A46] group-hover:text-white mt-0.5">
-                {tier.label}
-              </span>
-            </Link>
-          ))}
         </div>
       </div>
     </section>
@@ -1041,10 +1050,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       {/* B. Shopping benefits strip */}
       <ShoppingBenefitsStrip />
 
-      {/* C. Shop by Price */}
-      <ShopByPriceSection />
-
-      {/* D. Trending Now */}
+      {/* C. Trending Now */}
       <TrendingNowSection products={loaderData.allProducts} />
 
       {/* E. Category collection: Home & Kitchen favourites */}
