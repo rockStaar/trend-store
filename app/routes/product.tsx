@@ -880,35 +880,35 @@ function HandyHeaterStory() {
       </div>
 
       {/* 7. Specifications Table matching Dreamzhub reference */}
-      <div className="overflow-hidden rounded-xl border border-[#DCE5F3] shadow-2xs">
-        <div className="bg-[#F1F5F9] px-4 py-2.5 border-b border-[#DCE5F3]">
+      <div className="overflow-x-auto rounded-xl border border-[#DCE5F3] shadow-2xs">
+        <div className="bg-[#F1F5F9] px-3.5 sm:px-4 py-2 sm:py-2.5 border-b border-[#DCE5F3]">
           <h4 className="font-bold text-xs sm:text-sm text-[#192A46]">Specifications</h4>
         </div>
-        <table className="w-full text-xs text-left border-collapse">
+        <table className="w-full text-[11px] sm:text-xs text-left border-collapse min-w-[280px]">
           <tbody>
             <tr className="border-b border-[#E4E7ED] hover:bg-[#F8F7F3] transition-colors">
-              <td className="px-4 py-2.5 font-semibold text-[#64748B] w-1/2">Plug Types Available:</td>
-              <td className="px-4 py-2.5 font-bold text-[#192A46]">Indian 2-Pin Plug / Standard Socket</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-[#64748B] w-1/2">Plug Types Available:</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-[#192A46]">Indian 2-Pin Plug / Standard Socket</td>
             </tr>
             <tr className="border-b border-[#E4E7ED] bg-[#FAFAFA] hover:bg-[#F8F7F3] transition-colors">
-              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Voltage:</td>
-              <td className="px-4 py-2.5 font-bold text-[#192A46]">100-240V</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-[#64748B]">Voltage:</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-[#192A46]">100-240V</td>
             </tr>
             <tr className="border-b border-[#E4E7ED] hover:bg-[#F8F7F3] transition-colors">
-              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Power Consumption:</td>
-              <td className="px-4 py-2.5 font-bold text-[#192A46]">350W - 400W</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-[#64748B]">Power Consumption:</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-[#192A46]">350W - 400W</td>
             </tr>
             <tr className="border-b border-[#E4E7ED] bg-[#FAFAFA] hover:bg-[#F8F7F3] transition-colors">
-              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Adjustable Thermostat Range:</td>
-              <td className="px-4 py-2.5 font-bold text-[#192A46]">60°F - 90°F</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-[#64748B]">Adjustable Thermostat Range:</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-[#192A46]">60°F - 90°F</td>
             </tr>
             <tr className="border-b border-[#E4E7ED] hover:bg-[#F8F7F3] transition-colors">
-              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Material:</td>
-              <td className="px-4 py-2.5 font-bold text-[#192A46]">Durable Heat-Resistant ABS Plastic</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-[#64748B]">Material:</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-[#192A46]">Durable Heat-Resistant ABS Plastic</td>
             </tr>
             <tr className="hover:bg-[#F8F7F3] transition-colors">
-              <td className="px-4 py-2.5 font-semibold text-[#64748B]">Dimensions:</td>
-              <td className="px-4 py-2.5 font-bold text-[#192A46]">125 x 85 x 160 mm</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-[#64748B]">Dimensions:</td>
+              <td className="px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-[#192A46]">125 x 85 x 160 mm</td>
             </tr>
           </tbody>
         </table>
@@ -1427,7 +1427,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
     <>
       <aside
         aria-label="Quick purchase bar"
-        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E4E7ED] px-3.5 py-2.5 z-30 md:hidden shadow-2xl transition-all"
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E4E7ED] px-3.5 pt-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] z-30 md:hidden shadow-2xl transition-all"
       >
         <div className="flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2 min-w-0">
@@ -1567,7 +1567,7 @@ export default function ProductRoute({ loaderData }: Route.ComponentProps) {
       }}
     >
       <ProductViewedTracker product={product} />
-      <main className="flex-1 pb-16 md:pb-0" id="main-content" tabIndex={-1}>
+      <main className="flex-1 pb-24 md:pb-0" id="main-content" tabIndex={-1}>
         <ProductPageContent
           product={product}
           structuredContent={structuredContent}

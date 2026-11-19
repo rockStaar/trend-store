@@ -228,10 +228,10 @@ export function Header({
   return (
     <header className="border-b border-[#E4E7ED] bg-white sticky top-0 z-40 shadow-xs transition-colors">
       {/* ── Main Header Row ── */}
-      <div className="max-w-page px-margin mx-auto flex h-16 sm:h-20 w-full items-center justify-between gap-3 sm:gap-4">
+      <div className="max-w-page px-3 sm:px-margin mx-auto flex h-14 sm:h-20 w-full items-center justify-between gap-2 sm:gap-4">
         {/* Mobile menu + Logo + Shop by Category dropdown */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-4 shrink-0">
-          <div className="-ms-2 lg:hidden shrink-0" data-hamburger-wrapper>
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-4 shrink-0">
+          <div className="-ms-1 sm:-ms-2 lg:hidden shrink-0" data-hamburger-wrapper>
             <MobileNavTrigger />
           </div>
           <Link
@@ -243,12 +243,14 @@ export function Header({
             <img
               src="/logo.png"
               alt={shopInfo.name || "HypeeeCart"}
-              className="h-9 sm:h-11 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+              className="h-8 sm:h-11 w-auto object-contain transition-transform group-hover:scale-[1.02]"
             />
           </Link>
 
-          {/* Functional "Shop by Category" Dropdown */}
-          <CategoryDropdown collections={allCollections} />
+          {/* Functional "Shop by Category" Dropdown (Desktop & Tablet) */}
+          <div className="hidden sm:inline-block">
+            <CategoryDropdown collections={allCollections} />
+          </div>
         </div>
 
         {/* ── Desktop Navigation Links ── */}
@@ -270,7 +272,7 @@ export function Header({
           </Link>
         </nav>
 
-        {/* ── Search Input ── */}
+        {/* ── Search Input (Desktop) ── */}
         <form
           onSubmit={handleSearchSubmit}
           className="hidden md:flex flex-1 max-w-xs lg:max-w-sm mx-2 relative items-center"
@@ -302,30 +304,15 @@ export function Header({
         </form>
 
         {/* ── Action Icons on Right (Account, Wishlist, Cart) ── */}
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          {/* Mobile search trigger */}
-          <Link
-            to="/search"
-            className="md:hidden button-icon inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:bg-[#F8F7F3] transition-colors"
-            aria-label="Search"
-            aria-controls={SEARCH_DRAWER_ID}
-            aria-haspopup="dialog"
-            data-testid="search-trigger"
-            onClick={(event) => openDialogFromLinkClick(event, SEARCH_DRAWER_ID)}
-          >
-            <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </Link>
-
-          {/* Account Link */}
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-2">
+          {/* Account Link (Desktop/Tablet) */}
           <Link
             to="/account"
-            className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#155EEF] hover:bg-[#F8F7F3] transition-colors"
+            className="hidden sm:inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#155EEF] hover:bg-[#F8F7F3] transition-colors"
             aria-label="Account"
             title="Customer Account"
           >
-            <svg className="size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="size-5 sm:size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -338,11 +325,11 @@ export function Header({
           {/* Wishlist Link / Trigger */}
           <Link
             to="/#trending"
-            className="relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#155EEF] hover:bg-[#F8F7F3] transition-colors"
+            className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#155EEF] hover:bg-[#F8F7F3] transition-colors"
             aria-label={`Wishlist (${wishlistCount} items)`}
             title="Saved items"
           >
-            <svg className="size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="size-5 sm:size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -350,7 +337,7 @@ export function Header({
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            <span className="bg-[#192A46] text-white absolute end-0 top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
+            <span className="bg-[#192A46] text-white absolute end-0 top-0.5 sm:top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
               {displayCount(wishlistCount)}
             </span>
           </Link>
@@ -358,14 +345,14 @@ export function Header({
           {/* Cart Trigger */}
           <Link
             to="/cart"
-            className="relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#155EEF] hover:bg-[#F8F7F3] transition-colors"
+            className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#155EEF] hover:bg-[#F8F7F3] transition-colors"
             aria-label={cartCountLabel(totalQuantity)}
             aria-controls={CART_DRAWER_ID}
             aria-haspopup="dialog"
             data-testid="cart-trigger"
             onClick={(event) => openDialogFromLinkClick(event, CART_DRAWER_ID)}
           >
-            <svg className="size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="size-5 sm:size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -373,7 +360,7 @@ export function Header({
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
-            <span className="bg-[#155EEF] text-white absolute end-0 top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
+            <span className="bg-[#155EEF] text-white absolute end-0 top-0.5 sm:top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
               {displayCount(totalQuantity)}
             </span>
           </Link>
@@ -381,6 +368,84 @@ export function Header({
             {liveCartCountLabel(totalQuantity)}
           </span>
         </div>
+      </div>
+
+      {/* ── Mobile Instant Search Bar ── */}
+      <div className="md:hidden px-3 pb-2 pt-0.5 border-b border-[#E4E7ED]/70 bg-white">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="relative w-full flex items-center"
+          role="search"
+        >
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products, brands and more..."
+            className="w-full bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl py-2 ps-9 pe-4 text-xs text-[#192A46] placeholder:text-[#64748B] focus:outline-none focus:border-[#155EEF] focus:bg-white transition-all shadow-inner/5"
+          />
+          <button
+            type="submit"
+            aria-label="Submit search"
+            className="absolute start-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#155EEF] transition-colors cursor-pointer"
+          >
+            <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      {/* ── Mobile Category Quick Strip ── */}
+      <div className="md:hidden bg-[#FAF8F5] border-b border-[#E4E7ED] px-3 py-1.5 flex items-center gap-2 overflow-x-auto scrollbar-none text-[11px] font-bold text-[#192A46]">
+        <Link
+          to="/"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-[#155EEF] text-white shadow-2xs"
+        >
+          All
+        </Link>
+        <Link
+          to="/#top-categories"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#155EEF] transition-colors"
+        >
+          Categories
+        </Link>
+        <Link
+          to="/#trending"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#155EEF] transition-colors flex items-center gap-1"
+        >
+          <span>🔥</span>
+          <span>Trending</span>
+        </Link>
+        <Link
+          to="/#home-kitchen"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#155EEF] transition-colors"
+        >
+          Home &amp; Kitchen
+        </Link>
+        <Link
+          to="/#special-offers"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#D93636] hover:border-[#D93636] transition-colors"
+        >
+          Offers %
+        </Link>
+        <Link
+          to="/#shop-by-price"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#155EEF] transition-colors"
+        >
+          Under ₹299
+        </Link>
+        <Link
+          to="/collections"
+          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#155EEF] hover:border-[#155EEF] transition-colors"
+        >
+          All Catalog →
+        </Link>
       </div>
 
       {/* ── Category Quick Navigation Bar (Desktop) ── */}

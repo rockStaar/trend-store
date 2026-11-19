@@ -87,7 +87,7 @@ function CollectionsGrid({ collections }: { collections: readonly CollectionNode
     <>
       <h2 className="sr-only">Browse collections</h2>
       <div>
-        <ul role="list" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul role="list" className="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {collections.map((collection, index) => (
             <li key={collection.handle}>
               <CollectionCard collection={collection} priority={index === 0} />
@@ -102,18 +102,18 @@ function CollectionsGrid({ collections }: { collections: readonly CollectionNode
 export default function CollectionsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <main className="flex-1" id="main-content" tabIndex={-1}>
-      <div className="max-w-page px-margin mx-auto w-full py-8 md:py-12">
+      <div className="max-w-page px-3 sm:px-margin mx-auto w-full py-6 md:py-12">
         <BreadcrumbJsonLd origin={loaderData.origin} />
         <Breadcrumb />
-        <div className="mb-8 pb-4 border-b border-[#E2DBD0]">
-          <span className="text-xs uppercase font-bold tracking-wider text-[#B77943]">
+        <div className="mb-6 sm:mb-8 pb-4 border-b border-[#E4E7ED]">
+          <span className="text-[10px] sm:text-xs uppercase font-bold tracking-wider text-[#2457D6]">
             DISCOVER OUR EDITS
           </span>
-          <h1 className="font-serif italic text-3xl sm:text-5xl font-normal text-[#282720] mt-1">
+          <h1 className="font-heading text-2xl sm:text-4xl font-extrabold text-[#192A46] mt-1">
             Shop by Category
           </h1>
-          <p className="text-xs sm:text-sm text-[#5E5B52] mt-2 max-w-xl">
-            Thoughtfully curated categories featuring botanical wellness rituals, calming home living accents, and everyday lifestyle essentials.
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 max-w-xl">
+            Thoughtfully curated categories featuring trending lifestyle discoveries, smart home living essentials, and practical everyday upgrades.
           </p>
         </div>
         <CollectionsGrid collections={loaderData.collections.nodes} />

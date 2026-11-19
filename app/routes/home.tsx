@@ -171,15 +171,15 @@ function TopCategoriesSection({
   }, [collections, products]);
 
   return (
-    <section id="top-categories" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
-      <div className="max-w-page px-margin mx-auto">
+    <section id="top-categories" className="w-full py-8 md:py-16 bg-white border-b border-[#E4E7ED]">
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-3 mb-6 sm:mb-8">
           <div>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
+            <h2 className="font-heading font-extrabold text-xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Top categories
             </h2>
-            <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5 sm:mt-1 font-medium">
               Find what you need, and a little more to love.
             </p>
           </div>
@@ -193,21 +193,21 @@ function TopCategoriesSection({
         </div>
 
         {/* 12 Category Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4 md:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-4 md:gap-5">
           {categories.map((cat, idx) => (
             <Link
               key={idx}
               to={cat.link}
-              className="group flex flex-col items-center text-center p-3 rounded-2xl bg-[#F8F7F3] hover:bg-white border border-[#E4E7ED] hover:border-[#2457D6]/40 transition-all duration-200 hover:shadow-sm"
+              className="group flex flex-col items-center text-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#F8F7F3] hover:bg-white border border-[#E4E7ED] hover:border-[#2457D6]/40 transition-all duration-200 hover:shadow-sm"
             >
-              <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-white mb-3 shadow-2xs">
+              <div className="relative aspect-square w-full rounded-lg sm:rounded-xl overflow-hidden bg-white mb-2 sm:mb-3 shadow-2xs">
                 <img
                   src={cat.image}
                   alt={cat.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute bottom-2 end-2 size-7 rounded-full bg-white/95 border border-[#E4E7ED] flex items-center justify-center text-[#2457D6] text-xs font-bold shadow-xs transition-transform group-hover:translate-x-0.5 group-hover:bg-[#2457D6] group-hover:text-white">
+                <div className="absolute bottom-1.5 end-1.5 sm:bottom-2 sm:end-2 size-6 sm:size-7 rounded-full bg-white/95 border border-[#E4E7ED] flex items-center justify-center text-[#2457D6] text-[10px] sm:text-xs font-bold shadow-xs transition-transform group-hover:translate-x-0.5 group-hover:bg-[#2457D6] group-hover:text-white">
                   →
                 </div>
               </div>
@@ -215,7 +215,7 @@ function TopCategoriesSection({
               <h3 className="text-xs sm:text-sm font-bold text-[#192A46] line-clamp-2 leading-tight group-hover:text-[#2457D6] transition-colors">
                 {cat.title}
               </h3>
-              <span className="text-[11px] text-[#64748B] font-medium mt-1">
+              <span className="text-[10px] sm:text-[11px] text-[#64748B] font-medium mt-0.5 sm:mt-1">
                 Explore collection
               </span>
             </Link>
@@ -231,54 +231,54 @@ function TopCategoriesSection({
 // ─────────────────────────────────────────────────────────────────────────────
 function ShoppingBenefitsStrip() {
   return (
-    <section className="w-full bg-[#EAF0FC] border-b border-[#d2def5] py-5">
-      <div className="max-w-page px-margin mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-[#d2def5]">
-          <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
-              <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <section className="w-full bg-[#EAF0FC] border-b border-[#d2def5] py-3.5 sm:py-5">
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3.5 p-2.5 sm:px-4 sm:py-0 bg-white/70 sm:bg-transparent rounded-xl sm:rounded-none border border-[#d2def5]/70 sm:border-0 shadow-2xs sm:shadow-none">
+            <div className="size-8 sm:size-11 rounded-lg sm:rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
+              <svg className="size-4 sm:size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-[#192A46]">Delivery options</h4>
-              <p className="text-xs text-[#64748B]">Details at checkout</p>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-[#192A46] truncate">Delivery options</h4>
+              <p className="text-[10px] sm:text-xs text-[#64748B] truncate">Details at checkout</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
-              <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex items-center gap-2 sm:gap-3.5 p-2.5 sm:px-4 sm:py-0 bg-white/70 sm:bg-transparent rounded-xl sm:rounded-none border border-[#d2def5]/70 sm:border-0 shadow-2xs sm:shadow-none">
+            <div className="size-8 sm:size-11 rounded-lg sm:rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
+              <svg className="size-4 sm:size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-[#192A46]">Order tracking</h4>
-              <p className="text-xs text-[#64748B]">Updates in your account</p>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-[#192A46] truncate">Order tracking</h4>
+              <p className="text-[10px] sm:text-xs text-[#64748B] truncate">Live updates</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
-              <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex items-center gap-2 sm:gap-3.5 p-2.5 sm:px-4 sm:py-0 bg-white/70 sm:bg-transparent rounded-xl sm:rounded-none border border-[#d2def5]/70 sm:border-0 shadow-2xs sm:shadow-none">
+            <div className="size-8 sm:size-11 rounded-lg sm:rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
+              <svg className="size-4 sm:size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-[#192A46]">Secure checkout</h4>
-              <p className="text-xs text-[#64748B]">Shop with confidence</p>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-[#192A46] truncate">Secure checkout</h4>
+              <p className="text-[10px] sm:text-xs text-[#64748B] truncate">COD &amp; Encrypted UPI</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 sm:px-4 py-2 sm:py-0">
-            <div className="size-11 rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
-              <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex items-center gap-2 sm:gap-3.5 p-2.5 sm:px-4 sm:py-0 bg-white/70 sm:bg-transparent rounded-xl sm:rounded-none border border-[#d2def5]/70 sm:border-0 shadow-2xs sm:shadow-none">
+            <div className="size-8 sm:size-11 rounded-lg sm:rounded-xl bg-white border border-[#d2def5] flex items-center justify-center text-[#2457D6] shrink-0 shadow-2xs">
+              <svg className="size-4 sm:size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-[#192A46]">Customer support</h4>
-              <p className="text-xs text-[#64748B]">We are here to help</p>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-[#192A46] truncate">Customer support</h4>
+              <p className="text-[10px] sm:text-xs text-[#64748B] truncate">Here to help</p>
             </div>
           </div>
         </div>
@@ -303,28 +303,28 @@ function ShopByPriceSection() {
   ];
 
   return (
-    <section id="shop-by-price" className="w-full py-12 md:py-16 bg-white border-b border-[#E4E7ED]">
-      <div className="max-w-page px-margin mx-auto">
-        <div className="text-center max-w-xl mx-auto mb-8">
-          <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-[#192A46] tracking-tight">
+    <section id="shop-by-price" className="w-full py-8 md:py-16 bg-white border-b border-[#E4E7ED]">
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
+        <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
+          <h2 className="font-heading font-extrabold text-xl sm:text-3xl text-[#192A46] tracking-tight">
             Small prices. Great finds.
           </h2>
-          <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 font-medium">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-1 font-medium">
             Everyday essentials, at a price that works for you.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-3.5">
+        <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3.5">
           {priceTiers.map((tier, idx) => (
             <Link
               key={idx}
               to={`/search?q=under+${tier.query}`}
-              className="flex flex-col items-center justify-center p-3.5 rounded-xl bg-[#F8F7F3] hover:bg-[#2457D6] border border-[#E4E7ED] hover:border-[#2457D6] text-center transition-all duration-200 group shadow-2xs hover:shadow-sm"
+              className="flex flex-col items-center justify-center p-2 sm:p-3.5 rounded-xl bg-[#F8F7F3] hover:bg-[#2457D6] border border-[#E4E7ED] hover:border-[#2457D6] text-center transition-all duration-200 group shadow-2xs hover:shadow-sm"
             >
-              <span className="text-[10px] uppercase font-bold text-[#64748B] group-hover:text-white/80">
+              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#64748B] group-hover:text-white/80">
                 Under
               </span>
-              <span className="text-base sm:text-lg font-black text-[#192A46] group-hover:text-white mt-0.5">
+              <span className="text-xs sm:text-lg font-black text-[#192A46] group-hover:text-white mt-0.5">
                 {tier.label}
               </span>
             </Link>
@@ -368,14 +368,14 @@ function TrendingNowSection({
   };
 
   return (
-    <section id="trending" className="w-full py-12 md:py-16 bg-[#F8F7F3] border-b border-[#E4E7ED]">
-      <div className="max-w-page px-margin mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <section id="trending" className="w-full py-8 md:py-16 bg-[#F8F7F3] border-b border-[#E4E7ED]">
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
+            <h2 className="font-heading font-extrabold text-xl sm:text-3xl lg:text-4xl text-[#192A46] tracking-tight">
               Trending Now
             </h2>
-            <p className="text-xs sm:text-sm text-[#64748B] mt-1.5 font-medium">
+            <p className="text-xs sm:text-sm text-[#64748B] mt-0.5 sm:mt-1.5 font-medium">
               Clever problem-solvers and practical everyday essentials hand-picked to make life smoother.
             </p>
           </div>
@@ -411,13 +411,13 @@ function TrendingNowSection({
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-2 mb-6" role="tablist">
+        <div className="flex items-center gap-2 mb-4 sm:mb-6 overflow-x-auto pb-1 scrollbar-none" role="tablist">
           <button
             type="button"
             onClick={() => setActiveTab("all")}
             role="tab"
             aria-selected={activeTab === "all"}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === "all"
                 ? "bg-[#2457D6] text-white shadow-xs"
                 : "bg-white text-[#192A46] border border-[#E4E7ED] hover:border-[#2457D6]"
@@ -430,7 +430,7 @@ function TrendingNowSection({
             onClick={() => setActiveTab("new")}
             role="tab"
             aria-selected={activeTab === "new"}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === "new"
                 ? "bg-[#2457D6] text-white shadow-xs"
                 : "bg-white text-[#192A46] border border-[#E4E7ED] hover:border-[#2457D6]"
@@ -443,7 +443,7 @@ function TrendingNowSection({
             onClick={() => setActiveTab("offers")}
             role="tab"
             aria-selected={activeTab === "offers"}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === "offers"
                 ? "bg-[#2457D6] text-white shadow-xs"
                 : "bg-white text-[#192A46] border border-[#E4E7ED] hover:border-[#2457D6]"
@@ -457,12 +457,12 @@ function TrendingNowSection({
         <ul
           ref={carouselRef}
           role="list"
-          className="flex gap-4 sm:gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+          className="flex gap-3 sm:gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0"
         >
           {filteredProducts.map((product, idx) => (
             <li
               key={product.handle}
-              className="w-[230px] sm:w-[260px] lg:w-[280px] shrink-0 snap-start h-full"
+              className="w-[195px] sm:w-[260px] lg:w-[280px] shrink-0 snap-start h-full"
             >
               <ProductCard product={product} priority={idx < 4} />
             </li>
@@ -623,23 +623,23 @@ function SmartEssentialsSection({
 // ─────────────────────────────────────────────────────────────────────────────
 function FeaturedBannerSection() {
   return (
-    <section className="w-full py-10 md:py-14 bg-[#F8F7F3] border-b border-[#E4E7ED]">
-      <div className="max-w-page px-margin mx-auto">
-        <div className="bg-gradient-to-r from-[#192A46] to-[#253d66] text-white rounded-2xl p-6 sm:p-10 md:p-12 relative overflow-hidden shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="max-w-xl z-10">
-            <span className="inline-block text-[10px] uppercase font-bold tracking-widest text-[#EAF0FC] bg-white/10 px-3 py-1 rounded-full mb-3">
+    <section className="w-full py-8 md:py-14 bg-[#F8F7F3] border-b border-[#E4E7ED]">
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
+        <div className="bg-gradient-to-r from-[#192A46] to-[#253d66] text-white rounded-2xl p-5 sm:p-10 md:p-12 relative overflow-hidden shadow-sm flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
+          <div className="max-w-xl z-10 w-full text-center md:text-left">
+            <span className="inline-block text-[10px] uppercase font-bold tracking-widest text-[#EAF0FC] bg-white/10 px-3 py-1 rounded-full mb-2.5">
               NEW ARRIVALS
             </span>
-            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl md:text-4xl tracking-tight leading-tight">
+            <h2 className="font-heading font-extrabold text-xl sm:text-3xl md:text-4xl tracking-tight leading-tight">
               Fresh Finds Designed to Make Life Better.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
               Explore the newest wave of trending problem solvers, useful kitchen upgrades, and smart accessories added this week.
             </p>
-            <div className="mt-5">
+            <div className="mt-4 sm:mt-5">
               <Link
                 to="/collections"
-                className="inline-flex items-center gap-2 bg-[#2457D6] hover:bg-[#1D44B8] text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#2457D6] hover:bg-[#1D44B8] text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs transition-all"
               >
                 <span>Explore New Arrivals</span>
                 <span>→</span>
@@ -647,16 +647,16 @@ function FeaturedBannerSection() {
             </div>
           </div>
 
-          <div className="flex shrink-0 gap-3 items-center">
-            <div className="size-24 sm:size-32 rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-center p-3">
-              <span className="text-xl sm:text-2xl mb-1">🚚</span>
-              <span className="text-[10px] sm:text-xs font-bold">Fast Pan-India</span>
-              <span className="text-[9px] text-slate-300">Dispatch in 24h</span>
+          <div className="w-full md:w-auto grid grid-cols-2 gap-2.5 sm:gap-3 shrink-0 items-center">
+            <div className="rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-center p-2.5 sm:p-3">
+              <span className="text-lg sm:text-2xl mb-1">🚚</span>
+              <span className="text-[11px] sm:text-xs font-bold">Fast Pan-India</span>
+              <span className="text-[10px] text-slate-300">Dispatch in 24h</span>
             </div>
-            <div className="size-24 sm:size-32 rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-center p-3">
-              <span className="text-xl sm:text-2xl mb-1">💵</span>
-              <span className="text-[10px] sm:text-xs font-bold">COD Available</span>
-              <span className="text-[9px] text-slate-300">Pay at Doorstep</span>
+            <div className="rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center text-center p-2.5 sm:p-3">
+              <span className="text-lg sm:text-2xl mb-1">💵</span>
+              <span className="text-[11px] sm:text-xs font-bold">COD Available</span>
+              <span className="text-[10px] text-slate-300">Pay at Doorstep</span>
             </div>
           </div>
         </div>
@@ -803,15 +803,15 @@ function CategoryDiscoverySection() {
 // ─────────────────────────────────────────────────────────────────────────────
 function GiftingBanner() {
   return (
-    <section className="w-full py-10 bg-white border-b border-[#E4E7ED]">
-      <div className="max-w-page px-margin mx-auto">
-        <div className="rounded-2xl bg-[#EAF0FC] border border-[#d2def5] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="size-14 rounded-2xl bg-white border border-[#d2def5] text-[#2457D6] flex items-center justify-center text-2xl shrink-0 shadow-2xs">
+    <section className="w-full py-8 sm:py-10 bg-white border-b border-[#E4E7ED]">
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
+        <div className="rounded-2xl bg-[#EAF0FC] border border-[#d2def5] p-5 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
+          <div className="flex items-center gap-3.5 sm:gap-4 w-full">
+            <div className="size-12 sm:size-14 rounded-2xl bg-white border border-[#d2def5] text-[#2457D6] flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-2xs">
               🎁
             </div>
             <div>
-              <h3 className="font-heading font-bold text-lg sm:text-xl text-[#192A46]">
+              <h3 className="font-heading font-bold text-base sm:text-xl text-[#192A46]">
                 Looking for Thoughtful Gifts &amp; Everyday Wins?
               </h3>
               <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
@@ -821,7 +821,7 @@ function GiftingBanner() {
           </div>
           <Link
             to="/collections"
-            className="shrink-0 bg-[#2457D6] hover:bg-[#1D44B8] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shadow-2xs"
+            className="w-full sm:w-auto shrink-0 text-center bg-[#2457D6] hover:bg-[#1D44B8] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shadow-2xs"
           >
             Browse Gift Ideas →
           </Link>

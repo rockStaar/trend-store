@@ -127,7 +127,7 @@ export function Layout({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         {rootData ? (
           <ShopifyScripts
             i18n={{ ...storefrontConfig.i18n, currency: rootData.currency }}

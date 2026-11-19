@@ -27,43 +27,43 @@ export default function CartRoute() {
     <main
       id="main-content"
       tabIndex={-1}
-      className="max-w-page px-margin mx-auto w-full flex-1 py-10 md:py-16"
+      className="max-w-page px-3 sm:px-margin mx-auto w-full flex-1 py-6 md:py-12"
     >
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#E2DBD0]">
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#E4E7ED]">
         <div>
-          <h1 id="cart-page-title" tabIndex={-1} className="font-heading text-2xl sm:text-3xl font-bold text-[#282720]">
+          <h1 id="cart-page-title" tabIndex={-1} className="font-heading text-xl sm:text-3xl font-extrabold text-[#192A46]">
             Your Shopping Bag
           </h1>
-          <p className="text-xs sm:text-sm text-[#635F53] mt-1">
+          <p className="text-xs sm:text-sm text-[#64748B] mt-0.5 sm:mt-1">
             Review your discoveries before proceeding to secure checkout.
           </p>
         </div>
         <Link
           to="/collections"
-          className="text-xs sm:text-sm font-semibold text-[#B77943] hover:text-[#9E6433] transition-colors"
+          className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] transition-colors"
         >
           Continue Shopping →
         </Link>
       </div>
 
       {loading ? (
-        <div className="py-16 text-center text-[#635F53]">
+        <div className="py-16 text-center text-[#64748B]">
           <p>Loading cart items…</p>
         </div>
       ) : null}
 
       {!loading && lines.length === 0 ? (
-        <div className="bg-white border border-[#E2DBD0] rounded-2xl p-12 text-center max-w-lg mx-auto my-8">
-          <div className="size-16 rounded-full bg-[#FAF6F0] border border-[#E2DBD0] flex items-center justify-center text-3xl mx-auto mb-4">
+        <div className="bg-white border border-[#E4E7ED] rounded-2xl p-8 sm:p-12 text-center max-w-lg mx-auto my-8 shadow-xs">
+          <div className="size-16 rounded-full bg-[#F8F7F3] border border-[#E4E7ED] flex items-center justify-center text-3xl mx-auto mb-4">
             🛍️
           </div>
-          <h2 className="font-heading text-xl font-bold text-[#282720]">Your bag is empty</h2>
-          <p className="text-[#635F53] mt-2 text-xs sm:text-sm leading-relaxed">
-            Discover curated problem-solvers, home organizers, and trending Indian lifestyle finds.
+          <h2 className="font-heading text-lg sm:text-xl font-bold text-[#192A46]">Your bag is empty</h2>
+          <p className="text-[#64748B] mt-2 text-xs sm:text-sm leading-relaxed">
+            Discover curated problem-solvers, home organizers, and trending everyday essentials.
           </p>
           <Link
             to="/#trending"
-            className="mt-6 inline-flex bg-[#B77943] hover:bg-[#9E6433] text-white px-7 py-3 rounded-lg text-xs sm:text-sm font-semibold tracking-wide transition-colors shadow-xs"
+            className="mt-6 inline-flex bg-[#2457D6] hover:bg-[#1D44B8] text-white px-7 py-3 rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-colors shadow-xs"
           >
             Explore Trending Discoveries →
           </Link>
@@ -71,27 +71,27 @@ export default function CartRoute() {
       ) : null}
 
       {lines.length > 0 ? (
-        <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">
+        <div className="grid gap-6 lg:gap-10 lg:grid-cols-[2fr_1fr]">
           <div className="space-y-4">
             {/* Free shipping banner */}
-            <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-4">
-              <div className="flex items-center justify-between text-xs font-semibold text-[#282720]">
+            <div className="bg-[#EAF0FC] border border-[#d2def5] rounded-xl p-3.5 sm:p-4">
+              <div className="flex items-center justify-between text-xs font-semibold text-[#192A46]">
                 <span className="text-emerald-700 font-bold flex items-center gap-1.5">
                   <span>🎉</span>
-                  <span>100% FREE Pan-India Express Delivery on All Orders!</span>
+                  <span className="truncate">100% FREE Pan-India Delivery on All Orders!</span>
                 </span>
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
                   FREE SHIPPING
                 </span>
               </div>
-              <div className="w-full bg-[#E2DBD0] h-1.5 rounded-full overflow-hidden mt-2">
+              <div className="w-full bg-[#d2def5] h-1.5 rounded-full overflow-hidden mt-2">
                 <div className="h-full bg-emerald-600 rounded-full w-full" />
               </div>
             </div>
 
             {/* Cart Line Items */}
-            <div className="bg-white border border-[#E2DBD0] rounded-xl px-5 py-2">
-              <ul role="list" className="divide-y divide-[#F0EBE1]">
+            <div className="bg-white border border-[#E4E7ED] rounded-xl px-4 sm:px-5 py-2 shadow-2xs">
+              <ul role="list" className="divide-y divide-[#E4E7ED]">
                 {lines.map((line) => (
                   <CartLineItem key={line.id} line={line} emptyCartFocusId="cart-page-title" />
                 ))}
@@ -101,27 +101,27 @@ export default function CartRoute() {
 
           {/* Cart Summary Card */}
           <aside
-            className="border border-[#E2DBD0] bg-white rounded-xl p-6 h-fit shadow-xs space-y-4"
+            className="border border-[#E4E7ED] bg-white rounded-xl p-4 sm:p-6 h-fit shadow-xs space-y-4"
             aria-label="Order summary"
           >
-            <h2 className="font-heading text-lg font-bold text-[#282720] border-b border-[#F0EBE1] pb-3">
+            <h2 className="font-heading text-base sm:text-lg font-bold text-[#192A46] border-b border-[#E4E7ED] pb-3">
               Order Summary
             </h2>
 
             <div className="space-y-2 text-xs sm:text-sm">
-              <div className="flex items-center justify-between text-[#5E5B52]">
+              <div className="flex items-center justify-between text-[#64748B]">
                 <span>Items Subtotal</span>
-                <span className="font-semibold text-[#282720]">{formatPrice(cart.cost.subtotalAmount)}</span>
+                <span className="font-semibold text-[#192A46]">{formatPrice(cart.cost.subtotalAmount)}</span>
               </div>
-              <div className="flex items-center justify-between text-[#5E5B52]">
+              <div className="flex items-center justify-between text-[#64748B]">
                 <span>Pan-India Delivery</span>
                 <span className="text-emerald-700 font-semibold">FREE (All Orders)</span>
               </div>
-              <div className="flex items-center justify-between text-[#5E5B52]">
+              <div className="flex items-center justify-between text-[#64748B]">
                 <span>Taxes & Duties</span>
-                <span className="text-[#7D786D]">Included (GST)</span>
+                <span className="text-[#64748B]">Included (GST)</span>
               </div>
-              <div className="border-t border-[#E2DBD0] pt-3 flex items-center justify-between text-base font-bold text-[#282720]">
+              <div className="border-t border-[#E4E7ED] pt-3 flex items-center justify-between text-base font-bold text-[#192A46]">
                 <span>Total Amount</span>
                 <span>{formatPrice(cart.cost.totalAmount)}</span>
               </div>
@@ -131,7 +131,7 @@ export default function CartRoute() {
               <div className="mt-4 space-y-2.5">
                 <a
                   href={cart.checkoutUrl}
-                  className="bg-[#B77943] hover:bg-[#9E6433] text-white inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all active:scale-[0.98]"
+                  className="bg-[#2457D6] hover:bg-[#1D44B8] text-white inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all active:scale-[0.98]"
                 >
                   🔒 Proceed to Checkout
                 </a>
@@ -140,7 +140,7 @@ export default function CartRoute() {
             ) : null}
 
             {/* Trust assurances */}
-            <div className="pt-3 border-t border-[#F0EBE1] space-y-2 text-xs text-[#635F53]">
+            <div className="pt-3 border-t border-[#E4E7ED] space-y-2 text-xs text-[#64748B]">
               <div className="flex items-center gap-2">
                 <span className="text-emerald-600 font-bold">✓</span>
                 <span>Pay via UPI, Cards, NetBanking or Cash on Delivery</span>
@@ -151,7 +151,7 @@ export default function CartRoute() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-600 font-bold">✓</span>
-                <span>7-Day Replacement Guarantee for any defects</span>
+                <span>5-Day Replacement Guarantee for any defects</span>
               </div>
             </div>
           </aside>

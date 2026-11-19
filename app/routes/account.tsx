@@ -91,9 +91,11 @@ export default function AccountRoute({ loaderData }: Route.ComponentProps) {
     <main
       id="main-content"
       tabIndex={-1}
-      className="max-w-page px-margin mx-auto w-full flex-1 py-12"
+      className="max-w-page px-3 sm:px-margin mx-auto w-full flex-1 py-6 sm:py-12"
     >
-      <h1 className="type-display text-on-surface mb-8">Account</h1>
+      <h1 className="font-heading text-2xl sm:text-4xl font-extrabold text-[#192A46] mb-6 sm:mb-8">
+        Account
+      </h1>
       {loaderData.status === "unavailable" ? <Unavailable /> : null}
       {loaderData.status === "signed-out" ? <SignIn loginFailed={loaderData.loginFailed} /> : null}
       {loaderData.status === "error" ? (

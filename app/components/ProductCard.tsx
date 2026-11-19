@@ -177,10 +177,10 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
       </div>
 
       {/* ── Card Content ── */}
-      <div className="flex flex-col flex-1 p-3.5 sm:p-4 text-left justify-between bg-white">
+      <div className="flex flex-col flex-1 p-2.5 sm:p-4 text-left justify-between bg-white">
         <div>
           {product.productType ? (
-            <span className="text-[10px] uppercase tracking-wider text-[#64748B] font-bold block mb-1">
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-[#64748B] font-bold block mb-1">
               {product.productType}
             </span>
           ) : null}
@@ -192,20 +192,20 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         </div>
 
         {/* Price & Stock info */}
-        <div className="pt-2.5 mt-2.5 border-t border-[#F8F7F3] flex items-baseline justify-between gap-2">
-          <div className="flex items-baseline gap-1.5 sm:gap-2">
-            <span className="text-sm sm:text-base font-extrabold text-[#192A46]">
+        <div className="pt-2 mt-2 sm:pt-2.5 sm:mt-2.5 border-t border-[#F8F7F3] flex items-baseline justify-between gap-1.5 sm:gap-2">
+          <div className="flex items-baseline gap-1 sm:gap-2 min-w-0">
+            <span className="text-xs sm:text-base font-extrabold text-[#192A46] truncate">
               {formatPrice(price)}
             </span>
             {onSale && compareAt ? (
-              <s className="text-[11px] sm:text-xs text-[#94A3B8]">
+              <s className="text-[10px] sm:text-xs text-[#94A3B8] truncate">
                 {formatPrice(compareAt)}
               </s>
             ) : null}
           </div>
 
           <span
-            className={`text-[9px] sm:text-[10px] font-semibold px-1.5 sm:px-2 py-0.5 rounded-full ${
+            className={`text-[8px] sm:text-[10px] font-semibold px-1 sm:px-2 py-0.5 rounded-full shrink-0 ${
               isAvailable
                 ? "text-emerald-700 bg-emerald-50 border border-emerald-200"
                 : "text-[#64748B] bg-[#F8F7F3]"
@@ -216,12 +216,12 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         </div>
 
         {/* Action Button */}
-        <div className="mt-3">
+        <div className="mt-2.5 sm:mt-3">
           <Link
             to={`/products/${product.handle}`}
-            className="w-full py-2 px-3 rounded-lg bg-[#EAF0FC] hover:bg-[#2457D6] text-[#2457D6] hover:text-white border border-[#d2def5] hover:border-[#2457D6] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs group-hover:bg-[#2457D6] group-hover:text-white group-hover:border-[#2457D6]"
+            className="w-full py-2 px-2 sm:px-3 rounded-lg bg-[#EAF0FC] hover:bg-[#2457D6] text-[#2457D6] hover:text-white border border-[#d2def5] hover:border-[#2457D6] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs group-hover:bg-[#2457D6] group-hover:text-white group-hover:border-[#2457D6]"
           >
-            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -229,7 +229,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
-            <span>{isAvailable ? "Add to Cart" : "Sold Out"}</span>
+            <span className="truncate">{isAvailable ? "Add to Cart" : "Sold Out"}</span>
           </Link>
         </div>
       </div>

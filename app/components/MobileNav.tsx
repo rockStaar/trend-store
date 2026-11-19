@@ -34,8 +34,42 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6">
+        <div className="flex-1 overflow-y-auto px-5 py-5">
           <nav aria-label="Mobile navigation">
+            {/* Quick Account & Wishlist shortcuts for mobile shoppers */}
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              <Link
+                to="/account"
+                onClick={() => closeMobileNavDrawer()}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E2DBD0] text-xs font-bold text-[#282720] hover:border-[#155EEF] transition-all shadow-2xs"
+              >
+                <span className="size-7 rounded-lg bg-[#EAF0FC] text-[#155EEF] flex items-center justify-center text-sm shrink-0">
+                  👤
+                </span>
+                <div className="min-w-0">
+                  <span className="block truncate">My Account</span>
+                  <span className="text-[10px] text-[#7D786D] block font-normal truncate">
+                    Orders &amp; Profile
+                  </span>
+                </div>
+              </Link>
+              <Link
+                to="/#trending"
+                onClick={() => closeMobileNavDrawer()}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E2DBD0] text-xs font-bold text-[#282720] hover:border-[#155EEF] transition-all shadow-2xs"
+              >
+                <span className="size-7 rounded-lg bg-[#FEE2E2] text-[#D93636] flex items-center justify-center text-sm shrink-0">
+                  ❤️
+                </span>
+                <div className="min-w-0">
+                  <span className="block truncate">Wishlist</span>
+                  <span className="text-[10px] text-[#7D786D] block font-normal truncate">
+                    Saved items
+                  </span>
+                </div>
+              </Link>
+            </div>
+
             <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
               Explore HypeeeCart
             </p>
