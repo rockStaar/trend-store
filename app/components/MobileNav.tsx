@@ -41,9 +41,9 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
               <Link
                 to="/account"
                 onClick={() => closeMobileNavDrawer()}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E2DBD0] text-xs font-bold text-[#282720] hover:border-[#155EEF] transition-all shadow-2xs"
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E2DBD0] text-xs font-bold text-[#282720] hover:border-[#2457D6] transition-all shadow-2xs"
               >
-                <span className="size-7 rounded-lg bg-[#EAF0FC] text-[#155EEF] flex items-center justify-center text-sm shrink-0">
+                <span className="size-7 rounded-lg bg-[#EAF0FC] text-[#2457D6] flex items-center justify-center text-sm shrink-0">
                   👤
                 </span>
                 <div className="min-w-0">
@@ -56,7 +56,7 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
               <Link
                 to="/#trending"
                 onClick={() => closeMobileNavDrawer()}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E2DBD0] text-xs font-bold text-[#282720] hover:border-[#155EEF] transition-all shadow-2xs"
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E2DBD0] text-xs font-bold text-[#282720] hover:border-[#2457D6] transition-all shadow-2xs"
               >
                 <span className="size-7 rounded-lg bg-[#FEE2E2] text-[#D93636] flex items-center justify-center text-sm shrink-0">
                   ❤️
@@ -70,7 +70,7 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
               </Link>
             </div>
 
-            <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
+            <p className="text-xs uppercase font-semibold text-[#2457D6] tracking-wider mb-3">
               Explore HypeeeCart
             </p>
             <ul role="list" className="flex flex-col space-y-1">
@@ -92,7 +92,7 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
                 >
                   <span className="flex items-center gap-2">
                     <span>Trending Finds</span>
-                    <span className="bg-[#155EEF] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">HOT</span>
+                    <span className="bg-[#2457D6] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">HOT</span>
                   </span>
                   <span className="text-xs text-[#7D786D]">Best Sellers</span>
                 </Link>
@@ -133,7 +133,7 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
             {collections.length > 0 ? (
               <>
                 <hr className="my-5 border-[#E2DBD0]" />
-                <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
+                <p className="text-xs uppercase font-semibold text-[#2457D6] tracking-wider mb-3">
                   Shop by Category
                 </p>
                 <ul role="list" className="flex flex-col space-y-1">
@@ -155,7 +155,7 @@ export function MobileNav({ collections = [] }: { collections?: HeaderCollection
 
             <hr className="my-6 border-[#E2DBD0]" />
 
-            <p className="text-xs uppercase font-semibold text-[#155EEF] tracking-wider mb-3">
+            <p className="text-xs uppercase font-semibold text-[#2457D6] tracking-wider mb-3">
               Customer Support &amp; Policies
             </p>
             <ul role="list" className="flex flex-col space-y-1">

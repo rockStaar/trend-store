@@ -113,9 +113,9 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
         {/* Outer glowing orbital ring */}
         <div className="absolute size-[550px] sm:size-[780px] lg:size-[980px] rounded-full border-2 border-amber-400/40 shadow-[0_0_80px_rgba(251,191,36,0.25)] animate-[spin_60s_linear_infinite]" />
         {/* Inner glowing orbital ring */}
-        <div className="absolute size-[420px] sm:size-[600px] lg:size-[750px] rounded-full border border-blue-400/30 shadow-[0_0_60px_rgba(59,130,246,0.15)] animate-[spin_45s_linear_infinite_reverse]" />
+        <div className="absolute size-[420px] sm:size-[600px] lg:size-[750px] rounded-full border border-[#2457D6]/30 shadow-[0_0_60px_rgba(36,87,214,0.15)] animate-[spin_45s_linear_infinite_reverse]" />
         {/* Radial Ambient Backlight */}
-        <div className="absolute size-[350px] sm:size-[500px] rounded-full bg-radial from-blue-300/30 via-indigo-100/20 to-transparent blur-3xl" />
+        <div className="absolute size-[350px] sm:size-[500px] rounded-full bg-radial from-[#2457D6]/20 via-[#2457D6]/5 to-transparent blur-3xl" />
       </div>
 
       <div className="max-w-page px-margin mx-auto relative z-10">
@@ -130,7 +130,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
                 className={`absolute ${item.positionClass} group z-20 transition-transform duration-300 hover:scale-115 hover:z-30 block`}
                 title={item.name}
               >
-                <div className="relative size-20 sm:size-24 lg:size-28 rounded-2xl bg-white/95 backdrop-blur-xs p-1.5 border border-white/80 shadow-[0_8px_25px_rgba(7,85,217,0.12)] group-hover:shadow-[0_12px_32px_rgba(7,85,217,0.25)] group-hover:border-[#0755D9] transition-all">
+                <div className="relative size-20 sm:size-24 lg:size-28 rounded-2xl bg-white/95 backdrop-blur-xs p-1.5 border border-white/80 shadow-[0_8px_25px_rgba(36,87,214,0.12)] group-hover:shadow-[0_12px_32px_rgba(36,87,214,0.25)] group-hover:border-[#2457D6] transition-all">
                   <div className="w-full h-full rounded-xl overflow-hidden bg-[#FAF6F0] flex items-center justify-center">
                     <img
                       src={item.image}
@@ -140,7 +140,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
                     />
                   </div>
                   {/* Subtle category tooltip badge on hover */}
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0755D9] text-white text-[9px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xs pointer-events-none">
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#2457D6] text-white text-[9px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xs pointer-events-none">
                     {item.name}
                   </div>
                 </div>
@@ -163,19 +163,19 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
           </div>
 
           {/* ── Central Brand Lockup (KitKart style center) ── */}
-          <div className="relative z-20 flex flex-col items-center text-center max-w-xl mx-auto px-4 py-5 sm:px-12 sm:py-10 bg-white/90 sm:bg-white/70 backdrop-blur-md rounded-2xl sm:rounded-full border border-white/90 shadow-[0_10px_40px_rgba(7,85,217,0.12)] w-full">
+          <div className="relative z-20 flex flex-col items-center text-center max-w-xl mx-auto px-4 py-5 sm:px-12 sm:py-10 bg-white/90 sm:bg-white/70 backdrop-blur-md rounded-2xl sm:rounded-full border border-white/90 shadow-[0_10px_40px_rgba(36,87,214,0.12)] w-full">
             {/* Shopping Cart Icon with Colorful Bags */}
             <div className="mb-2 sm:mb-3 relative inline-flex items-center justify-center">
-              <div className="size-14 sm:size-20 rounded-2xl bg-gradient-to-tr from-[#0755D9] to-[#2563eb] text-white flex items-center justify-center text-2xl sm:text-4xl shadow-[0_8px_20px_rgba(7,85,217,0.35)]">
+              <div className="size-14 sm:size-20 rounded-2xl bg-[#2457D6] text-white flex items-center justify-center text-2xl sm:text-4xl shadow-[0_8px_20px_rgba(36,87,214,0.35)]">
                 🛒
               </div>
             </div>
 
             {/* Brand Logo Title */}
             <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-none mb-1">
-              <span className="text-[#0755D9]">Hypeee</span>
+              <span className="text-[#2457D6]">Hypeee</span>
               <span className="text-[#E02424]">Cart</span>
-              <span className="text-[#0755D9] text-2xl sm:text-4xl lg:text-5xl">.in</span>
+              <span className="text-[#2457D6] text-2xl sm:text-4xl lg:text-5xl">.in</span>
             </h1>
 
             {/* Tagline */}
@@ -213,7 +213,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
 
               {/* Badge 3: Secure Payments */}
               <div className="flex items-center sm:flex-col gap-2 sm:gap-1.5 text-left sm:text-center">
-                <div className="size-7 sm:size-9 rounded-full bg-[#0755D9] text-white flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs">
+                <div className="size-7 sm:size-9 rounded-full bg-[#2457D6] text-white flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs">
                   🛡️
                 </div>
                 <div>
@@ -226,7 +226,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
 
               {/* Badge 4: 24/7 Support */}
               <div className="flex items-center sm:flex-col gap-2 sm:gap-1.5 text-left sm:text-center">
-                <div className="size-7 sm:size-9 rounded-full bg-[#0755D9] text-white flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs">
+                <div className="size-7 sm:size-9 rounded-full bg-[#2457D6] text-white flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs">
                   🎧
                 </div>
                 <div>
@@ -253,10 +253,10 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
         {/* ── Mobile Horizontal Product Highlight Showcase ── */}
         <div className="sm:hidden mt-5 pt-3 border-t border-[#DCE5F3]/80">
           <div className="flex items-center justify-between mb-2.5 px-1">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#0755D9]">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#2457D6]">
               Featured Categories
             </span>
-            <Link to="/collections" className="text-[10px] font-bold text-[#0755D9] hover:underline">
+            <Link to="/collections" className="text-[10px] font-bold text-[#2457D6] hover:underline">
               View all ›
             </Link>
           </div>

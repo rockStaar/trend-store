@@ -51,7 +51,7 @@ export function AnnouncementBar() {
     <div
       role="region"
       aria-label="Store Announcements"
-      className="bg-[#155EEF] text-white px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold tracking-wide border-b border-[#155EEF]/30 shadow-xs transition-colors min-h-[34px] sm:min-h-[38px] flex items-center justify-center"
+      className="bg-[#2457D6] text-white px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold tracking-wide border-b border-[#2457D6]/30 shadow-xs transition-colors min-h-[34px] sm:min-h-[38px] flex items-center justify-center"
     >
       <div
         className={`max-w-page mx-auto flex items-center justify-center gap-1.5 text-center transition-opacity duration-200 text-white leading-tight ${

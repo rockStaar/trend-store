@@ -40,7 +40,7 @@ export default function CartRoute() {
         </div>
         <Link
           to="/collections"
-          className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] transition-colors"
+          className="text-xs sm:text-sm font-bold text-[#2457D6] hover:underline hover:opacity-90 transition-colors"
         >
           Continue Shopping →
         </Link>
@@ -63,7 +63,7 @@ export default function CartRoute() {
           </p>
           <Link
             to="/#trending"
-            className="mt-6 inline-flex bg-[#2457D6] hover:bg-[#1D44B8] text-white px-7 py-3 rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-colors shadow-xs"
+            className="mt-6 inline-flex bg-[#2457D6] hover:opacity-90 text-white px-7 py-3 rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-colors shadow-xs"
           >
             Explore Trending Discoveries →
           </Link>
@@ -131,7 +131,7 @@ export default function CartRoute() {
               <div className="mt-4 space-y-2.5">
                 <a
                   href={cart.checkoutUrl}
-                  className="bg-[#2457D6] hover:bg-[#1D44B8] text-white inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all active:scale-[0.98]"
+                  className="bg-[#2457D6] hover:opacity-90 text-white inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all active:scale-[0.98]"
                 >
                   🔒 Proceed to Checkout
                 </a>

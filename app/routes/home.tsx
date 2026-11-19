@@ -185,7 +185,7 @@ function TopCategoriesSection({
           </div>
           <Link
             to="/collections"
-            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1.5 transition-colors group self-start sm:self-auto"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:underline hover:opacity-90 inline-flex items-center gap-1.5 transition-colors group self-start sm:self-auto"
           >
             <span>Explore all categories</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -383,7 +383,7 @@ function TrendingNowSection({
           <div className="flex items-center gap-3">
             <Link
               to="/collections"
-              className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
+              className="text-xs sm:text-sm font-bold text-[#2457D6] hover:underline hover:opacity-90 inline-flex items-center gap-1 group"
             >
               <span>Shop all</span>
               <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -509,7 +509,7 @@ function HomeAndKitchenSection({
           </div>
           <Link
             to="/search?q=home+kitchen"
-            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:underline hover:opacity-90 inline-flex items-center gap-1 group"
           >
             <span>Explore Home &amp; Kitchen</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -562,7 +562,7 @@ function SpecialOffersSection({
           </div>
           <Link
             to="/search?q=sale"
-            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:underline hover:opacity-90 inline-flex items-center gap-1 group"
           >
             <span>View All Deals</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -639,7 +639,7 @@ function FeaturedBannerSection() {
             <div className="mt-4 sm:mt-5">
               <Link
                 to="/collections"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#2457D6] hover:bg-[#1D44B8] text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#2457D6] hover:opacity-90 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs transition-all"
               >
                 <span>Explore New Arrivals</span>
                 <span>→</span>
@@ -702,7 +702,7 @@ function HealthCareSection({
           </div>
           <Link
             to="/search?q=health+personal+care"
-            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:text-[#1D44B8] inline-flex items-center gap-1 group"
+            className="text-xs sm:text-sm font-bold text-[#2457D6] hover:underline hover:opacity-90 inline-flex items-center gap-1 group"
           >
             <span>Explore Health &amp; Personal Care</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -821,7 +821,7 @@ function GiftingBanner() {
           </div>
           <Link
             to="/collections"
-            className="w-full sm:w-auto shrink-0 text-center bg-[#2457D6] hover:bg-[#1D44B8] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shadow-2xs"
+            className="w-full sm:w-auto shrink-0 text-center bg-[#2457D6] hover:opacity-90 text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shadow-2xs"
           >
             Browse Gift Ideas →
           </Link>
@@ -988,7 +988,7 @@ function NewsletterSection() {
                     />
                     <button
                       type="submit"
-                      className="bg-[#2457D6] hover:bg-[#1D44B8] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                      className="bg-[#2457D6] hover:opacity-90 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
                     >
                       →
                     </button>

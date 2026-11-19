@@ -1177,7 +1177,7 @@ function PincodeEstimator() {
         />
         <button
           type="submit"
-          className="bg-[#2457D6] hover:bg-[#1D46B8] text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+          className="bg-[#2457D6] hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer"
         >
           Check
         </button>
@@ -1261,7 +1261,7 @@ function ProductInfo({
           <input type="hidden" name="quantity" value={quantity} />
           <button
             {...register("addToCart", {})}
-            className="w-full h-12 rounded-lg bg-[#2457D6] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:bg-[#1D46B8] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-lg bg-[#2457D6] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             disabled={!addable || pending}
             data-testid="add-to-cart"
           >
@@ -1459,7 +1459,7 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
               <input type="hidden" name="quantity" value="1" />
               <button
                 {...register("addToCart", {})}
-                className="bg-[#2457D6] text-white hover:bg-[#1D46B8] px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
+                className="bg-[#2457D6] text-white hover:opacity-90 px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
                 disabled={!addable || pending}
                 title="Add to Cart"
               >

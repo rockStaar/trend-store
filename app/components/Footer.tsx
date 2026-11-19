@@ -9,9 +9,9 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-[#155EEF] text-white mt-16 shadow-lg">
-      {/* Brand Trust Strip in deep vibrant blue */}
-      <div className="border-b border-white/15 bg-[#1250CF] py-6 sm:py-8">
+    <footer className="w-full bg-[#2457D6] text-white mt-16 shadow-lg">
+      {/* Brand Trust Strip */}
+      <div className="border-b border-white/15 bg-[#2457D6] py-6 sm:py-8">
         <div className="max-w-page px-margin mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="flex items-start gap-3.5">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
@@ -214,19 +214,19 @@ export function Footer({ shopInfo }: { shopInfo: StorefrontShop }) {
 
           {/* Payment Badges */}
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+            <span className="inline-flex items-center rounded bg-white text-[#2457D6] px-2 py-0.5 text-[10px] font-extrabold">
               VISA
             </span>
-            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+            <span className="inline-flex items-center rounded bg-white text-[#2457D6] px-2 py-0.5 text-[10px] font-extrabold">
               MASTERCARD
             </span>
-            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+            <span className="inline-flex items-center rounded bg-white text-[#2457D6] px-2 py-0.5 text-[10px] font-extrabold">
               UPI
             </span>
-            <span className="inline-flex items-center rounded bg-white text-[#155EEF] px-2 py-0.5 text-[10px] font-extrabold">
+            <span className="inline-flex items-center rounded bg-white text-[#2457D6] px-2 py-0.5 text-[10px] font-extrabold">
               RUPAY
             </span>
-            <span className="inline-flex items-center rounded bg-[#1043AC] text-white border border-white/30 px-2 py-0.5 text-[10px] font-bold">
+            <span className="inline-flex items-center rounded bg-white/20 text-white border border-white/40 px-2 py-0.5 text-[10px] font-bold">
               COD AVAILABLE
             </span>
           </div>

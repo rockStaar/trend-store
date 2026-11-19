@@ -26,8 +26,8 @@
 
   /* Interactive — Royal Blue */
   --color-interactive: #2457D6;
-  --color-interactive-hover: #1D44B8;
-  --color-interactive-active: #163694;
+  --color-interactive-hover: #2457D6;
+  --color-interactive-active: #2457D6;
   --color-interactive-text: #ffffff;
 
   /* Accent */
@@ -35,8 +35,8 @@
 
   /* Button variants */
   --color-button-primary: #2457D6;
-  --color-button-primary-hover: #1D44B8;
-  --color-button-primary-active: #163694;
+  --color-button-primary-hover: #2457D6;
+  --color-button-primary-active: #2457D6;
   --color-button-primary-text: #ffffff;
   --color-button-secondary: #EAF0FC;
   --color-button-secondary-text: #192A46;
@@ -54,7 +54,7 @@
   --color-success: #047857;
   --color-warning: #b45309;
   --color-critical: var(--color-sale);
-  --color-info: #2563eb;
+  --color-info: #2457D6;
 
   /* Overlay */
   --color-overlay: rgb(0 0 0 / 0.95);
