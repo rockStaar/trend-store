@@ -182,12 +182,6 @@ export function parseStructuredEcommerceContent(
   title: string,
   images: ProductImage[] = [],
 ): StructuredProductContent {
-  const isHeater = (title + " " + rawText).toLowerCase().includes("heater");
-  const heaterHeroImage: ProductImage = {
-    url: "/uploads/products/handy-heater-demo.jpg",
-    altText: "Say NO to Cold - Wall Outlet Handy Heater Demo",
-  };
-
   const normalized = normalizeEcommerceText(rawText);
   const lines = normalized.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
@@ -388,7 +382,7 @@ export function parseStructuredEcommerceContent(
     subhead: introSubhead || undefined,
     paragraph: introParagraph || undefined,
     bullets: [],
-    image: isHeater ? heaterHeroImage : (images.length > 1 ? images[1] : undefined),
+    image: images.length > 1 ? images[1] : undefined,
   });
 
   // 2. Why Choose section
@@ -398,7 +392,7 @@ export function parseStructuredEcommerceContent(
       subhead: "Engineered for maximum comfort, instant warmth, and reliable safety",
       paragraph: "",
       bullets: whyChooseBullets,
-      image: isHeater && images.length > 1 ? images[1] : (images.length > 2 ? images[2] : undefined),
+      image: images.length > 2 ? images[2] : undefined,
     });
   }
 

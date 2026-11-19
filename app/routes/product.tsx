@@ -294,20 +294,12 @@ function useGalleryImages(product: ProductData, selectedVariant: ProductVariant 
       addImage({ url: "/uploads/products/mantra-device-shiva.jpg", altText: "Mantra device ambient light with Lord Shiva" });
     }
 
-    // For Handy Heater, substitute the second image with the real lifestyle demo image
-    if (t.includes("heater")) {
-      const demoImage: ProductImage = {
-        url: "/uploads/products/handy-heater-demo.jpg",
-        altText: "Say NO to Cold - Wall Outlet Handy Heater Demo",
-      };
-      if (images.length > 1) {
-        images[1] = demoImage;
-      } else {
-        images.push(demoImage);
-      }
-    }
-
-    return images;
+    // Filter out any composite poster text images from the product gallery
+    return images.filter(
+      (img) =>
+        !img.url.includes("handy-heater-demo") &&
+        !img.url.includes("say-no-to-cold")
+    );
   }, [product, selectedVariant]);
 }
 
