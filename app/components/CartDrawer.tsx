@@ -291,7 +291,7 @@ function CartFooter() {
           <Link
             to="/checkout/cod?prepaid=1"
             onClick={() => closeCartDrawer()}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000] text-white font-extrabold text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+            className="w-full h-12 rounded-xl bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
           >
             <span>⚡</span>
             <span>PROCEED TO CHECKOUT (10% OFF)</span>

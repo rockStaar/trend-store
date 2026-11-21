@@ -365,8 +365,8 @@ function ProductGallery({
                   aria-pressed={isActive}
                   onClick={() => setActiveIndex(index)}
                   className={`shrink-0 size-16 sm:size-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-1 bg-white flex items-center justify-center ${isActive
-                      ? "border-[#2457D6] ring-2 ring-[#2457D6]/20 opacity-100 shadow-sm scale-[1.02]"
-                      : "border-[#E4E7ED] opacity-70 hover:opacity-100 hover:border-[#2457D6]/50"
+                    ? "border-[#2457D6] ring-2 ring-[#2457D6]/20 opacity-100 shadow-sm scale-[1.02]"
+                    : "border-[#E4E7ED] opacity-70 hover:opacity-100 hover:border-[#2457D6]/50"
                     }`}
                 >
                   <img
@@ -552,11 +552,10 @@ function VariantOptions({ product }: { product: ProductData }) {
 
                 const className = renderSwatches
                   ? `min-h-touch-target min-w-touch-target relative inline-flex cursor-pointer items-center justify-center motion-safe:transition-transform motion-safe:active:scale-[0.93] ${soldOut ? "opacity-50" : ""}`
-                  : `rounded-lg px-3.5 py-1.5 text-xs font-semibold border transition-all ${
-                      variantOption.selected
-                        ? "border-[#2457D6] bg-[#EAF0FC] text-[#2457D6]"
-                        : "border-[#E4E7ED] bg-white text-[#192A46] hover:border-[#2457D6]/50"
-                    } ${soldOut ? "opacity-50" : ""}`;
+                  : `rounded-lg px-3.5 py-1.5 text-xs font-semibold border transition-all ${variantOption.selected
+                    ? "border-[#2457D6] bg-[#EAF0FC] text-[#2457D6]"
+                    : "border-[#E4E7ED] bg-white text-[#192A46] hover:border-[#2457D6]/50"
+                  } ${soldOut ? "opacity-50" : ""}`;
                 const content = renderSwatches ? (
                   <>
                     <span
@@ -717,11 +716,10 @@ function BundleOfferSelector({
               key={b.qty}
               type="button"
               onClick={() => onSelectQuantity(b.qty)}
-              className={`relative flex flex-col text-left p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                isSelected
-                  ? "border-[#2457D6] bg-[#EAF0FC]/50 shadow-xs ring-2 ring-[#2457D6]/20"
-                  : "border-[#E4E7ED] bg-white hover:border-[#2457D6]/40 hover:bg-[#F8F7F3]"
-              }`}
+              className={`relative flex flex-col text-left p-3 rounded-xl border-2 transition-all cursor-pointer ${isSelected
+                ? "border-[#2457D6] bg-[#EAF0FC]/50 shadow-xs ring-2 ring-[#2457D6]/20"
+                : "border-[#E4E7ED] bg-white hover:border-[#2457D6]/40 hover:bg-[#F8F7F3]"
+                }`}
             >
               {b.badge && (
                 <span
@@ -733,11 +731,10 @@ function BundleOfferSelector({
               <div className="flex items-center justify-between gap-1 mb-1">
                 <span className="font-bold text-xs text-[#192A46]">{b.title}</span>
                 <span
-                  className={`size-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
-                    isSelected
-                      ? "border-[#2457D6] bg-[#2457D6] text-white"
-                      : "border-[#CBD5E1] text-transparent"
-                  }`}
+                  className={`size-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${isSelected
+                    ? "border-[#2457D6] bg-[#2457D6] text-white"
+                    : "border-[#CBD5E1] text-transparent"
+                    }`}
                 >
                   ✓
                 </span>
@@ -1393,11 +1390,10 @@ function PincodeEstimator() {
       </form>
       {status ? (
         <div
-          className={`mt-2.5 text-xs p-2.5 rounded-xl flex items-start gap-2 ${
-            status.valid
-              ? "bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium"
-              : "bg-red-50 text-[#D93636] border border-red-200"
-          }`}
+          className={`mt-2.5 text-xs p-2.5 rounded-xl flex items-start gap-2 ${status.valid
+            ? "bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium"
+            : "bg-red-50 text-[#D93636] border border-red-200"
+            }`}
         >
           <span className="font-bold">{status.valid ? "✓" : "✕"}</span>
           <span>{status.message}</span>
@@ -1485,9 +1481,9 @@ function ProductInfo({
       >
         {/* ── 1. BUY NOW BUTTON (10% Off on Prepaid Orders) ── */}
         <div className="relative pt-2.5">
-          {/* Perched Green Badge on Top-Left */}
+          {/* Perched Badge on Top-Left in Website Palette */}
           <div className="absolute top-0 left-3 z-10">
-            <span className="inline-flex items-center gap-1 bg-[#25F476] text-black text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-t-md shadow-xs uppercase tracking-tight">
+            <span className="inline-flex items-center gap-1 bg-[#192A46] text-white text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-t-md shadow-xs uppercase tracking-tight border-t border-x border-[#192A46]">
               <span>⚡</span>
               <span>10% Off on Prepaid Orders</span>
             </span>
@@ -1495,7 +1491,7 @@ function ProductInfo({
 
           <Link
             to={`/checkout/cod?handle=${product.handle}&quantity=${quantity}&variant=${selectedVariant?.id || ""}&prepaid=1`}
-            className="relative w-full h-13 sm:h-14 rounded-xl bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000] text-white font-extrabold text-sm sm:text-base tracking-wide shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-between px-4 sm:px-6 cursor-pointer group"
+            className="relative w-full h-13 sm:h-14 rounded-xl bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-sm sm:text-base tracking-wide shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-between px-4 sm:px-6 cursor-pointer group"
             data-testid="buy-now-prepaid-button"
           >
             <div className="flex items-center gap-2 sm:gap-3 mx-auto">
@@ -1505,10 +1501,10 @@ function ProductInfo({
                 {/* Google Pay */}
                 <div className="size-4.5 rounded-full bg-white flex items-center justify-center p-0.5 shadow-2xs shrink-0">
                   <svg viewBox="0 0 24 24" className="size-3">
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.04h3.88c2.27-2.09 3.665-5.17 3.665-9.14z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.92l-3.88-3.04c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.27 21.43 7.33 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.6H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.4l4.03-3.13z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.27 2.57 1.25 6.6l4.03 3.13c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.04h3.88c2.27-2.09 3.665-5.17 3.665-9.14z" />
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.92l-3.88-3.04c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.27 21.43 7.33 24 12 24z" />
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.6H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.4l4.03-3.13z" />
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.27 2.57 1.25 6.6l4.03 3.13c.95-2.83 3.6-4.98 6.72-4.98z" />
                   </svg>
                 </div>
                 {/* PhonePe */}
@@ -1540,12 +1536,12 @@ function ProductInfo({
             setIsCodModalOpen(true);
           }}
           disabled={!addable}
-          className="w-full h-12 sm:h-13 rounded-xl bg-black hover:bg-neutral-900 text-white font-extrabold text-sm sm:text-base tracking-wide shadow-sm active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full h-12 sm:h-13 rounded-xl bg-white hover:bg-[#F8F7F3] text-[#192A46] border-2 border-[#192A46] font-extrabold text-sm sm:text-base tracking-wide shadow-2xs active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
           data-testid="order-now-cod"
         >
           <span className="text-lg">💵</span>
           <span>Order via Cash on Delivery</span>
-          <span className="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
+          <span className="text-[10px] uppercase font-bold text-[#2457D6] bg-[#EAF0FC] px-2 py-0.5 rounded-md border border-[#2457D6]/20">
             Zero Risk
           </span>
         </button>
@@ -1788,10 +1784,10 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
             <button
               type="button"
               onClick={scrollToBuyNowAndCod}
-              className="relative w-full h-11 bg-gradient-to-r from-[#FF5000] to-[#FF3800] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer transition-transform"
+              className="relative w-full h-11 bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer transition-transform"
               data-testid="mobile-sticky-buy-now"
             >
-              <span className="absolute -top-2 left-3 bg-[#25F476] text-black text-[9px] font-black px-1.5 py-0.2 rounded shadow-2xs">
+              <span className="absolute -top-2 left-3 bg-[#192A46] text-white text-[9px] font-black px-1.5 py-0.2 rounded shadow-2xs uppercase">
                 10% OFF
               </span>
               <span>⚡</span>

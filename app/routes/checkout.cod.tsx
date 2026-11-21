@@ -532,7 +532,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                     onClick={() => setPaymentMode("prepaid")}
                     className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       isPrepaid
-                        ? "border-[#FF5000] bg-orange-50/70 ring-2 ring-[#FF5000]/20"
+                        ? "border-[#2457D6] bg-[#EAF0FC] ring-2 ring-[#2457D6]/20"
                         : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
                     }`}
                   >
@@ -541,7 +541,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                         <span>⚡</span>
                         <span>Prepaid / Online</span>
                       </div>
-                      <span className="text-[10px] font-black bg-[#25F476] text-black px-2 py-0.5 rounded shadow-2xs">
+                      <span className="text-[10px] font-black bg-[#2457D6] text-white px-2 py-0.5 rounded shadow-2xs">
                         10% OFF
                       </span>
                     </div>
@@ -579,7 +579,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
 
               {/* Payment Details Card */}
               {isPrepaid ? (
-                <div className="p-4 rounded-xl border-2 border-[#FF5000] bg-orange-50/60 space-y-2 mt-2">
+                <div className="p-4 rounded-xl border-2 border-[#2457D6] bg-[#EAF0FC]/60 space-y-2 mt-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-base">⚡</span>
@@ -587,7 +587,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                         Prepaid Selected • 10% Discount Active
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-[#2457D6] bg-white px-2 py-0.5 rounded-full border border-[#2457D6]/20">
                       Save ₹{prepaidSavings}
                     </span>
                   </div>
@@ -620,7 +620,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                 disabled={isSubmitting}
                 className={`w-full py-4 px-6 rounded-xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-[0.99] text-white ${
                   isPrepaid
-                    ? "bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000]"
+                    ? "bg-[#2457D6] hover:bg-[#1e47b0]"
                     : "bg-[#192A46] hover:bg-[#282720]"
                 }`}
               >
@@ -693,12 +693,12 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
               ) : null}
 
               {isPrepaid && prepaidSavings > 0 ? (
-                <div className="flex justify-between items-center text-xs text-orange-950 font-bold bg-orange-50 px-2.5 py-1.5 rounded-lg border border-orange-200">
+                <div className="flex justify-between items-center text-xs text-[#2457D6] font-bold bg-[#EAF0FC] px-2.5 py-1.5 rounded-lg border border-[#2457D6]/20">
                   <span className="flex items-center gap-1">
                     <span>⚡</span>
                     <span>Prepaid Discount (10% OFF):</span>
                   </span>
-                  <span className="text-[#D93800]">- {formatPrice({ amount: prepaidSavings.toFixed(2), currencyCode: currency })}</span>
+                  <span className="font-extrabold text-[#2457D6]">- {formatPrice({ amount: prepaidSavings.toFixed(2), currencyCode: currency })}</span>
                 </div>
               ) : null}
 

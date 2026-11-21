@@ -396,13 +396,13 @@ export function CodOrderModal({
                 onClick={() => setIsPrepaid(true)}
                 className={`p-2.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                   isPrepaid
-                    ? "border-[#FF5000] bg-orange-50/80 ring-2 ring-[#FF5000]/20"
+                    ? "border-[#2457D6] bg-[#EAF0FC] ring-2 ring-[#2457D6]/20"
                     : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-xs font-black text-[#192A46]">Prepaid (UPI)</span>
-                  <span className="text-[9px] font-black bg-[#25F476] text-black px-1.5 py-0.2 rounded">
+                  <span className="text-[9px] font-black bg-[#2457D6] text-white px-1.5 py-0.5 rounded">
                     10% OFF
                   </span>
                 </div>
@@ -439,9 +439,9 @@ export function CodOrderModal({
                 </div>
               ) : null}
               {isPrepaid && prepaidSavings > 0 ? (
-                <div className="flex justify-between items-center text-xs text-orange-950 font-bold bg-orange-50 px-2 py-1 rounded border border-orange-200">
+                <div className="flex justify-between items-center text-xs text-[#2457D6] font-bold bg-[#EAF0FC] px-2 py-1 rounded border border-[#2457D6]/20">
                   <span>⚡ 10% Prepaid Savings</span>
-                  <span className="text-[#D93800]">- Rs. {prepaidSavings.toFixed(2)}</span>
+                  <span className="font-extrabold text-[#2457D6]">- Rs. {prepaidSavings.toFixed(2)}</span>
                 </div>
               ) : null}
               <div className="flex justify-between text-[#64748B]">
@@ -672,11 +672,7 @@ export function CodOrderModal({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full ${
-                  isPrepaid
-                    ? "bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000]"
-                    : "bg-[#2457D6] hover:bg-[#1e47b0]"
-                } text-white font-extrabold py-3.5 px-4 rounded-xl text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]`}
+                className="w-full bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold py-3.5 px-4 rounded-xl text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
               >
                 {isSubmitting ? (
                   <>
