@@ -77,12 +77,14 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<any | null>(null);
 
-  // Price calculations
+  // Price calculations with automatic bundle discounts
   const unitAmount = parseFloat(product.unitPrice.amount) || 0;
-  const subtotal = Math.round(unitAmount * product.quantity);
+  const rawSubtotal = Math.round(unitAmount * product.quantity);
+  const discountPercent = product.quantity >= 3 ? 25 : product.quantity === 2 ? 15 : 0;
+  const discountSavings = Math.round(rawSubtotal * (discountPercent / 100));
   const isFreeDelivery = true;
   const shippingFee = 0;
-  const totalPayable = subtotal;
+  const totalPayable = rawSubtotal - discountSavings;
 
   // Body scroll lock & ESC key listener
   useEffect(() => {
@@ -238,18 +240,27 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
       onClick={handleResetAndClose}
     >
       <div
-        className="relative w-full max-w-[450px] bg-white rounded-2xl shadow-2xl p-5 sm:p-6 my-auto text-left border border-gray-100 max-h-[95vh] overflow-y-auto"
+        className="relative w-full max-w-[460px] bg-white rounded-2xl shadow-2xl p-5 sm:p-6 my-auto text-left border border-[#E4E7ED] max-h-[95vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Close Button (✕) */}
-        <button
-          type="button"
-          onClick={handleResetAndClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors cursor-pointer text-lg font-bold p-1 leading-none"
-          aria-label="Close"
-        >
-          ✕
-        </button>
+        {/* Top Header with Store Logo */}
+        <div className="flex items-center justify-between pb-3 border-b border-[#E4E7ED] mb-3">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="Store Logo" className="h-7 sm:h-8 w-auto object-contain" />
+            <span className="text-[10px] font-bold text-[#2457D6] bg-[#EAF0FC] px-2 py-0.5 rounded-full border border-[#2457D6]/20">
+              COD Checkout
+            </span>
+          </div>
+          {/* Top Close Button (✕) */}
+          <button
+            type="button"
+            onClick={handleResetAndClose}
+            className="text-[#64748B] hover:text-[#192A46] transition-colors cursor-pointer text-lg font-bold p-1 leading-none"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
 
         {confirmedOrder ? (
           /* ─────────────────────────────────────────────────────────────
@@ -260,46 +271,46 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
               ✓
             </div>
             <div className="space-y-1">
-              <h2 className="font-bold text-xl sm:text-2xl text-[#282720]">
+              <h2 className="font-extrabold text-xl sm:text-2xl text-[#192A46]">
                 Order Confirmed!
               </h2>
-              <p className="text-xs text-[#5E5B52]">
+              <p className="text-xs text-[#64748B]">
                 Thank you, <strong>{confirmedOrder.firstName || firstName}</strong>! Your Cash on Delivery order has been successfully placed.
               </p>
             </div>
 
-            <div className="bg-[#FAF6F0] border border-[#E2DBD0] rounded-xl p-2.5 inline-block text-xs font-bold text-[#282720]">
-              Shopify Order: <span className="text-[#B77943]">{confirmedOrder.orderNumber}</span>
+            <div className="bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl p-2.5 inline-block text-xs font-bold text-[#192A46]">
+              Shopify Order: <span className="text-[#2457D6]">{confirmedOrder.orderNumber}</span>
               {confirmedOrder.shopifyOrderId ? (
-                <span className="text-[10px] text-[#7D786D] block font-normal mt-0.5">
+                <span className="text-[10px] text-[#64748B] block font-normal mt-0.5">
                   Shopify Admin ID: #{confirmedOrder.shopifyOrderId}
                 </span>
               ) : null}
             </div>
 
             {/* Order summary card */}
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-left text-xs space-y-2">
-              <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-                <span className="font-bold text-gray-800 truncate max-w-[240px]">
+            <div className="bg-[#F8F7F3] border border-[#E4E7ED] rounded-xl p-3.5 text-left text-xs space-y-2">
+              <div className="flex justify-between items-center pb-2 border-b border-[#E4E7ED]">
+                <span className="font-bold text-[#192A46] truncate max-w-[240px]">
                   {confirmedOrder.productTitle || product.title} (Qty: {confirmedOrder.quantity || product.quantity})
                 </span>
-                <span className="font-extrabold text-black">
+                <span className="font-black text-[#2457D6]">
                   Rs. {parseFloat(confirmedOrder.totalAmount || String(totalPayable)).toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#64748B]">
                 <span>Payment Mode:</span>
                 <span className="font-bold text-emerald-700">Cash on Delivery (COD)</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#64748B]">
                 <span>Deliver To:</span>
-                <span className="font-medium text-gray-800 text-right max-w-[210px] truncate">
+                <span className="font-medium text-[#192A46] text-right max-w-[210px] truncate">
                   {confirmedOrder.address}, {confirmedOrder.city} - {confirmedOrder.pincode}
                 </span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#64748B]">
                 <span>Contact:</span>
-                <span className="font-medium text-gray-800">+91 {confirmedOrder.phone}</span>
+                <span className="font-medium text-[#192A46]">+91 {confirmedOrder.phone}</span>
               </div>
             </div>
 
@@ -314,80 +325,86 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
             <button
               type="button"
               onClick={handleResetAndClose}
-              className="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3 px-4 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
+              className="w-full bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
             >
               Continue Shopping
             </button>
           </div>
         ) : (
           /* ─────────────────────────────────────────────────────────────
-             EXACT COD FORM MATCHING USER REFERENCE SCREENSHOT
+             EXACT COD FORM MATCHING CLEAN SITE THEME
              ───────────────────────────────────────────────────────────── */
           <div>
             {/* Top Product Strip */}
-            <div className="flex items-center justify-between pb-3 border-b border-gray-200 gap-3">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4E7ED] gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative shrink-0">
                   {product.image ? (
                     <img
                       src={product.image}
                       alt=""
-                      className="size-12 rounded object-contain p-0.5 bg-gray-50 border border-gray-200"
+                      className="size-12 rounded-lg object-contain p-0.5 bg-[#F8F7F3] border border-[#E4E7ED]"
                     />
                   ) : (
-                    <div className="size-12 rounded bg-gray-100 border border-gray-200" />
+                    <div className="size-12 rounded-lg bg-[#F8F7F3] border border-[#E4E7ED]" />
                   )}
                   {/* Badge with quantity on top-right of image */}
-                  <span className="absolute -top-1.5 -right-1.5 size-5 bg-gray-500 text-white rounded-full text-[10px] flex items-center justify-center font-bold shadow-xs">
+                  <span className="absolute -top-1.5 -right-1.5 size-5 bg-[#2457D6] text-white rounded-full text-[10px] flex items-center justify-center font-bold shadow-xs">
                     {product.quantity}
                   </span>
                 </div>
-                <div className="font-bold text-xs sm:text-sm text-black leading-snug line-clamp-2">
+                <div className="font-bold text-xs sm:text-sm text-[#192A46] leading-snug line-clamp-2">
                   {product.title}
                 </div>
               </div>
-              <div className="font-bold text-xs sm:text-sm text-black shrink-0 whitespace-nowrap">
-                Rs. {subtotal.toFixed(2)}
+              <div className="font-extrabold text-xs sm:text-sm text-[#192A46] shrink-0 whitespace-nowrap">
+                Rs. {rawSubtotal.toFixed(2)}
               </div>
             </div>
 
             {/* Centered Heading */}
-            <h2 className="text-center font-bold text-sm sm:text-base text-black my-3 tracking-wide">
-              Enter Your Complete Address
+            <h2 className="text-center font-bold text-xs sm:text-sm text-[#192A46] my-2.5 tracking-wide">
+              Enter Your Delivery Address
             </h2>
 
-            {/* Subtotal / Shipping / Total Box */}
-            <div className="bg-[#EDEDED]/70 rounded-lg p-3 text-xs space-y-1 mb-3.5 border border-gray-200">
-              <div className="flex justify-between text-gray-700">
-                <span>Subtotal</span>
-                <span className="font-semibold text-black">Rs. {subtotal.toFixed(2)}</span>
+            {/* Subtotal / Bundle Savings / Shipping / Total Box */}
+            <div className="bg-[#F8F7F3] rounded-xl p-3 text-xs space-y-1.5 mb-3 border border-[#E4E7ED]">
+              <div className="flex justify-between text-[#64748B]">
+                <span>Items Subtotal</span>
+                <span className="font-semibold text-[#192A46]">Rs. {rawSubtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-700">
-                <span>Shipping</span>
-                <span className="font-semibold text-emerald-700">Free</span>
+              {discountSavings > 0 ? (
+                <div className="flex justify-between items-center text-xs text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                  <span>🎉 Bundle Discount ({discountPercent}% OFF)</span>
+                  <span>- Rs. {discountSavings.toFixed(2)}</span>
+                </div>
+              ) : null}
+              <div className="flex justify-between text-[#64748B]">
+                <span>Pan-India Delivery</span>
+                <span className="font-semibold text-emerald-700">FREE</span>
               </div>
-              <div className="flex justify-between font-bold text-xs sm:text-sm text-black pt-1 border-t border-gray-300">
-                <span>Total</span>
-                <span>Rs. {totalPayable.toFixed(2)}</span>
+              <div className="flex justify-between font-extrabold text-xs sm:text-sm text-[#192A46] pt-1.5 border-t border-[#E4E7ED]">
+                <span>Total Amount to Pay</span>
+                <span className="text-[#2457D6] text-base font-black">Rs. {totalPayable.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Error Message */}
             {errorMessage ? (
-              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-[11px] text-red-700 font-semibold text-center">
+              <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 font-semibold text-center">
                 ⚠️ {errorMessage}
               </div>
             ) : null}
 
-            {/* Form Fields matching the screenshot */}
+            {/* Form Fields matching the clean site theme */}
             <form onSubmit={handleSubmit} className="space-y-2.5">
               {/* Row 1: First Name */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-first-name">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-first-name">
                   First Name <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3 py-2 border-r border-[#E4E7ED] text-[#2457D6] flex items-center justify-center shrink-0">
                     <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                     </svg>
@@ -399,18 +416,18 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     placeholder="First Name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 2: Last name */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-last-name">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-last-name">
                   Last name <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3 py-2 border-r border-[#E4E7ED] text-[#2457D6] flex items-center justify-center shrink-0">
                     <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                     </svg>
@@ -422,18 +439,18 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     placeholder="Last name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 3: Phone number */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-phone-number">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-phone-number">
                   Phone number <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3 py-2 border-r border-[#E4E7ED] text-[#2457D6] flex items-center justify-center shrink-0">
                     <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 4V3z" />
                     </svg>
@@ -443,21 +460,21 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     type="tel"
                     required
                     maxLength={10}
-                    placeholder="Phone"
+                    placeholder="10-digit mobile"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 4: Address */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-address">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-address">
                   Address <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3 py-2 border-r border-[#E4E7ED] text-[#2457D6] flex items-center justify-center shrink-0">
                     <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
@@ -466,21 +483,21 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     id="cod-address"
                     type="text"
                     required
-                    placeholder="Address"
+                    placeholder="House / Flat No., Road, Area"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 5: Landmark */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-landmark">
-                  Landmark <span className="text-red-500">*</span>
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-landmark">
+                  Landmark
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3 py-2 border-r border-[#E4E7ED] text-[#2457D6] flex items-center justify-center shrink-0">
                     <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
@@ -488,22 +505,21 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                   <input
                     id="cod-landmark"
                     type="text"
-                    required
-                    placeholder="Nearby school, hospital, shop"
+                    placeholder="Nearby school, hospital, shop (Optional)"
                     value={landmark}
                     onChange={(e) => setLandmark(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 6: Pincode */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-pincode">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-pincode">
                   Pincode <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3.5 py-2 border-r border-gray-300 text-gray-700 font-bold text-xs flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3.5 py-2 border-r border-[#E4E7ED] text-[#2457D6] font-bold text-xs flex items-center justify-center shrink-0">
                     #
                   </div>
                   <input
@@ -511,26 +527,26 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     type="text"
                     required
                     maxLength={6}
-                    placeholder="Pincode"
+                    placeholder="6-digit Pincode"
                     value={pincode}
                     onChange={(e) => handlePincodeChange(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 7: State */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-state">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-state">
                   State <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
                   <select
                     id="cod-state"
                     required
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full px-3 py-2 text-xs text-black focus:outline-none bg-white cursor-pointer"
+                    className="w-full px-3 py-2 text-xs text-[#192A46] focus:outline-none bg-white cursor-pointer font-medium"
                   >
                     {INDIAN_STATES.map((s) => (
                       <option key={s} value={s}>
@@ -543,11 +559,11 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
 
               {/* Row 8: City */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-city">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-city">
                   City <span className="text-red-500">*</span>
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3 py-2 border-r border-gray-300 text-gray-600 flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3 py-2 border-r border-[#E4E7ED] text-[#2457D6] flex items-center justify-center shrink-0">
                     <svg className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
@@ -559,41 +575,41 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     placeholder="City"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
               {/* Row 9: Email */}
               <div className="grid grid-cols-[105px_1fr] sm:grid-cols-[115px_1fr] items-center gap-2">
-                <label className="text-xs font-bold text-black" htmlFor="cod-email">
+                <label className="text-xs font-bold text-[#192A46]" htmlFor="cod-email">
                   Email
                 </label>
-                <div className="flex border border-gray-300 rounded overflow-hidden focus-within:border-black bg-white">
-                  <div className="bg-gray-100 px-3.5 py-2 border-r border-gray-300 text-gray-700 font-bold text-xs flex items-center justify-center shrink-0">
+                <div className="flex border border-[#E4E7ED] rounded-xl overflow-hidden focus-within:border-[#2457D6] focus-within:ring-2 focus-within:ring-[#2457D6]/20 bg-white">
+                  <div className="bg-[#F8F7F3] px-3.5 py-2 border-r border-[#E4E7ED] text-[#2457D6] font-bold text-xs flex items-center justify-center shrink-0">
                     @
                   </div>
                   <input
                     id="cod-email"
                     type="email"
-                    placeholder="Email"
+                    placeholder="Email (Optional)"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs text-black placeholder:text-gray-400 focus:outline-none bg-white"
+                    className="w-full px-2.5 py-1.5 text-xs text-[#192A46] placeholder:text-[#94A3B8] focus:outline-none bg-white font-medium"
                   />
                 </div>
               </div>
 
-              {/* Complete Order Button matching screenshot */}
+              {/* Complete Order Button in vibrant #2457D6 */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-black hover:bg-neutral-800 text-white font-extrabold py-3.5 px-4 rounded text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold py-3.5 px-4 rounded-xl text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
               >
                 {isSubmitting ? (
                   <>
                     <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Processing Order…</span>
+                    <span>Processing COD Order…</span>
                   </>
                 ) : (
                   <span>COMPLETE ORDER - Rs. {totalPayable.toFixed(2)}</span>

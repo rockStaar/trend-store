@@ -636,6 +636,151 @@ function VariantOptions({ product }: { product: ProductData }) {
   );
 }
 
+function BundleOfferSelector({
+  quantity,
+  onSelectQuantity,
+  unitPrice,
+  currencyCode = "INR",
+}: {
+  quantity: number;
+  onSelectQuantity: (q: number) => void;
+  unitPrice: number;
+  currencyCode?: string;
+}) {
+  const price1 = unitPrice;
+  const price2 = Math.round(unitPrice * 2 * 0.85);
+  const perUnit2 = Math.round(price2 / 2);
+  const savings2 = Math.round(unitPrice * 2 * 0.15);
+
+  const price3 = Math.round(unitPrice * 3 * 0.75);
+  const perUnit3 = Math.round(price3 / 3);
+  const savings3 = Math.round(unitPrice * 3 * 0.25);
+
+  const bundles = [
+    {
+      qty: 1,
+      title: "Buy 1 Unit",
+      subhead: "Standard Pack",
+      badge: null,
+      totalPrice: price1,
+      perUnitPrice: price1,
+      savings: 0,
+      discountText: null,
+    },
+    {
+      qty: 2,
+      title: "Buy 2 Units",
+      subhead: "Save 15% OFF",
+      badge: "🔥 MOST POPULAR",
+      badgeColor: "bg-amber-50 text-amber-800 border-amber-300",
+      totalPrice: price2,
+      perUnitPrice: perUnit2,
+      savings: savings2,
+      discountText: "15% OFF",
+      originalPrice: unitPrice * 2,
+    },
+    {
+      qty: 3,
+      title: "Buy 3 Units",
+      subhead: "Save 25% OFF",
+      badge: "🌟 BEST VALUE",
+      badgeColor: "bg-emerald-50 text-emerald-800 border-emerald-300",
+      totalPrice: price3,
+      perUnitPrice: perUnit3,
+      savings: savings3,
+      discountText: "25% OFF",
+      originalPrice: unitPrice * 3,
+    },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-[#E4E7ED] bg-white p-4 my-3.5 shadow-2xs">
+      <div className="flex items-center justify-between pb-3 border-b border-[#E4E7ED] mb-3">
+        <div className="flex items-center gap-2">
+          <span className="size-6 rounded-lg bg-[#EAF0FC] text-[#2457D6] flex items-center justify-center text-xs font-bold">
+            🔥
+          </span>
+          <span className="font-extrabold text-xs sm:text-sm text-[#192A46] tracking-tight">
+            Bundle &amp; Save More
+          </span>
+        </div>
+        <span className="text-[10px] text-[#2457D6] font-bold bg-[#EAF0FC] px-2 py-0.5 rounded-full border border-[#2457D6]/20">
+          Auto-Discounted
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        {bundles.map((b) => {
+          const isSelected = quantity === b.qty;
+          return (
+            <button
+              key={b.qty}
+              type="button"
+              onClick={() => onSelectQuantity(b.qty)}
+              className={`relative flex flex-col text-left p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                isSelected
+                  ? "border-[#2457D6] bg-[#EAF0FC]/50 shadow-xs ring-2 ring-[#2457D6]/20"
+                  : "border-[#E4E7ED] bg-white hover:border-[#2457D6]/40 hover:bg-[#F8F7F3]"
+              }`}
+            >
+              {b.badge && (
+                <span
+                  className={`absolute -top-2.5 right-2 px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wide uppercase border shadow-2xs ${b.badgeColor}`}
+                >
+                  {b.badge}
+                </span>
+              )}
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <span className="font-bold text-xs text-[#192A46]">{b.title}</span>
+                <span
+                  className={`size-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
+                    isSelected
+                      ? "border-[#2457D6] bg-[#2457D6] text-white"
+                      : "border-[#CBD5E1] text-transparent"
+                  }`}
+                >
+                  ✓
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-sm sm:text-base font-black text-[#192A46]">
+                  ₹{b.totalPrice.toLocaleString("en-IN")}
+                </span>
+                {b.originalPrice && (
+                  <span className="text-[11px] text-[#94A3B8] line-through">
+                    ₹{b.originalPrice.toLocaleString("en-IN")}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between text-[10px] mt-1 text-[#64748B]">
+                <span>₹{b.perUnitPrice.toLocaleString("en-IN")}/ea</span>
+                {b.savings > 0 ? (
+                  <span className="text-emerald-700 font-bold">
+                    Save ₹{b.savings}
+                  </span>
+                ) : (
+                  <span className="text-[#94A3B8]">Single</span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {quantity >= 2 ? (
+        <div className="mt-3 p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs font-bold text-emerald-800 flex items-center justify-center gap-1.5">
+          <span>🎉</span>
+          <span>
+            {quantity === 2
+              ? `15% Bundle Discount Applied! You save ₹${savings2.toLocaleString("en-IN")}.`
+              : `25% Mega Bundle Discount Applied! You save ₹${savings3.toLocaleString("en-IN")}.`}
+          </span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function BenefitsOfPrepaidOrdersCard() {
   return (
     <div className="rounded-2xl border border-[#E4E7ED] bg-white p-4 my-3.5 shadow-2xs">
@@ -1315,6 +1460,7 @@ function ProductInfo({
   const [isCodModalOpen, setIsCodModalOpen] = useState(false);
 
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
+  const unitAmount = parseFloat(price.amount) || 0;
   const sanitizedTitle = filterSupplierNames(product.title);
   const isHeater = (product.title + " " + product.handle).toLowerCase().includes("heater");
 
@@ -1357,20 +1503,85 @@ function ProductInfo({
       <PriceBlock product={product} selectedVariant={selectedVariant} />
       <InventoryHint selectedVariant={selectedVariant} />
 
-      {/* 5. Exclusive Customer Benefits & Special Offers placed above */}
+      {/* 5. BUY NOW & CASH ON DELIVERY (Positioned right under Price) */}
+      <div
+        id="buy-now-and-cod-section"
+        className="space-y-2.5 my-3.5 p-2 rounded-2xl border border-transparent transition-all scroll-mt-24"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {/* Primary CTA: BUY NOW */}
+          <Link
+            to={`/checkout/cod?handle=${product.handle}&quantity=${quantity}&variant=${selectedVariant?.id || ""}`}
+            className="w-full h-12 sm:h-13 rounded-xl bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:shadow-lg active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 group"
+            data-testid="buy-now-button"
+          >
+            <span className="text-base group-hover:scale-110 transition-transform">⚡</span>
+            <span>BUY NOW</span>
+            <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase">
+              Fast
+            </span>
+          </Link>
+
+          {/* Secondary CTA: ORDER NOW — CASH ON DELIVERY */}
+          <button
+            type="button"
+            onClick={() => setIsCodModalOpen(true)}
+            disabled={!addable}
+            className="cod-animated-btn w-full h-12 sm:h-13 rounded-xl bg-white text-[#192A46] border-2 border-[#192A46] font-extrabold text-sm sm:text-base tracking-wide shadow-sm hover:bg-[#F8F7F3] active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            data-testid="order-now-cod"
+          >
+            <span className="text-lg">💵</span>
+            <span>Order Now – COD</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+              Zero Risk
+            </span>
+          </button>
+        </div>
+
+        {/* Optional Add to Cart link for multi-product shoppers */}
+        <div className="flex items-center justify-center pt-1">
+          <form {...formProps({ afterSubmit: openCartDrawer })} className="w-full">
+            <input type="hidden" {...register("merchandiseId", {})} />
+            <input type="hidden" name="quantity" value={quantity} />
+            <button
+              {...register("addToCart", {})}
+              className="w-full py-2 text-xs font-bold text-[#64748B] hover:text-[#2457D6] transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              disabled={!addable || pending}
+              data-testid="add-to-cart"
+            >
+              <span>🛒</span>
+              <span>{pending ? "Adding to Cart…" : "Or Add to Cart & Continue Shopping"}</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* 6. Exclusive Customer Benefits & Special Offers placed above */}
       <BenefitsOfPrepaidOrdersCard />
 
-      {/* 6. Variant Options & Quantity Form Container */}
+      {/* 7. Bundle & Save More Offer (Buy 2 save 15%, Buy 3 save 25%) */}
+      <BundleOfferSelector
+        quantity={quantity}
+        onSelectQuantity={setQuantity}
+        unitPrice={unitAmount}
+        currencyCode={price.currencyCode}
+      />
+
+      {/* 8. Variant Options & Quantity Form Container (Rest as it is) */}
       <div data-product-form className="space-y-3 my-2">
         <span className="sr-only" aria-live="polite" data-add-to-cart-status />
         <VariantOptions product={product} />
 
-        {/* 7. Quantity Stepper (Positioned ABOVE CTAs for natural ordering) */}
+        {/* Quantity Stepper (for manual adjustment or 4+ units) */}
         <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E4E7ED] shadow-2xs">
           <div className="flex flex-col">
-            <span className="text-xs font-bold text-[#192A46]">Select Quantity</span>
+            <span className="text-xs font-bold text-[#192A46]">Selected Quantity</span>
             <span className="text-[10px] text-emerald-700 font-semibold">
-              {quantity >= 2 ? "✓ Combo discount eligible at checkout" : "Add 2+ units for extra savings"}
+              {quantity >= 3
+                ? "✓ 25% Mega bundle savings applied"
+                : quantity === 2
+                  ? "✓ 15% Bundle savings applied"
+                  : "Buy 2+ units to unlock automatic bundle discounts"}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -1395,51 +1606,7 @@ function ProductInfo({
           </div>
         </div>
 
-        {/* 8. Action Buttons (Dual CTA with High Trust) */}
-        <div className="space-y-2.5 pt-1">
-          {/* Primary CTA: ADD TO CART in rich #2457D6 */}
-          <form {...formProps({ afterSubmit: openCartDrawer })}>
-            <input type="hidden" {...register("merchandiseId", {})} />
-            <input type="hidden" name="quantity" value={quantity} />
-            <button
-              {...register("addToCart", {})}
-              className="w-full h-12 rounded-xl bg-[#2457D6] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:opacity-90 active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2.5"
-              disabled={!addable || pending}
-              data-testid="add-to-cart"
-            >
-              <svg className="size-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-              {pending ? (
-                <span className="flex items-center gap-2">
-                  <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>ADDING TO CART…</span>
-                </span>
-              ) : addable ? (
-                "ADD TO CART"
-              ) : (
-                "SOLD OUT"
-              )}
-            </button>
-          </form>
-
-          {/* Secondary CTA: ORDER NOW — CASH ON DELIVERY */}
-          <button
-            type="button"
-            onClick={() => setIsCodModalOpen(true)}
-            disabled={!addable}
-            className="cod-animated-btn w-full h-12 rounded-xl bg-white text-[#192A46] border-2 border-[#192A46] font-extrabold text-sm sm:text-base tracking-wide shadow-sm hover:bg-[#F8F7F3] active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-            data-testid="order-now-cod"
-          >
-            <span className="text-lg">💵</span>
-            <span>Order Now – Cash on Delivery</span>
-            <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              Zero Risk
-            </span>
-          </button>
-        </div>
-
-        {/* 9. Micro-Trust Reassurance Bar directly below CTAs */}
+        {/* Micro-Trust Reassurance Bar directly below options */}
         <div className="grid grid-cols-3 gap-2 py-3 px-2 border-y border-[#E4E7ED] my-3.5 bg-[#F8F7F3]/80 rounded-xl">
           <div className="flex flex-col items-center text-center">
             <span className="text-sm">💵</span>
@@ -1556,64 +1723,75 @@ function ProductPageContent({
 }
 
 function StickyMobileBuyBar({ product }: { product: ProductData }) {
-  const { options, formProps, register, pending, selectedVariant } = useProductForm();
+  const { options, selectedVariant } = useProductForm();
   const addable = canAddToCart(product, options);
   const primaryImage = product.featuredImage ?? product.images.nodes[0];
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
   const [isCodModalOpen, setIsCodModalOpen] = useState(false);
   const sanitizedTitle = filterSupplierNames(product.title);
 
+  const scrollToBuyNowAndCod = () => {
+    const el = document.getElementById("buy-now-and-cod-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-4", "ring-[#2457D6]", "bg-[#EAF0FC]/60");
+      setTimeout(() => {
+        el.classList.remove("ring-4", "ring-[#2457D6]", "bg-[#EAF0FC]/60");
+      }, 1600);
+    }
+  };
+
   return (
     <>
       <aside
         aria-label="Quick purchase bar"
-        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E4E7ED] px-3.5 pt-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] z-30 md:hidden shadow-2xl transition-all"
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E4E7ED] px-3 pt-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] z-30 md:hidden shadow-2xl transition-all"
       >
         <div className="flex items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 max-w-[38%]">
             {primaryImage ? (
               <img
                 src={primaryImage.url}
                 alt=""
-                className="size-10 rounded-md object-contain p-0.5 bg-[#F8F7F3] shrink-0 border border-[#E4E7ED]"
+                className="size-9 rounded-md object-contain p-0.5 bg-[#F8F7F3] shrink-0 border border-[#E4E7ED]"
               />
             ) : null}
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-[#192A46] truncate">
                 {sanitizedTitle}
               </p>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs font-extrabold text-[#192A46]">
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-black text-[#192A46]">
                   {formatPrice(price)}
                 </span>
-                <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
-                  COD Ready
+                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200">
+                  COD
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
-            <form {...formProps({ afterSubmit: openCartDrawer })}>
-              <input type="hidden" {...register("merchandiseId", {})} />
-              <input type="hidden" name="quantity" value="1" />
-              <button
-                {...register("addToCart", {})}
-                className="bg-[#2457D6] text-white hover:opacity-90 px-3 py-2 rounded-lg text-xs font-bold tracking-wide disabled:opacity-50 cursor-pointer"
-                disabled={!addable || pending}
-                title="Add to Cart"
-              >
-                {pending ? "…" : "Cart"}
-              </button>
-            </form>
+          <div className="flex items-center gap-1.5 flex-1 justify-end">
+            {/* Always show Buy Now on mobile and lead to buy now and cod above */}
+            <button
+              type="button"
+              onClick={scrollToBuyNowAndCod}
+              className="flex-1 h-11 bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-1 active:scale-95 cursor-pointer transition-transform"
+              data-testid="mobile-sticky-buy-now"
+            >
+              <span>⚡</span>
+              <span>Buy Now</span>
+            </button>
 
+            {/* Direct Cash on Delivery Button */}
             <button
               type="button"
               onClick={() => setIsCodModalOpen(true)}
               disabled={!addable}
-              className="cod-animated-btn bg-white text-[#192A46] border-2 border-[#192A46] hover:bg-[#F8F7F3] px-3.5 py-2 rounded-lg text-xs font-extrabold tracking-wide shadow-sm disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+              className="cod-animated-btn h-11 px-3 bg-white text-[#192A46] border-2 border-[#192A46] font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1 active:scale-95 cursor-pointer disabled:opacity-50"
+              title="Instant Cash on Delivery"
             >
-              <span>🛒</span>
+              <span>💵</span>
               <span>COD</span>
             </button>
           </div>

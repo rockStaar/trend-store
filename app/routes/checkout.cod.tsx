@@ -49,8 +49,8 @@ const COD_CHECKOUT_QUERY = gql(`
 
 export function meta() {
   return [
-    { title: "Cash on Delivery Checkout | HypeeeCart" },
-    { name: "description", content: "Fast and secure Cash on Delivery checkout for your HypeeeCart order." },
+    { title: "Cash on Delivery Checkout | Fast & Secure" },
+    { name: "description", content: "Fast and secure Cash on Delivery checkout for your order." },
   ];
 }
 
@@ -252,10 +252,11 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
   const [state, setState] = useState("Delhi");
 
   const unitAmount = parseFloat(unitPrice.amount) || 0;
-  const subtotal = unitAmount * quantity;
-  const isFreeDelivery = true;
+  const rawSubtotal = unitAmount * quantity;
+  const discountPercent = quantity >= 3 ? 25 : quantity === 2 ? 15 : 0;
+  const discountSavings = Math.round(rawSubtotal * (discountPercent / 100));
+  const totalPayable = rawSubtotal - discountSavings;
   const deliveryFee = 0;
-  const totalPayable = subtotal;
   const currency = unitPrice.currencyCode || "INR";
 
   const handlePincodeChange = (val: string) => {
@@ -288,34 +289,42 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F3EC] py-6 sm:py-12">
+    <div className="min-h-screen bg-[#F8F7F3] py-6 sm:py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Navigation & Header */}
-        <div className="mb-6 flex items-center justify-between">
+        {/* Navigation & Header with Logo instead of plain text */}
+        <div className="mb-6 flex items-center justify-between gap-3">
           <Link
             to={handle ? `/products/${handle}` : "/"}
-            className="text-xs font-bold text-[#7D786D] hover:text-[#B77943] transition-colors flex items-center gap-1.5"
+            className="text-xs font-bold text-[#64748B] hover:text-[#2457D6] transition-colors flex items-center gap-1.5"
           >
             <span>←</span>
             <span>Back to Product</span>
           </Link>
-          <div className="flex items-center gap-1.5 text-xs text-[#282720] font-bold uppercase tracking-wider">
+          <Link to="/" className="inline-block group" aria-label="Home">
+            <img
+              src="/logo.png"
+              alt="Store Logo"
+              className="h-8 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+            />
+          </Link>
+          <div className="flex items-center gap-1.5 text-xs text-[#192A46] font-bold uppercase tracking-wider">
             <span className="text-emerald-700">🔒</span>
-            <span>256-Bit Encrypted COD Checkout</span>
+            <span className="hidden sm:inline">256-Bit Encrypted COD Checkout</span>
+            <span className="sm:hidden text-[10px]">Secure COD</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Delivery Form */}
-          <div className="lg:col-span-7 bg-white rounded-3xl border border-[#E2DBD0] p-6 sm:p-8 shadow-sm">
-            <div className="border-b border-[#E2DBD0] pb-4 mb-6">
-              <span className="text-[11px] font-bold text-[#B77943] tracking-widest uppercase block mb-1">
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-[#E4E7ED] p-6 sm:p-8 shadow-xs">
+            <div className="border-b border-[#E4E7ED] pb-4 mb-6">
+              <span className="text-[11px] font-bold text-[#2457D6] tracking-widest uppercase block mb-1">
                 STEP 1 OF 1 • FAST CHECKOUT
               </span>
-              <h1 className="font-serif text-2xl sm:text-3xl text-[#282720] font-normal leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#192A46] leading-tight">
                 Cash on Delivery Details
               </h1>
-              <p className="text-xs text-[#5E5B52] mt-1">
+              <p className="text-xs text-[#64748B] mt-1">
                 Pay in cash or scan UPI when the delivery executive arrives at your doorstep.
               </p>
             </div>
@@ -337,7 +346,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
 
               {/* Full Name */}
               <div>
-                <label htmlFor="name" className="block text-xs font-bold text-[#282720] mb-1.5">
+                <label htmlFor="name" className="block text-xs font-bold text-[#192A46] mb-1.5">
                   Full Name <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -346,17 +355,17 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                   name="name"
                   required
                   placeholder="e.g. Priya Sharma"
-                  className="w-full bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                  className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
                 />
               </div>
 
               {/* Phone Number */}
               <div>
-                <label htmlFor="phone" className="block text-xs font-bold text-[#282720] mb-1.5">
+                <label htmlFor="phone" className="block text-xs font-bold text-[#192A46] mb-1.5">
                   Mobile Number (for Courier &amp; WhatsApp Updates) <span className="text-red-600">*</span>
                 </label>
                 <div className="flex">
-                  <span className="inline-flex items-center px-3.5 rounded-l-xl border border-r-0 border-[#E2DBD0] bg-[#FAF6F0] text-xs font-bold text-[#282720]">
+                  <span className="inline-flex items-center px-3.5 rounded-l-xl border border-r-0 border-[#E4E7ED] bg-[#F8F7F3] text-xs font-bold text-[#192A46]">
                     +91
                   </span>
                   <input
@@ -366,14 +375,14 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                     required
                     maxLength={10}
                     placeholder="10-digit mobile number"
-                    className="flex-1 bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-r-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="flex-1 bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-r-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
                   />
                 </div>
               </div>
 
               {/* Address */}
               <div>
-                <label htmlFor="address" className="block text-xs font-bold text-[#282720] mb-1.5">
+                <label htmlFor="address" className="block text-xs font-bold text-[#192A46] mb-1.5">
                   House / Flat No., Building, Street <span className="text-red-600">*</span>
                 </label>
                 <textarea
@@ -382,14 +391,14 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                   required
                   rows={2}
                   placeholder="e.g. Flat 302, Green Valley Apartments, 5th Cross Road"
-                  className="w-full bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all resize-none"
+                  className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all resize-none font-medium"
                 />
               </div>
 
               {/* PIN Code & City */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <label htmlFor="pincode" className="block text-xs font-bold text-[#282720] mb-1.5">
+                  <label htmlFor="pincode" className="block text-xs font-bold text-[#192A46] mb-1.5">
                     PIN Code <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -401,12 +410,12 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                     placeholder="6 digits"
                     value={pincode}
                     onChange={(e) => handlePincodeChange(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="city" className="block text-xs font-bold text-[#282720] mb-1.5">
+                  <label htmlFor="city" className="block text-xs font-bold text-[#192A46] mb-1.5">
                     City / Town <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -417,7 +426,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                     placeholder="City"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
                   />
                 </div>
               </div>
@@ -425,7 +434,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
               {/* State & Landmark */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <label htmlFor="state" className="block text-xs font-bold text-[#282720] mb-1.5">
+                  <label htmlFor="state" className="block text-xs font-bold text-[#192A46] mb-1.5">
                     State <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -436,12 +445,12 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                     placeholder="State"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="landmark" className="block text-xs font-bold text-[#282720] mb-1.5">
+                  <label htmlFor="landmark" className="block text-xs font-bold text-[#192A46] mb-1.5">
                     Landmark (Optional)
                   </label>
                   <input
@@ -449,25 +458,25 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                     id="landmark"
                     name="landmark"
                     placeholder="Near park, temple..."
-                    className="w-full bg-[#FAF6F0]/50 border border-[#E2DBD0] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#282720] focus:outline-none focus:border-[#B77943] focus:bg-white transition-all"
+                    className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
                   />
                 </div>
               </div>
 
-              {/* Payment Method Card */}
-              <div className="p-4 rounded-2xl border-2 border-[#282720] bg-[#FAF6F0]/60 space-y-2 mt-2">
+              {/* Payment Method Card in rich site theme */}
+              <div className="p-4 rounded-xl border-2 border-[#2457D6] bg-[#EAF0FC]/60 space-y-2 mt-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">💵</span>
-                    <span className="font-bold text-xs sm:text-sm text-[#282720]">
+                    <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
                       Cash on Delivery (COD) Selected
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                     No Advance Payment
                   </span>
                 </div>
-                <p className="text-[11px] text-[#635F53] leading-relaxed">
+                <p className="text-[11px] text-[#475569] leading-relaxed">
                   Keep exact cash ready or scan UPI QR code (Google Pay, PhonePe, Paytm, BHIM) directly to the delivery person upon arrival.
                 </p>
               </div>
@@ -476,7 +485,7 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#282720] hover:bg-[#3D3A32] text-white py-4 px-6 rounded-2xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4"
+                className="w-full bg-[#2457D6] hover:bg-[#1e47b0] text-white py-4 px-6 rounded-xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-[0.99]"
               >
                 {isSubmitting ? (
                   <>
@@ -494,42 +503,53 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
           </div>
 
           {/* Right Column: Order Summary */}
-          <div className="lg:col-span-5 bg-white rounded-3xl border border-[#E2DBD0] p-6 shadow-sm space-y-5 lg:sticky lg:top-8">
-            <h2 className="font-heading font-bold text-base text-[#282720] border-b border-[#E2DBD0] pb-3">
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-[#E4E7ED] p-6 shadow-xs space-y-5 lg:sticky lg:top-8">
+            <h2 className="font-bold text-base text-[#192A46] border-b border-[#E4E7ED] pb-3">
               Order Summary
             </h2>
 
             {/* Product Card */}
-            <div className="flex items-center gap-3.5 pb-4 border-b border-[#E2DBD0]">
+            <div className="flex items-center gap-3.5 pb-4 border-b border-[#E4E7ED]">
               {image ? (
                 <img
                   src={image}
                   alt=""
-                  className="size-16 rounded-xl object-cover bg-[#FAF6F0] border border-[#E2DBD0] shrink-0"
+                  className="size-16 rounded-xl object-contain bg-[#F8F7F3] border border-[#E4E7ED] shrink-0 p-1"
                 />
               ) : null}
               <div className="min-w-0 flex-1">
-                <p className="font-bold text-sm text-[#282720] leading-tight line-clamp-2">
+                <p className="font-bold text-sm text-[#192A46] leading-tight line-clamp-2">
                   {title}
                 </p>
-                <p className="text-xs text-[#7D786D] mt-1">
-                  Pack Quantity: <strong>{quantity} Pc</strong>
+                <p className="text-xs text-[#64748B] mt-1">
+                  Pack Quantity: <strong className="text-[#192A46]">{quantity} Pc{quantity > 1 ? "s" : ""}</strong>
                   {variantTitle ? ` • ${variantTitle}` : ""}
                 </p>
               </div>
-              <div className="text-right shrink-0 font-extrabold text-sm sm:text-base text-[#282720]">
-                {formatPrice({ amount: subtotal.toFixed(2), currencyCode: currency })}
+              <div className="text-right shrink-0 font-extrabold text-sm sm:text-base text-[#192A46]">
+                {formatPrice({ amount: rawSubtotal.toFixed(2), currencyCode: currency })}
               </div>
             </div>
 
             {/* Calculations */}
-            <div className="space-y-2.5 text-xs text-[#5E5B52]">
+            <div className="space-y-2.5 text-xs text-[#64748B]">
               <div className="flex justify-between">
                 <span>Items Subtotal:</span>
-                <span className="font-bold text-[#282720]">
-                  {formatPrice({ amount: subtotal.toFixed(2), currencyCode: currency })}
+                <span className="font-bold text-[#192A46]">
+                  {formatPrice({ amount: rawSubtotal.toFixed(2), currencyCode: currency })}
                 </span>
               </div>
+
+              {discountSavings > 0 ? (
+                <div className="flex justify-between items-center text-xs text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                  <span className="flex items-center gap-1">
+                    <span>🎉</span>
+                    <span>Bundle Discount ({discountPercent}% OFF):</span>
+                  </span>
+                  <span>- {formatPrice({ amount: discountSavings.toFixed(2), currencyCode: currency })}</span>
+                </div>
+              ) : null}
+
               <div className="flex justify-between">
                 <span>Pan-India Delivery:</span>
                 <span className="font-bold text-emerald-700">
@@ -540,23 +560,23 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                 <span>COD Handling Fee:</span>
                 <span className="font-bold text-emerald-700">₹0 (Free)</span>
               </div>
-              <div className="pt-3 border-t border-[#E2DBD0] flex justify-between text-base font-extrabold text-[#282720]">
+              <div className="pt-3 border-t border-[#E4E7ED] flex justify-between items-baseline text-base font-extrabold text-[#192A46]">
                 <span>Total Amount to Pay:</span>
-                <span className="text-[#B77943]">
+                <span className="text-[#2457D6] text-xl font-black">
                   {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })}
                 </span>
               </div>
             </div>
 
             {/* Trust Assurances */}
-            <div className="pt-3 border-t border-[#E2DBD0] space-y-2 text-xs text-[#635F53]">
+            <div className="pt-3 border-t border-[#E4E7ED] space-y-2 text-xs text-[#475569]">
               <div className="flex items-center gap-2">
                 <span className="text-emerald-700 font-bold">✓</span>
                 <span>Dispatches within 24 hours with live SMS/WhatsApp tracking</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-700 font-bold">✓</span>
-                <span>7-Day Free Replacement Guarantee on all items</span>
+                <span>5-Day Free Replacement Guarantee on all items</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-700 font-bold">✓</span>
