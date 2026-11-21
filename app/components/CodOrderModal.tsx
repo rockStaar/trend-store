@@ -17,6 +17,7 @@ interface CodOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: CodProductInfo;
+  initialPrepaid?: boolean;
 }
 
 const INDIAN_STATES = [
@@ -55,7 +56,19 @@ const INDIAN_STATES = [
   "Ladakh",
 ];
 
-export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) {
+export function CodOrderModal({
+  isOpen,
+  onClose,
+  product,
+  initialPrepaid = false,
+}: CodOrderModalProps) {
+  // Payment mode toggle: prepaid (10% off) vs COD
+  const [isPrepaid, setIsPrepaid] = useState(initialPrepaid);
+
+  useEffect(() => {
+    setIsPrepaid(initialPrepaid);
+  }, [initialPrepaid, isOpen]);
+
   // Form fields matching the screenshot exactly
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -63,7 +76,7 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
   const [address, setAddress] = useState("");
   const [landmark, setLandmark] = useState("");
   const [pincode, setPincode] = useState("");
-  const [state, setState] = useState("Delhi");
+  const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
 
@@ -77,14 +90,19 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<any | null>(null);
 
-  // Price calculations with automatic bundle discounts
+  // Price calculations with automatic bundle discounts & 10% prepaid discount
   const unitAmount = parseFloat(product.unitPrice.amount) || 0;
   const rawSubtotal = Math.round(unitAmount * product.quantity);
-  const discountPercent = product.quantity >= 3 ? 25 : product.quantity === 2 ? 15 : 0;
-  const discountSavings = Math.round(rawSubtotal * (discountPercent / 100));
+  const bundlePercent = product.quantity >= 3 ? 25 : product.quantity === 2 ? 15 : 0;
+  const bundleSavings = Math.round(rawSubtotal * (bundlePercent / 100));
+  const subtotalAfterBundle = rawSubtotal - bundleSavings;
+
+  const prepaidPercent = isPrepaid ? 10 : 0;
+  const prepaidSavings = Math.round(subtotalAfterBundle * (prepaidPercent / 100));
+
   const isFreeDelivery = true;
   const shippingFee = 0;
-  const totalPayable = rawSubtotal - discountSavings;
+  const totalPayable = subtotalAfterBundle - prepaidSavings;
 
   // Body scroll lock & ESC key listener
   useEffect(() => {
@@ -171,6 +189,10 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
     }
     if (pincode.length !== 6) {
       setErrorMessage("Please enter a valid 6-digit Pincode.");
+      return;
+    }
+    if (!state.trim()) {
+      setErrorMessage("Please select your State.");
       return;
     }
     if (!city.trim()) {
@@ -363,20 +385,63 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
             </div>
 
             {/* Centered Heading */}
-            <h2 className="text-center font-bold text-xs sm:text-sm text-[#192A46] my-2.5 tracking-wide">
-              Enter Your Delivery Address
+            <h2 className="text-center font-bold text-xs sm:text-sm text-[#192A46] my-2 tracking-wide">
+              Select Payment &amp; Enter Address
             </h2>
 
-            {/* Subtotal / Bundle Savings / Shipping / Total Box */}
+            {/* Payment Mode Selector */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setIsPrepaid(true)}
+                className={`p-2.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                  isPrepaid
+                    ? "border-[#FF5000] bg-orange-50/80 ring-2 ring-[#FF5000]/20"
+                    : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-black text-[#192A46]">Prepaid (UPI)</span>
+                  <span className="text-[9px] font-black bg-[#25F476] text-black px-1.5 py-0.2 rounded">
+                    10% OFF
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#64748B]">GPay, PhonePe, Cards</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsPrepaid(false)}
+                className={`p-2.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                  !isPrepaid
+                    ? "border-[#192A46] bg-[#F8F7F3] ring-2 ring-[#192A46]/20"
+                    : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-black text-[#192A46]">Cash on Delivery</span>
+                  <span className="text-[9px] font-bold text-[#64748B]">Doorstep</span>
+                </div>
+                <p className="text-[10px] text-[#64748B]">Pay cash upon delivery</p>
+              </button>
+            </div>
+
+            {/* Subtotal / Bundle Savings / Prepaid Savings / Total Box */}
             <div className="bg-[#F8F7F3] rounded-xl p-3 text-xs space-y-1.5 mb-3 border border-[#E4E7ED]">
               <div className="flex justify-between text-[#64748B]">
                 <span>Items Subtotal</span>
                 <span className="font-semibold text-[#192A46]">Rs. {rawSubtotal.toFixed(2)}</span>
               </div>
-              {discountSavings > 0 ? (
+              {bundleSavings > 0 ? (
                 <div className="flex justify-between items-center text-xs text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
-                  <span>🎉 Bundle Discount ({discountPercent}% OFF)</span>
-                  <span>- Rs. {discountSavings.toFixed(2)}</span>
+                  <span>🎉 Bundle Discount ({bundlePercent}% OFF)</span>
+                  <span>- Rs. {bundleSavings.toFixed(2)}</span>
+                </div>
+              ) : null}
+              {isPrepaid && prepaidSavings > 0 ? (
+                <div className="flex justify-between items-center text-xs text-orange-950 font-bold bg-orange-50 px-2 py-1 rounded border border-orange-200">
+                  <span>⚡ 10% Prepaid Savings</span>
+                  <span className="text-[#D93800]">- Rs. {prepaidSavings.toFixed(2)}</span>
                 </div>
               ) : null}
               <div className="flex justify-between text-[#64748B]">
@@ -548,6 +613,9 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                     onChange={(e) => setState(e.target.value)}
                     className="w-full px-3 py-2 text-xs text-[#192A46] focus:outline-none bg-white cursor-pointer font-medium"
                   >
+                    <option value="" disabled>
+                      Select State *
+                    </option>
                     {INDIAN_STATES.map((s) => (
                       <option key={s} value={s}>
                         {s}
@@ -600,19 +668,27 @@ export function CodOrderModal({ isOpen, onClose, product }: CodOrderModalProps) 
                 </div>
               </div>
 
-              {/* Complete Order Button in vibrant #2457D6 */}
+              {/* Complete Order Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold py-3.5 px-4 rounded-xl text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
+                className={`w-full ${
+                  isPrepaid
+                    ? "bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000]"
+                    : "bg-[#2457D6] hover:bg-[#1e47b0]"
+                } text-white font-extrabold py-3.5 px-4 rounded-xl text-xs sm:text-sm tracking-wider uppercase mt-4 cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]`}
               >
                 {isSubmitting ? (
                   <>
                     <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Processing COD Order…</span>
+                    <span>Processing {isPrepaid ? "Prepaid" : "COD"} Order…</span>
                   </>
                 ) : (
-                  <span>COMPLETE ORDER - Rs. {totalPayable.toFixed(2)}</span>
+                  <span>
+                    {isPrepaid
+                      ? `COMPLETE PREPAID ORDER (10% OFF) - Rs. ${totalPayable.toFixed(2)}`
+                      : `COMPLETE COD ORDER - Rs. ${totalPayable.toFixed(2)}`}
+                  </span>
                 )}
               </button>
             </form>

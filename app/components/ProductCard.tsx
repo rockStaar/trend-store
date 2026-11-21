@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { useState, useEffect } from "react";
 
 import { compareMoney, formatPrice, salePercent } from "~/lib/money";
+import { useCartForm } from "~/lib/cart";
+import { openCartDrawer } from "~/lib/cart-drawer";
 
 export const PRODUCT_CARD_FRAGMENT = gql(`
   fragment ProductCard on Product {
@@ -215,24 +217,80 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           </span>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button: Instant Add to Cart */}
         <div className="mt-2.5 sm:mt-3">
-          <Link
-            to={`/products/${product.handle}`}
-            className="w-full py-2 px-2 sm:px-3 rounded-lg bg-[#EAF0FC] hover:bg-[#2457D6] text-[#2457D6] hover:text-white border border-[#d2def5] hover:border-[#2457D6] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs group-hover:bg-[#2457D6] group-hover:text-white group-hover:border-[#2457D6]"
-          >
-            <svg className="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
-            <span className="truncate">{isAvailable ? "Add to Cart" : "Sold Out"}</span>
-          </Link>
+          <ProductCardAddToCart
+            handle={product.handle}
+            variantId={variantId}
+            isAvailable={Boolean(isAvailable)}
+          />
         </div>
       </div>
     </article>
+  );
+}
+
+function ProductCardAddToCart({
+  handle,
+  variantId,
+  isAvailable,
+}: {
+  handle: string;
+  variantId?: string;
+  isAvailable: boolean;
+}) {
+  const { formProps } = useCartForm();
+  const [isAdding, setIsAdding] = useState(false);
+
+  if (!isAvailable) {
+    return (
+      <span className="w-full py-2 px-3 rounded-lg bg-[#F8F7F3] text-[#94A3B8] border border-[#E4E7ED] text-[11px] sm:text-xs font-bold flex items-center justify-center cursor-not-allowed">
+        Sold Out
+      </span>
+    );
+  }
+
+  if (!variantId) {
+    return (
+      <Link
+        to={`/products/${handle}`}
+        className="w-full py-2 px-2 sm:px-3 rounded-lg bg-[#EAF0FC] hover:bg-[#2457D6] text-[#2457D6] hover:text-white border border-[#d2def5] hover:border-[#2457D6] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs group-hover:bg-[#2457D6] group-hover:text-white group-hover:border-[#2457D6]"
+      >
+        <span>View Product</span>
+      </Link>
+    );
+  }
+
+  return (
+    <form
+      {...formProps({
+        beforeSubmit: () => setIsAdding(true),
+        afterSubmit: () => {
+          setIsAdding(false);
+          openCartDrawer();
+        },
+      })}
+      className="w-full"
+    >
+      <input type="hidden" name="merchandiseId" value={variantId} />
+      <input type="hidden" name="quantity" value="1" />
+      <button
+        type="submit"
+        name="intent"
+        value="add"
+        disabled={isAdding}
+        className="w-full py-2 px-2 sm:px-3 rounded-lg bg-[#EAF0FC] hover:bg-[#2457D6] text-[#2457D6] hover:text-white border border-[#d2def5] hover:border-[#2457D6] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs group-hover:bg-[#2457D6] group-hover:text-white group-hover:border-[#2457D6] active:scale-95 disabled:opacity-50"
+      >
+        <svg className="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+          />
+        </svg>
+        <span className="truncate">{isAdding ? "Adding…" : "Add to Cart"}</span>
+      </button>
+    </form>
   );
 }

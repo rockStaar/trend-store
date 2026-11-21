@@ -7,6 +7,42 @@ import { createShopifyCodOrder } from "~/lib/shopify-admin.server";
 import { storefrontClientContext } from "~/lib/storefront";
 import type { Route } from "./+types/checkout.cod";
 
+const INDIAN_STATES = [
+  "Delhi",
+  "Maharashtra",
+  "Karnataka",
+  "Tamil Nadu",
+  "Uttar Pradesh",
+  "Gujarat",
+  "West Bengal",
+  "Telangana",
+  "Rajasthan",
+  "Haryana",
+  "Punjab",
+  "Madhya Pradesh",
+  "Bihar",
+  "Kerala",
+  "Andhra Pradesh",
+  "Assam",
+  "Odisha",
+  "Jharkhand",
+  "Chhattisgarh",
+  "Uttarakhand",
+  "Himachal Pradesh",
+  "Goa",
+  "Jammu and Kashmir",
+  "Chandigarh",
+  "Tripura",
+  "Puducherry",
+  "Manipur",
+  "Meghalaya",
+  "Nagaland",
+  "Mizoram",
+  "Arunachal Pradesh",
+  "Sikkim",
+  "Ladakh",
+];
+
 const COD_CHECKOUT_QUERY = gql(`
   query CodCheckoutProduct($handle: String!) {
     product(handle: $handle) {
@@ -110,6 +146,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     quantity,
     title,
     image,
+    isPrepaidInitial: url.searchParams.get("prepaid") === "1" || url.searchParams.get("prepaid") === "true",
     unitPrice: {
       amount: String(unitPriceAmount),
       currencyCode: currency,
@@ -126,7 +163,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const address = String(formData.get("address") || "").trim();
   const pincode = String(formData.get("pincode") || "").trim();
   const city = String(formData.get("city") || "").trim();
-  const state = String(formData.get("state") || "Delhi").trim();
+  const state = String(formData.get("state") || "").trim();
   const landmark = String(formData.get("landmark") || "").trim();
   const productTitle = String(formData.get("productTitle") || "HypeeeCart Item").trim();
   const variantTitle = String(formData.get("variantTitle") || "").trim();
@@ -151,6 +188,9 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
   if (!city) {
     return { error: "Please specify your city / town." };
+  }
+  if (!state) {
+    return { error: "Please select your state." };
   }
   if (!rawVariantId) {
     return { error: "Missing product variant ID. Please reload the page." };
@@ -249,13 +289,23 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
 
   const [pincode, setPincode] = useState("");
   const [city, setCity] = useState("");
-  const [state, setState] = useState("Delhi");
+  const [state, setState] = useState("");
+  const [paymentMode, setPaymentMode] = useState<"prepaid" | "cod">(
+    loaderData.isPrepaidInitial ? "prepaid" : "cod"
+  );
 
+  const isPrepaid = paymentMode === "prepaid";
   const unitAmount = parseFloat(unitPrice.amount) || 0;
   const rawSubtotal = unitAmount * quantity;
-  const discountPercent = quantity >= 3 ? 25 : quantity === 2 ? 15 : 0;
-  const discountSavings = Math.round(rawSubtotal * (discountPercent / 100));
-  const totalPayable = rawSubtotal - discountSavings;
+  const bundlePercent = quantity >= 3 ? 25 : quantity === 2 ? 15 : 0;
+  const bundleSavings = Math.round(rawSubtotal * (bundlePercent / 100));
+  const subtotalAfterBundle = rawSubtotal - bundleSavings;
+
+  // 10% Off on Prepaid Orders
+  const prepaidPercent = isPrepaid ? 10 : 0;
+  const prepaidSavings = Math.round(subtotalAfterBundle * (prepaidPercent / 100));
+
+  const totalPayable = subtotalAfterBundle - prepaidSavings;
   const deliveryFee = 0;
   const currency = unitPrice.currencyCode || "INR";
 
@@ -437,16 +487,23 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                   <label htmlFor="state" className="block text-xs font-bold text-[#192A46] mb-1.5">
                     State <span className="text-red-600">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="state"
                     name="state"
                     required
-                    placeholder="State"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium"
-                  />
+                    className="w-full bg-[#F8F7F3]/70 border border-[#E4E7ED] rounded-xl px-4 py-3 text-xs sm:text-sm text-[#192A46] focus:outline-none focus:border-[#2457D6] focus:ring-2 focus:ring-[#2457D6]/20 focus:bg-white transition-all font-medium cursor-pointer"
+                  >
+                    <option value="" disabled>
+                      Select State *
+                    </option>
+                    {INDIAN_STATES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -463,39 +520,124 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                 </div>
               </div>
 
-              {/* Payment Method Card in rich site theme */}
-              <div className="p-4 rounded-xl border-2 border-[#2457D6] bg-[#EAF0FC]/60 space-y-2 mt-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">💵</span>
-                    <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
-                      Cash on Delivery (COD) Selected
+              {/* Payment Method Selector */}
+              <div className="space-y-2 mt-4 pt-2 border-t border-[#E4E7ED]">
+                <label className="block text-xs font-bold text-[#192A46]">
+                  Select Payment Method
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Option 1: Prepaid with 10% OFF */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode("prepaid")}
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                      isPrepaid
+                        ? "border-[#FF5000] bg-orange-50/70 ring-2 ring-[#FF5000]/20"
+                        : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5 font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        <span>⚡</span>
+                        <span>Prepaid / Online</span>
+                      </div>
+                      <span className="text-[10px] font-black bg-[#25F476] text-black px-2 py-0.5 rounded shadow-2xs">
+                        10% OFF
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#475569]">
+                      Google Pay, PhonePe, Paytm, UPI, Cards
+                    </p>
+                  </button>
+
+                  {/* Option 2: Cash on Delivery */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode("cod")}
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                      !isPrepaid
+                        ? "border-[#192A46] bg-[#F8F7F3] ring-2 ring-[#192A46]/20"
+                        : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5 font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        <span>💵</span>
+                        <span>Cash on Delivery</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-[#64748B] bg-gray-100 px-1.5 py-0.5 rounded">
+                        Standard
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#64748B]">
+                      Pay cash or UPI upon delivery
+                    </p>
+                  </button>
+                </div>
+                <input type="hidden" name="paymentMode" value={paymentMode} />
+              </div>
+
+              {/* Payment Details Card */}
+              {isPrepaid ? (
+                <div className="p-4 rounded-xl border-2 border-[#FF5000] bg-orange-50/60 space-y-2 mt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">⚡</span>
+                      <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        Prepaid Selected • 10% Discount Active
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                      Save ₹{prepaidSavings}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    No Advance Payment
-                  </span>
+                  <p className="text-[11px] text-[#475569] leading-relaxed">
+                    You save an extra <strong>₹{prepaidSavings}</strong>! You will pay via UPI QR code or Google Pay / PhonePe / Paytm / Cards directly upon confirming.
+                  </p>
                 </div>
-                <p className="text-[11px] text-[#475569] leading-relaxed">
-                  Keep exact cash ready or scan UPI QR code (Google Pay, PhonePe, Paytm, BHIM) directly to the delivery person upon arrival.
-                </p>
-              </div>
+              ) : (
+                <div className="p-4 rounded-xl border-2 border-[#192A46] bg-[#F8F7F3] space-y-2 mt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">💵</span>
+                      <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        Cash on Delivery (COD) Selected
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      No Advance Payment
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#475569] leading-relaxed">
+                    Keep exact cash ready or scan courier UPI QR code (Google Pay, PhonePe, Paytm, BHIM) upon doorstep delivery.
+                  </p>
+                </div>
+              )}
 
               {/* Submit CTA */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#2457D6] hover:bg-[#1e47b0] text-white py-4 px-6 rounded-xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-[0.99]"
+                className={`w-full py-4 px-6 rounded-xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-[0.99] text-white ${
+                  isPrepaid
+                    ? "bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000]"
+                    : "bg-[#192A46] hover:bg-[#282720]"
+                }`}
               >
                 {isSubmitting ? (
                   <>
                     <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Placing Your COD Order…</span>
+                    <span>Processing Your Order…</span>
+                  </>
+                ) : isPrepaid ? (
+                  <>
+                    <span>⚡</span>
+                    <span>Confirm &amp; Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} (10% OFF Applied)</span>
                   </>
                 ) : (
                   <>
                     <span>🔒</span>
-                    <span>Confirm Order • Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} on Delivery</span>
+                    <span>Confirm COD Order • Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} on Delivery</span>
                   </>
                 )}
               </button>
@@ -540,13 +682,23 @@ export default function CodCheckoutPage({ loaderData, actionData }: Route.Compon
                 </span>
               </div>
 
-              {discountSavings > 0 ? (
+              {bundleSavings > 0 ? (
                 <div className="flex justify-between items-center text-xs text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
                   <span className="flex items-center gap-1">
                     <span>🎉</span>
-                    <span>Bundle Discount ({discountPercent}% OFF):</span>
+                    <span>Bundle Discount ({bundlePercent}% OFF):</span>
                   </span>
-                  <span>- {formatPrice({ amount: discountSavings.toFixed(2), currencyCode: currency })}</span>
+                  <span>- {formatPrice({ amount: bundleSavings.toFixed(2), currencyCode: currency })}</span>
+                </div>
+              ) : null}
+
+              {isPrepaid && prepaidSavings > 0 ? (
+                <div className="flex justify-between items-center text-xs text-orange-950 font-bold bg-orange-50 px-2.5 py-1.5 rounded-lg border border-orange-200">
+                  <span className="flex items-center gap-1">
+                    <span>⚡</span>
+                    <span>Prepaid Discount (10% OFF):</span>
+                  </span>
+                  <span className="text-[#D93800]">- {formatPrice({ amount: prepaidSavings.toFixed(2), currencyCode: currency })}</span>
                 </div>
               ) : null}
 

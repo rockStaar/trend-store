@@ -899,39 +899,6 @@ function TrustedPaymentsAndTimeline() {
 
   return (
     <div className="space-y-4 my-5">
-      {/* 100% Secure & Trusted Payments Panel */}
-      <div className="border border-[#E4E7ED] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#192A46]">
-          <span>🔒</span>
-          <span>100% Secure &amp; Trusted Payments</span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          <div className="border border-[#E4E7ED] rounded-xl p-2.5 text-center bg-[#F8F7F3] flex flex-col items-center justify-center gap-1">
-            <span className="text-lg">💳</span>
-            <span className="text-[11px] font-semibold text-[#192A46] leading-tight">
-              Debit / Credit Card
-            </span>
-          </div>
-          <div className="border border-[#E4E7ED] rounded-xl p-2.5 text-center bg-[#F8F7F3] flex flex-col items-center justify-center gap-1">
-            <span className="text-lg">📱</span>
-            <span className="text-[11px] font-semibold text-[#192A46] leading-tight">
-              UPI &amp; Wallets
-            </span>
-          </div>
-          <div className="border border-[#E4E7ED] rounded-xl p-2.5 text-center bg-[#F8F7F3] flex flex-col items-center justify-center gap-1">
-            <span className="text-lg">🏛️</span>
-            <span className="text-[11px] font-semibold text-[#192A46] leading-tight">
-              Net Banking
-            </span>
-          </div>
-        </div>
-
-        <p className="text-[11px] text-[#64748B] text-center">
-          Payments secured with bank-grade encryption &amp; trusted Indian gateways
-        </p>
-      </div>
-
       {/* 3-Stage Delivery Timeline */}
       <div className="border border-[#E4E7ED] bg-white rounded-2xl p-4 sm:p-5 shadow-2xs">
         <div className="relative flex items-center justify-between">
@@ -1458,11 +1425,19 @@ function ProductInfo({
   const { options, register, formProps, errors, pending } = useProductForm();
   const addable = canAddToCart(product, options);
   const [isCodModalOpen, setIsCodModalOpen] = useState(false);
+  const [modalPrepaidMode, setModalPrepaidMode] = useState(false);
 
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
   const unitAmount = parseFloat(price.amount) || 0;
   const sanitizedTitle = filterSupplierNames(product.title);
   const isHeater = (product.title + " " + product.handle).toLowerCase().includes("heater");
+
+  const registeredMerchandise = register("merchandiseId", {});
+  const variantIdToUse =
+    registeredMerchandise.value ||
+    selectedVariant?.id ||
+    product.selectedOrFirstAvailableVariant?.id ||
+    "";
 
   return (
     <div className="flex flex-col gap-0">
@@ -1503,49 +1478,86 @@ function ProductInfo({
       <PriceBlock product={product} selectedVariant={selectedVariant} />
       <InventoryHint selectedVariant={selectedVariant} />
 
-      {/* 5. BUY NOW & CASH ON DELIVERY (Positioned right under Price) */}
+      {/* 5. BUY NOW & CASH ON DELIVERY (With 10% Off on Prepaid Orders) */}
       <div
         id="buy-now-and-cod-section"
-        className="space-y-2.5 my-3.5 p-2 rounded-2xl border border-transparent transition-all scroll-mt-24"
+        className="space-y-2.5 my-3.5 scroll-mt-24 transition-all"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {/* Primary CTA: BUY NOW */}
+        {/* ── 1. BUY NOW BUTTON (10% Off on Prepaid Orders) ── */}
+        <div className="relative pt-2.5">
+          {/* Perched Green Badge on Top-Left */}
+          <div className="absolute top-0 left-3 z-10">
+            <span className="inline-flex items-center gap-1 bg-[#25F476] text-black text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-t-md shadow-xs uppercase tracking-tight">
+              <span>⚡</span>
+              <span>10% Off on Prepaid Orders</span>
+            </span>
+          </div>
+
           <Link
-            to={`/checkout/cod?handle=${product.handle}&quantity=${quantity}&variant=${selectedVariant?.id || ""}`}
-            className="w-full h-12 sm:h-13 rounded-xl bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-md hover:shadow-lg active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 group"
-            data-testid="buy-now-button"
+            to={`/checkout/cod?handle=${product.handle}&quantity=${quantity}&variant=${selectedVariant?.id || ""}&prepaid=1`}
+            className="relative w-full h-13 sm:h-14 rounded-xl bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000] text-white font-extrabold text-sm sm:text-base tracking-wide shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-between px-4 sm:px-6 cursor-pointer group"
+            data-testid="buy-now-prepaid-button"
           >
-            <span className="text-base group-hover:scale-110 transition-transform">⚡</span>
-            <span>BUY NOW</span>
-            <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase">
-              Fast
+            <div className="flex items-center gap-2 sm:gap-3 mx-auto">
+              <span className="text-base sm:text-lg font-black tracking-wide">Buy Now</span>
+              {/* Payment brand icons */}
+              <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full">
+                {/* Google Pay */}
+                <div className="size-4.5 rounded-full bg-white flex items-center justify-center p-0.5 shadow-2xs shrink-0">
+                  <svg viewBox="0 0 24 24" className="size-3">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.04h3.88c2.27-2.09 3.665-5.17 3.665-9.14z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.92l-3.88-3.04c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.27 21.43 7.33 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.6H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.4l4.03-3.13z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.27 2.57 1.25 6.6l4.03 3.13c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                  </svg>
+                </div>
+                {/* PhonePe */}
+                <div className="size-4.5 rounded-full bg-[#5F259F] text-white flex items-center justify-center font-bold text-[9px] shadow-2xs shrink-0">
+                  पे
+                </div>
+                {/* Paytm */}
+                <div className="size-4.5 rounded-full bg-white flex items-center justify-center text-[7px] font-black text-[#002E6E] shadow-2xs px-0.5 shrink-0">
+                  <span className="text-[#00BAF2]">pay</span>tm
+                </div>
+                {/* UPI */}
+                <div className="h-4.5 px-1 rounded bg-white flex items-center justify-center text-[8px] font-black text-[#192A46] shadow-2xs shrink-0">
+                  UPI
+                </div>
+              </div>
+              <span className="text-xl font-bold group-hover:translate-x-1 transition-transform">›</span>
+            </div>
+            <span className="absolute right-3.5 bottom-1 text-[8px] text-white/80 font-medium hidden sm:inline">
+              ⚡ Instant 10% Off
             </span>
           </Link>
-
-          {/* Secondary CTA: ORDER NOW — CASH ON DELIVERY */}
-          <button
-            type="button"
-            onClick={() => setIsCodModalOpen(true)}
-            disabled={!addable}
-            className="cod-animated-btn w-full h-12 sm:h-13 rounded-xl bg-white text-[#192A46] border-2 border-[#192A46] font-extrabold text-sm sm:text-base tracking-wide shadow-sm hover:bg-[#F8F7F3] active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-            data-testid="order-now-cod"
-          >
-            <span className="text-lg">💵</span>
-            <span>Order Now – COD</span>
-            <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-              Zero Risk
-            </span>
-          </button>
         </div>
 
-        {/* Optional Add to Cart link for multi-product shoppers */}
-        <div className="flex items-center justify-center pt-1">
+        {/* ── 2. CASH ON DELIVERY (COD) BUTTON ── */}
+        <button
+          type="button"
+          onClick={() => {
+            setModalPrepaidMode(false);
+            setIsCodModalOpen(true);
+          }}
+          disabled={!addable}
+          className="w-full h-12 sm:h-13 rounded-xl bg-black hover:bg-neutral-900 text-white font-extrabold text-sm sm:text-base tracking-wide shadow-sm active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          data-testid="order-now-cod"
+        >
+          <span className="text-lg">💵</span>
+          <span>Order via Cash on Delivery</span>
+          <span className="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
+            Zero Risk
+          </span>
+        </button>
+
+        {/* ── 3. ADD TO CART OPTION ── */}
+        <div className="flex items-center justify-center pt-0.5">
           <form {...formProps({ afterSubmit: openCartDrawer })} className="w-full">
-            <input type="hidden" {...register("merchandiseId", {})} />
+            <input type="hidden" name="merchandiseId" value={variantIdToUse} />
             <input type="hidden" name="quantity" value={quantity} />
             <button
               {...register("addToCart", {})}
-              className="w-full py-2 text-xs font-bold text-[#64748B] hover:text-[#2457D6] transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="w-full py-2.5 text-xs font-bold text-[#64748B] hover:text-[#2457D6] transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               disabled={!addable || pending}
               data-testid="add-to-cart"
             >
@@ -1629,6 +1641,7 @@ function ProductInfo({
         <CodOrderModal
           isOpen={isCodModalOpen}
           onClose={() => setIsCodModalOpen(false)}
+          initialPrepaid={modalPrepaidMode}
           product={{
             id: selectedVariant?.id ?? product.selectedOrFirstAvailableVariant?.id ?? product.id,
             title: sanitizedTitle,
@@ -1727,7 +1740,6 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
   const addable = canAddToCart(product, options);
   const primaryImage = product.featuredImage ?? product.images.nodes[0];
   const price = selectedVariant?.price ?? product.priceRange.minVariantPrice;
-  const [isCodModalOpen, setIsCodModalOpen] = useState(false);
   const sanitizedTitle = filterSupplierNames(product.title);
 
   const scrollToBuyNowAndCod = () => {
@@ -1771,45 +1783,23 @@ function StickyMobileBuyBar({ product }: { product: ProductData }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-1 justify-end">
+          <div className="flex items-center flex-1 justify-end">
             {/* Always show Buy Now on mobile and lead to buy now and cod above */}
             <button
               type="button"
               onClick={scrollToBuyNowAndCod}
-              className="flex-1 h-11 bg-[#2457D6] hover:bg-[#1e47b0] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-1 active:scale-95 cursor-pointer transition-transform"
+              className="relative w-full h-11 bg-gradient-to-r from-[#FF5000] to-[#FF3800] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer transition-transform"
               data-testid="mobile-sticky-buy-now"
             >
+              <span className="absolute -top-2 left-3 bg-[#25F476] text-black text-[9px] font-black px-1.5 py-0.2 rounded shadow-2xs">
+                10% OFF
+              </span>
               <span>⚡</span>
               <span>Buy Now</span>
-            </button>
-
-            {/* Direct Cash on Delivery Button */}
-            <button
-              type="button"
-              onClick={() => setIsCodModalOpen(true)}
-              disabled={!addable}
-              className="cod-animated-btn h-11 px-3 bg-white text-[#192A46] border-2 border-[#192A46] font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1 active:scale-95 cursor-pointer disabled:opacity-50"
-              title="Instant Cash on Delivery"
-            >
-              <span>💵</span>
-              <span>COD</span>
             </button>
           </div>
         </div>
       </aside>
-
-      <CodOrderModal
-        isOpen={isCodModalOpen}
-        onClose={() => setIsCodModalOpen(false)}
-        product={{
-          id: selectedVariant?.id ?? product.selectedOrFirstAvailableVariant?.id ?? product.id,
-          title: sanitizedTitle,
-          variantTitle: selectedVariant?.title !== "Default Title" ? selectedVariant?.title : undefined,
-          image: primaryImage?.url,
-          quantity: 1,
-          unitPrice: price,
-        }}
-      />
     </>
   );
 }

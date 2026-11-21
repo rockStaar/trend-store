@@ -127,17 +127,31 @@ export default function CartRoute() {
               </div>
             </div>
 
-            {cart.checkoutUrl ? (
-              <div className="mt-4 space-y-2.5">
-                <a
-                  href={cart.checkoutUrl}
-                  className="bg-[#2457D6] hover:opacity-90 text-white inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all active:scale-[0.98]"
-                >
-                  🔒 Proceed to Checkout
-                </a>
-                <ShopPayButton width="100%" borderRadius="8px" />
-              </div>
-            ) : null}
+            <div className="mt-4 space-y-2.5">
+              {/* Prepaid Checkout (10% OFF) */}
+              <Link
+                to="/checkout/cod?prepaid=1"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-[#FF5000] to-[#FF3800] hover:from-[#E64600] hover:to-[#D93000] text-white font-extrabold text-sm tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+              >
+                <span>⚡</span>
+                <span>PROCEED TO CHECKOUT (10% OFF)</span>
+              </Link>
+
+              {/* Cash on Delivery option */}
+              <Link
+                to="/checkout/cod"
+                className="w-full h-11 rounded-xl bg-white hover:bg-[#F8F7F3] text-[#192A46] border-2 border-[#192A46] font-extrabold text-xs tracking-wide shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-[0.98]"
+              >
+                <span>💵</span>
+                <span>ORDER VIA CASH ON DELIVERY</span>
+              </Link>
+
+              {cart.checkoutUrl ? (
+                <div className="pt-1">
+                  <ShopPayButton width="100%" borderRadius="8px" />
+                </div>
+              ) : null}
+            </div>
 
             {/* Trust assurances */}
             <div className="pt-3 border-t border-[#E4E7ED] space-y-2 text-xs text-[#64748B]">
