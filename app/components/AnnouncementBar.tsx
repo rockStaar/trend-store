@@ -1,69 +1,76 @@
-import { useEffect, useState } from "react";
-
 interface Announcement {
   id: string;
   text: string;
   highlight?: string;
 }
 
-// Store promotional and shipping announcements with COD leading
 const ANNOUNCEMENTS: Announcement[] = [
-  {
-    id: "cod",
-    text: "💵 Cash on Delivery (COD) Available across all Indian pin codes",
-  },
-  {
-    id: "shipping",
-    text: "🚚 100% Free Express Delivery across India on",
-    highlight: "ALL Orders",
-  },
-  {
-    id: "dispatch",
-    text: "⚡ Orders dispatched within 24 hrs with live WhatsApp tracking —",
-    highlight: "3–5 Day Delivery",
-  },
   {
     id: "tagline",
     text: "✨ Discover more at HypeeeCart | Everyday favourites, thoughtful finds",
   },
+  {
+    id: "prepaid",
+    text: "⚡ 10% Instant Discount on All Prepaid Orders (UPI / GPay / PhonePe / Cards)",
+    highlight: "Auto-Applied",
+  },
+  {
+    id: "shipping",
+    text: "🚚 100% Free Express Delivery Across India on",
+    highlight: "ALL Orders",
+  },
+  {
+    id: "dispatch",
+    text: "📦 Orders Dispatched Within 24 Hrs with Live WhatsApp Tracking —",
+    highlight: "3–5 Day Delivery",
+  },
+  {
+    id: "replacement",
+    text: "🛡️ 5-Day Free Replacement Guarantee on all items",
+  },
+  {
+    id: "cod",
+    text: "💵 Cash on Delivery Available Pan-India",
+  },
 ];
 
 export function AnnouncementBar() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    if (ANNOUNCEMENTS.length <= 1) return;
-    const timer = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
-        setVisible(true);
-      }, 200);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
-
-  if (ANNOUNCEMENTS.length === 0) return null;
-  const current = ANNOUNCEMENTS[currentIndex];
-
   return (
     <div
       role="region"
       aria-label="Store Announcements"
-      className="bg-[#2457D6] text-white px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold tracking-wide border-b border-[#2457D6]/30 shadow-xs transition-colors min-h-[34px] sm:min-h-[38px] flex items-center justify-center"
+      className="bg-[#2457D6] text-white py-2 text-[11px] sm:text-xs font-semibold tracking-wide border-b border-[#2457D6]/30 shadow-xs overflow-hidden select-none cursor-default"
     >
-      <div
-        className={`max-w-page mx-auto flex items-center justify-center gap-1.5 text-center transition-opacity duration-200 text-white leading-tight ${
-          visible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <span className="text-white drop-shadow-2xs line-clamp-1 sm:line-clamp-none">{current.text}</span>
-        {current.highlight ? (
-          <span className="font-extrabold text-white underline decoration-white/70 decoration-1 underline-offset-2 shrink-0">
-            {current.highlight}
-          </span>
-        ) : null}
+      <div className="flex overflow-hidden w-full">
+        <div className="animate-marquee flex items-center shrink-0">
+          {ANNOUNCEMENTS.map((item, idx) => (
+            <div key={`track1-${item.id}-${idx}`} className="flex items-center shrink-0">
+              <span className="text-white drop-shadow-2xs">{item.text}</span>
+              {item.highlight ? (
+                <span className="font-extrabold text-white underline decoration-white/80 decoration-1 underline-offset-2 ml-1">
+                  {item.highlight}
+                </span>
+              ) : null}
+              <span className="mx-6 sm:mx-8 text-white/40">•</span>
+            </div>
+          ))}
+          {/* Duplicate set for 100% seamless, non-breaking continuous loop */}
+          {ANNOUNCEMENTS.map((item, idx) => (
+            <div
+              key={`track2-${item.id}-${idx}`}
+              className="flex items-center shrink-0"
+              aria-hidden="true"
+            >
+              <span className="text-white drop-shadow-2xs">{item.text}</span>
+              {item.highlight ? (
+                <span className="font-extrabold text-white underline decoration-white/80 decoration-1 underline-offset-2 ml-1">
+                  {item.highlight}
+                </span>
+              ) : null}
+              <span className="mx-6 sm:mx-8 text-white/40">•</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

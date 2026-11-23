@@ -244,150 +244,208 @@ export function Header({
   return (
     <header className="border-b border-[#E4E7ED] bg-white sticky top-0 z-40 shadow-xs transition-colors">
       {/* ── Main Header Row ── */}
-      <div className="max-w-page px-3 sm:px-margin mx-auto flex h-14 sm:h-20 w-full items-center justify-between gap-2 sm:gap-4">
-        {/* Mobile menu + Logo + Shop by Category dropdown */}
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-4 shrink-0">
-          <div className="-ms-1 sm:-ms-2 lg:hidden shrink-0" data-hamburger-wrapper>
+      <div className="max-w-page px-3 sm:px-margin mx-auto">
+        {/* ── Mobile Layout (under md): Hamburger Left, Center BIG Highlighted Logo, Wishlist + Cart Right ── */}
+        <div className="flex md:hidden w-full items-center justify-between h-15 sm:h-16 relative">
+          <div className="shrink-0 -ms-1" data-hamburger-wrapper>
             <MobileNavTrigger />
           </div>
-          <Link
-            to="/"
-            aria-label={shopInfo.name || "HypeeeCart"}
-            title={shopInfo.name || "HypeeeCart"}
-            className="text-[#192A46] focus-visible:outline-[#2457D6] inline-flex items-center rounded-sm no-underline group"
-          >
-            <img
-              src="/logo.png"
-              alt={shopInfo.name || "HypeeeCart"}
-              className="h-8 sm:h-11 w-auto object-contain transition-transform group-hover:scale-[1.02]"
-            />
-          </Link>
 
-          {/* Functional "Shop by Category" Dropdown (Desktop & Tablet) */}
-          <div className="hidden sm:inline-block">
-            <CategoryDropdown collections={allCollections} />
-          </div>
-        </div>
-
-        {/* ── Desktop Navigation Links ── */}
-        <nav
-          aria-label="Main navigation"
-          className="hidden xl:flex items-center gap-6 text-xs font-bold uppercase tracking-wider text-[#192A46]"
-        >
-          <Link to="/" className="text-[#2457D6] hover:text-[#2457D6] transition-colors">
-            HOME
-          </Link>
-          <Link to="/#trending" className="hover:text-[#2457D6] transition-colors">
-            BESTSELLERS
-          </Link>
-          <Link to="/#trending" className="hover:text-[#2457D6] transition-colors">
-            NEW ARRIVALS
-          </Link>
-          <Link to="/collections" className="hover:text-[#2457D6] transition-colors">
-            COLLECTIONS
-          </Link>
-        </nav>
-
-        {/* ── Search Input (Desktop) ── */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className="hidden md:flex flex-1 max-w-xs lg:max-w-sm mx-2 relative items-center"
-          role="search"
-        >
-          <div className="relative w-full">
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products, brands and more..."
-              className="w-full bg-[#F8F7F3] border border-[#E4E7ED] rounded-full py-2 ps-4 pe-9 text-xs text-[#192A46] placeholder:text-[#64748B] focus:outline-none focus:border-[#2457D6] focus:bg-white transition-all shadow-inner/5"
-            />
-            <button
-              type="submit"
-              aria-label="Submit search"
-              className="absolute end-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#2457D6] transition-colors cursor-pointer"
+          {/* Centered Big Highlighted Logo */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+            <Link
+              to="/"
+              aria-label={shopInfo.name || "HypeeeCart"}
+              title={shopInfo.name || "HypeeeCart"}
+              className="group relative inline-flex items-center justify-center p-1 transition-all"
             >
-              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <img
+                src="/logo.png"
+                alt={shopInfo.name || "HypeeeCart"}
+                className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 filter drop-shadow-[0_2px_10px_rgba(36,87,214,0.22)]"
+              />
+            </Link>
+          </div>
+
+          {/* Right Action Icons (Wishlist & Cart) */}
+          <div className="flex shrink-0 items-center gap-1">
+            {/* Wishlist Link / Trigger */}
+            <Link
+              to="/#trending"
+              className="relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
+              aria-label={`Wishlist (${wishlistCount} items)`}
+              title="Saved items"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  strokeWidth={1.8}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-            </button>
+              <span className="bg-[#192A46] text-white absolute end-0 top-0.5 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
+                {displayCount(wishlistCount)}
+              </span>
+            </Link>
+
+            {/* Cart Trigger */}
+            <Link
+              to="/cart"
+              className="relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
+              aria-label={cartCountLabel(totalQuantity)}
+              aria-controls={CART_DRAWER_ID}
+              aria-haspopup="dialog"
+              data-testid="cart-trigger"
+              onClick={(event) => openDialogFromLinkClick(event, CART_DRAWER_ID)}
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              <span className="bg-[#2457D6] text-white absolute end-0 top-0.5 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
+                {displayCount(totalQuantity)}
+              </span>
+            </Link>
           </div>
-        </form>
+        </div>
 
-        {/* ── Action Icons on Right (Account, Wishlist, Cart) ── */}
-        <div className="flex shrink-0 items-center gap-0.5 sm:gap-2">
-          {/* Account Link (Desktop/Tablet) */}
-          <Link
-            to="/account"
-            className="hidden sm:inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
-            aria-label="Account"
-            title="Customer Account"
-          >
-            <svg className="size-5 sm:size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </Link>
+        {/* ── Desktop Layout (md and up): Left Nav/Category, Center BIG Highlighted Logo, Right Search/Actions ── */}
+        <div className="hidden md:flex w-full items-center justify-between gap-4 h-20">
+          {/* Left: Category Dropdown & Nav Links */}
+          <div className="flex items-center gap-4 lg:gap-6 shrink-0 min-w-0">
+            <CategoryDropdown collections={allCollections} />
+            <nav
+              aria-label="Main navigation"
+              className="hidden lg:flex items-center gap-4 xl:gap-6 text-xs font-bold uppercase tracking-wider text-[#192A46]"
+            >
+              <Link to="/" className="text-[#2457D6] hover:text-[#2457D6] transition-colors">
+                HOME
+              </Link>
+              <Link to="/#trending" className="hover:text-[#2457D6] transition-colors">
+                BESTSELLERS
+              </Link>
+              <Link to="/#trending" className="hover:text-[#2457D6] transition-colors">
+                NEW ARRIVALS
+              </Link>
+              <Link to="/collections" className="hover:text-[#2457D6] transition-colors">
+                COLLECTIONS
+              </Link>
+            </nav>
+          </div>
 
-          {/* Wishlist Link / Trigger */}
-          <Link
-            to="/#trending"
-            className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
-            aria-label={`Wishlist (${wishlistCount} items)`}
-            title="Saved items"
-          >
-            <svg className="size-5 sm:size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          {/* Center: BIG HIGHLIGHTED LOGO */}
+          <div className="flex shrink-0 items-center justify-center">
+            <Link
+              to="/"
+              aria-label={shopInfo.name || "HypeeeCart"}
+              title={shopInfo.name || "HypeeeCart"}
+              className="group relative inline-flex items-center justify-center px-3 py-1.5 rounded-2xl transition-all"
+            >
+              <img
+                src="/logo.png"
+                alt={shopInfo.name || "HypeeeCart"}
+                className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105 filter drop-shadow-[0_3px_12px_rgba(36,87,214,0.25)]"
               />
-            </svg>
-            <span className="bg-[#192A46] text-white absolute end-0 top-0.5 sm:top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
-              {displayCount(wishlistCount)}
-            </span>
-          </Link>
+            </Link>
+          </div>
 
-          {/* Cart Trigger */}
-          <Link
-            to="/cart"
-            className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
-            aria-label={cartCountLabel(totalQuantity)}
-            aria-controls={CART_DRAWER_ID}
-            aria-haspopup="dialog"
-            data-testid="cart-trigger"
-            onClick={(event) => openDialogFromLinkClick(event, CART_DRAWER_ID)}
-          >
-            <svg className="size-5 sm:size-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+          {/* Right: Search + Account + Wishlist + Cart */}
+          <div className="flex items-center gap-2 lg:gap-3 shrink-0">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="relative w-40 lg:w-52 xl:w-64"
+              role="search"
+            >
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products..."
+                className="w-full bg-[#F8F7F3] border border-[#E4E7ED] rounded-full py-1.5 ps-3.5 pe-8 text-xs text-[#192A46] placeholder:text-[#64748B] focus:outline-none focus:border-[#2457D6] focus:bg-white transition-all shadow-inner/5"
               />
-            </svg>
-            <span className="bg-[#2457D6] text-white absolute end-0 top-0.5 sm:top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
-              {displayCount(totalQuantity)}
-            </span>
-          </Link>
-          <span aria-live="polite" aria-atomic="true" className="sr-only">
-            {liveCartCountLabel(totalQuantity)}
-          </span>
+              <button
+                type="submit"
+                aria-label="Submit search"
+                className="absolute end-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#2457D6] transition-colors cursor-pointer"
+              >
+                <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button>
+            </form>
+
+            <Link
+              to="/account"
+              className="inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
+              aria-label="Account"
+              title="Customer Account"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </Link>
+
+            <Link
+              to="/#trending"
+              className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
+              aria-label={`Wishlist (${wishlistCount} items)`}
+              title="Saved items"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <span className="bg-[#192A46] text-white absolute end-0 top-0.5 sm:top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
+                {displayCount(wishlistCount)}
+              </span>
+            </Link>
+
+            <Link
+              to="/cart"
+              className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 cursor-pointer items-center justify-center rounded-full text-[#192A46] hover:text-[#2457D6] hover:bg-[#F8F7F3] transition-colors"
+              aria-label={cartCountLabel(totalQuantity)}
+              aria-controls={CART_DRAWER_ID}
+              aria-haspopup="dialog"
+              data-testid="cart-trigger"
+              onClick={(event) => openDialogFromLinkClick(event, CART_DRAWER_ID)}
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              <span className="bg-[#2457D6] text-white absolute end-0 top-0.5 sm:top-1 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full px-1 text-[10px] font-bold shadow-xs">
+                {displayCount(totalQuantity)}
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* ── Mobile Instant Search Bar ── */}
-      <div className="md:hidden px-3 pb-2 pt-0.5 border-b border-[#E4E7ED]/70 bg-white">
+      <div className="md:hidden px-3 pb-2.5 pt-0.5 border-b border-[#E4E7ED]/70 bg-white">
         <form
           onSubmit={handleSearchSubmit}
           className="relative w-full flex items-center"
@@ -416,89 +474,6 @@ export function Header({
           </button>
         </form>
       </div>
-
-      {/* ── Mobile Category Quick Strip ── */}
-      <div className="md:hidden bg-[#FAF8F5] border-b border-[#E4E7ED] px-3 py-1.5 flex items-center gap-2 overflow-x-auto scrollbar-none text-[11px] font-bold text-[#192A46]">
-        <Link
-          to="/"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-[#2457D6] text-white shadow-2xs"
-        >
-          All
-        </Link>
-        <Link
-          to="/#top-categories"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#2457D6] transition-colors"
-        >
-          Categories
-        </Link>
-        <Link
-          to="/#trending"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#2457D6] transition-colors flex items-center gap-1"
-        >
-          <span>🔥</span>
-          <span>Trending</span>
-        </Link>
-        <Link
-          to="/#home-kitchen"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#2457D6] transition-colors"
-        >
-          Home &amp; Kitchen
-        </Link>
-        <Link
-          to="/#special-offers"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#D93636] hover:border-[#D93636] transition-colors"
-        >
-          Offers %
-        </Link>
-        <Link
-          to="/search?q=under+299"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#192A46] hover:border-[#2457D6] transition-colors"
-        >
-          Under ₹299
-        </Link>
-        <Link
-          to="/collections"
-          className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#E4E7ED] text-[#2457D6] hover:border-[#2457D6] transition-colors"
-        >
-          All Catalog →
-        </Link>
-      </div>
-
-      {/* ── Category Quick Navigation Bar (Desktop) ── */}
-      <nav
-        aria-label="Category navigation"
-        className="hidden md:block border-t border-[#E4E7ED] bg-[#F8F7F3]"
-      >
-        <div className="max-w-page px-margin mx-auto flex items-center gap-6 overflow-x-auto py-2 text-xs font-semibold text-[#192A46] scrollbar-none">
-          <Link to="/" className="text-[#2457D6] hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            All Categories
-          </Link>
-          <Link to="/#top-categories" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Top Categories
-          </Link>
-          <Link to="/#trending" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Trending Now
-          </Link>
-          <Link to="/#home-kitchen" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Home &amp; Kitchen
-          </Link>
-          <Link to="/#special-offers" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Special Offers
-          </Link>
-          <Link to="/#smart-upgrades" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Smart Little Upgrades
-          </Link>
-          <Link to="/#health-care" className="hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Health &amp; Care
-          </Link>
-          <Link to="/search?q=under+299" className="text-[#2457D6] hover:text-[#2457D6] whitespace-nowrap transition-colors">
-            Under ₹299
-          </Link>
-          <Link to="/#shopping-guide" className="hover:text-[#2457D6] whitespace-nowrap transition-colors ms-auto">
-            Shopping Guide &amp; FAQ
-          </Link>
-        </div>
-      </nav>
 
       <MobileNav collections={allCollections} />
     </header>
