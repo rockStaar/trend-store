@@ -12,6 +12,8 @@ export default [
   route("api/reviews", "routes/api.reviews.ts"),
   route("api/checkout", "routes/api.checkout.ts"),
   route("api/cod-order", "routes/api.cod-order.ts"),
+  route("api/razorpay/create-order", "routes/api.razorpay.create-order.ts"),
+  route("api/razorpay/verify-order", "routes/api.razorpay.verify-order.ts"),
   route("checkout/cod", "routes/checkout.cod.tsx"),
   route("order-confirmed", "routes/order-confirmed.tsx"),
   route("*", "routes/catchall.tsx"),

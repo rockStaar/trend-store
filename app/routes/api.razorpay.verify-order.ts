@@ -1,7 +1,6 @@
-import { data } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { envContext } from "~/lib/env";
 import { createShopifyCodOrder } from "~/lib/shopify-admin.server";
-import type { Route } from "./+types/api.razorpay.verify-order";
 
 async function verifyRazorpaySignature(
   orderId: string,
@@ -29,16 +28,16 @@ async function verifyRazorpaySignature(
   }
 }
 
-export async function action({ request, context }: Route.ActionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
   try {
     const env = context.get(envContext);
     const contentType = request.headers.get("content-type") || "";
     let body: any = {};
 
     if (contentType.includes("application/json")) {
-      body = await request.json();
+      body = await request.json().catch(() => ({}));
     } else {
-      const formData = await request.formData();
+      const formData = await request.formData().catch(() => new FormData());
       body = Object.fromEntries(formData.entries());
     }
 
@@ -47,17 +46,22 @@ export async function action({ request, context }: Route.ActionArgs) {
     const razorpaySignature = String(body.razorpay_signature || "").trim();
 
     if (!razorpayPaymentId) {
-      return data(
+      return Response.json(
         { success: false, error: "Missing Razorpay payment confirmation ID." },
-        { status: 400 },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Optional cryptographic verification if Secret is configured and order_id was created
+    const keyId =
+      env?.RAZORPAY_KEY_ID ||
+      (typeof process !== "undefined" ? process.env.RAZORPAY_KEY_ID : "") ||
+      "";
     const keySecret =
       env?.RAZORPAY_KEY_SECRET ||
-      (typeof process !== "undefined" ? process.env.RAZORPAY_KEY_SECRET : "");
+      (typeof process !== "undefined" ? process.env.RAZORPAY_KEY_SECRET : "") ||
+      "";
 
+    // 1. Cryptographic HMAC-SHA256 signature verification
     if (keySecret && razorpayOrderId && razorpaySignature) {
       const isValid = await verifyRazorpaySignature(
         razorpayOrderId,
@@ -66,17 +70,53 @@ export async function action({ request, context }: Route.ActionArgs) {
         keySecret.trim(),
       );
       if (!isValid) {
-        return data(
+        console.error("Razorpay signature mismatch for order:", razorpayOrderId);
+        return Response.json(
           {
             success: false,
-            error: "Payment signature verification failed. Please contact support.",
+            error: "Payment signature verification failed. Untrusted payment payload.",
           },
-          { status: 400 },
+          { status: 400, headers: { "Content-Type": "application/json" } },
         );
       }
     }
 
-    // Extract order payload details
+    // 2. Direct server-to-server payment status verification with Razorpay API
+    if (keyId && keySecret) {
+      try {
+        const credentials = btoa(`${keyId.trim()}:${keySecret.trim()}`);
+        const rzpPayRes = await fetch(
+          `https://api.razorpay.com/v1/payments/${encodeURIComponent(razorpayPaymentId)}`,
+          {
+            headers: { Authorization: `Basic ${credentials}` },
+          },
+        );
+        if (rzpPayRes.ok) {
+          const rzpPayData = (await rzpPayRes.json().catch(() => null)) as any;
+          if (
+            rzpPayData &&
+            rzpPayData.status !== "captured" &&
+            rzpPayData.status !== "authorized"
+          ) {
+            console.error(
+              "Razorpay reported unconfirmed payment status:",
+              rzpPayData.status,
+            );
+            return Response.json(
+              {
+                success: false,
+                error: `Razorpay reported payment status: "${rzpPayData.status}". Order cannot be marked as paid.`,
+              },
+              { status: 400, headers: { "Content-Type": "application/json" } },
+            );
+          }
+        }
+      } catch (err) {
+        console.warn("Could not query Razorpay payment status API:", err);
+      }
+    }
+
+    // Extract customer and order details
     const variantId = String(body.variantId || "").trim();
     const name = String(body.name || "").trim();
     const nameParts = name.split(" ");
@@ -94,7 +134,9 @@ export async function action({ request, context }: Route.ActionArgs) {
     const productImage = String(body.productImage || "").trim();
     const quantity = Math.max(1, parseInt(String(body.quantity || "1"), 10));
     const totalAmount = parseFloat(String(body.totalAmount || "0")) || 0;
-    const unitPrice = parseFloat(String(body.unitPrice || "0")) || (quantity > 0 ? totalAmount / quantity : 0);
+    const unitPrice =
+      parseFloat(String(body.unitPrice || "0")) ||
+      (quantity > 0 ? totalAmount / quantity : 0);
     const discountAmount = parseFloat(String(body.discountAmount || "0")) || 0;
     const idempotencyKey = `prepaid_${phone}_${variantId}_${razorpayPaymentId}`;
 
@@ -127,20 +169,26 @@ export async function action({ request, context }: Route.ActionArgs) {
     });
 
     if (!result.success) {
-      console.error("Shopify order creation after Razorpay payment failed:", result.error);
-      return data(
+      console.error(
+        "Shopify order creation after Razorpay payment failed:",
+        result.error,
+      );
+      return Response.json(
         {
           success: false,
           error: `Payment was recorded (${razorpayPaymentId}), but Shopify order sync returned: ${result.error}`,
         },
-        { status: result.status },
+        { status: result.status, headers: { "Content-Type": "application/json" } },
       );
     }
 
     const verifiedRecord = result.order;
 
     // Optional Supabase Mirror
-    if (env?.SUPABASE_URL && (env?.SUPABASE_SERVICE_ROLE_KEY || env?.SUPABASE_ANON_KEY)) {
+    if (
+      env?.SUPABASE_URL &&
+      (env?.SUPABASE_SERVICE_ROLE_KEY || env?.SUPABASE_ANON_KEY)
+    ) {
       const apiKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY || "";
       try {
         await fetch(`${env.SUPABASE_URL}/rest/v1/cod_orders`, {
@@ -185,21 +233,27 @@ export async function action({ request, context }: Route.ActionArgs) {
       phone,
     )}&total=${encodeURIComponent(
       verifiedRecord.totalAmount,
-    )}&product=${encodeURIComponent(productTitle)}&qty=${quantity}&image=${encodeURIComponent(
-      productImage,
-    )}&paid=1`;
+    )}&product=${encodeURIComponent(
+      productTitle,
+    )}&qty=${quantity}&image=${encodeURIComponent(productImage)}&paid=1`;
 
-    return data({
-      success: true,
-      orderNumber: verifiedRecord.orderNumber,
-      shopifyOrderId: verifiedRecord.shopifyOrderId,
-      redirectUrl,
-    });
+    return Response.json(
+      {
+        success: true,
+        orderNumber: verifiedRecord.orderNumber,
+        shopifyOrderId: verifiedRecord.shopifyOrderId,
+        redirectUrl,
+      },
+      { headers: { "Content-Type": "application/json" } },
+    );
   } catch (err: any) {
     console.error("Unhandled error in /api/razorpay/verify-order:", err);
-    return data(
-      { success: false, error: err.message || "Failed to complete payment verification." },
-      { status: 500 },
+    return Response.json(
+      {
+        success: false,
+        error: err.message || "Failed to complete payment verification.",
+      },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

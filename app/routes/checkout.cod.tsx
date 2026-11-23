@@ -1,6 +1,6 @@
 import { gql } from "@shopify/hydrogen";
 import { useEffect, useState } from "react";
-import { Link, useNavigation } from "react-router";
+import { Form, Link, useActionData, useNavigation } from "react-router";
 import { envContext } from "~/lib/env";
 import { formatPrice } from "~/lib/money";
 import { createShopifyCodOrder } from "~/lib/shopify-admin.server";
@@ -85,11 +85,11 @@ const CHECKOUT_QUERY = gql(`
 
 export function meta() {
   return [
-    { title: "Fast & Secure Online Checkout | 10% Prepaid Discount" },
+    { title: "Fast & Secure Checkout | HypeeeCart" },
     {
       name: "description",
       content:
-        "Fast and secure online checkout via Razorpay (UPI, GPay, PhonePe, Cards) with instant 10% prepaid discount.",
+        "Fast and secure checkout via Razorpay (UPI, GPay, PhonePe, Cards) with 10% prepaid discount or Cash on Delivery.",
     },
   ];
 }
@@ -147,6 +147,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     (typeof process !== "undefined" ? process.env.RAZORPAY_KEY_ID : "") ||
     "";
 
+  const initialPrepaid =
+    url.searchParams.get("prepaid") === "1" ||
+    url.searchParams.get("prepaid") === "true";
+
   return {
     handle,
     variantId: selectedVariant?.id || variantId,
@@ -158,6 +162,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     title,
     image,
     razorpayKeyId,
+    initialPrepaid,
     unitPrice: {
       amount: String(unitPriceAmount),
       currencyCode: currency,
@@ -182,9 +187,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   const quantity = Math.max(1, parseInt(String(formData.get("quantity") || "1"), 10));
   const totalAmount = parseFloat(String(formData.get("totalAmount") || "0")) || 0;
   const unitPrice = parseFloat(String(formData.get("unitPrice") || "0")) || 0;
-  const discountAmount = parseFloat(String(formData.get("discountAmount") || "0")) || 0;
   const productImage = String(formData.get("productImage") || "");
-  const razorpayPaymentId = String(formData.get("razorpayPaymentId") || `test_rzp_${Date.now()}`);
+  const paymentMode = String(formData.get("paymentMode") || "cod").trim();
 
   // Validation
   if (!name || name.length < 2) {
@@ -194,7 +198,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     return { error: "Please enter a valid 10-digit Indian phone number for courier updates." };
   }
   if (!address || address.length < 5) {
-    return { error: "Please enter your complete street address (house/flat no, building, road)." };
+    return { error: "Please enter your complete delivery address." };
   }
   if (!pincode || !/^\d{6}$/.test(pincode)) {
     return { error: "Please enter a valid 6-digit Indian PIN code." };
@@ -212,18 +216,16 @@ export async function action({ request, context }: Route.ActionArgs) {
   const nameParts = name.split(" ");
   const firstName = nameParts[0] || name;
   const lastName = nameParts.slice(1).join(" ") || firstName;
-  const idempotencyKey = `prepaid_${phone}_${rawVariantId}_${razorpayPaymentId}`;
+  const idempotencyKey = `cod_${phone}_${rawVariantId}_${quantity}_${Date.now()}`;
 
-  // Create real PAID order in Shopify with the 10% discount applied!
+  // Standard Cash on Delivery Order Creation (Unpaid, Pending)
   const result = await createShopifyCodOrder(env, {
     variantId: rawVariantId,
     quantity,
     unitPrice: unitPrice > 0 ? unitPrice : undefined,
     deliveryFee: 0,
     clientTotal: totalAmount,
-    discountAmount,
-    paymentMethod: "razorpay",
-    razorpayPaymentId,
+    paymentMethod: "cod",
     firstName,
     lastName,
     phone,
@@ -271,8 +273,8 @@ export async function action({ request, context }: Route.ActionArgs) {
           product_image: productImage || null,
           quantity,
           total_amount: verifiedOrder.totalAmount,
-          payment_method: `Razorpay Online (${razorpayPaymentId})`,
-          status: "paid",
+          payment_method: "Cash on Delivery (COD)",
+          status: "confirmed",
           created_at: verifiedOrder.createdAt,
         }),
       });
@@ -293,18 +295,29 @@ export async function action({ request, context }: Route.ActionArgs) {
     pincode,
   )}&total=${encodeURIComponent(verifiedOrder.totalAmount)}&product=${encodeURIComponent(
     verifiedOrder.productTitle,
-  )}&qty=${quantity}&image=${encodeURIComponent(productImage)}&paid=1`;
+  )}&qty=${quantity}&image=${encodeURIComponent(productImage)}`;
 
   return { success: true, redirectUrl };
 }
 
-export default function CheckoutOnlinePage({
+export default function CheckoutPage({
   loaderData,
   actionData,
 }: Route.ComponentProps) {
-  const { handle, quantity, title, image, variantTitle, unitPrice, razorpayKeyId } =
-    loaderData;
+  const {
+    handle,
+    quantity,
+    title,
+    image,
+    variantTitle,
+    unitPrice,
+    razorpayKeyId,
+    initialPrepaid,
+  } = loaderData;
 
+  const [paymentMode, setPaymentMode] = useState<"prepaid" | "cod">(
+    initialPrepaid ? "prepaid" : "prepaid",
+  );
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -315,7 +328,9 @@ export default function CheckoutOnlinePage({
   const [landmark, setLandmark] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showConfigModal, setShowConfigModal] = useState(false);
+
+  const navigation = useNavigation();
+  const isSubmittingCod = navigation.state === "submitting";
 
   // Load Razorpay Script dynamically on client
   useEffect(() => {
@@ -335,8 +350,9 @@ export default function CheckoutOnlinePage({
   const bundleSavings = Math.round(rawSubtotal * (bundlePercent / 100));
   const subtotalAfterBundle = rawSubtotal - bundleSavings;
 
-  // 10% Off on ALL Online Prepaid Orders
-  const prepaidSavings = Math.round(subtotalAfterBundle * 0.1);
+  // 10% Off on Prepaid Orders
+  const isPrepaid = paymentMode === "prepaid";
+  const prepaidSavings = isPrepaid ? Math.round(subtotalAfterBundle * 0.1) : 0;
   const totalPayable = subtotalAfterBundle - prepaidSavings;
   const totalSavings = bundleSavings + prepaidSavings;
   const currency = unitPrice.currencyCode || "INR";
@@ -406,7 +422,8 @@ export default function CheckoutOnlinePage({
     return true;
   };
 
-  const handlePayWithRazorpay = async (e: React.FormEvent) => {
+  // Real Razorpay Standard Checkout Launch Handler
+  const handleRazorpayPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -414,7 +431,7 @@ export default function CheckoutOnlinePage({
     setErrorMessage("");
 
     try {
-      // Step 1: Create Order on Razorpay backend
+      // 1. Create real Razorpay order on server
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -427,43 +444,38 @@ export default function CheckoutOnlinePage({
         }),
       });
 
-      const orderData = await res.json();
-
-      // If Razorpay keys are not yet configured in .env, display informative setup guide
-      if (orderData.requiresConfig) {
-        setIsProcessing(false);
-        setShowConfigModal(true);
-        return;
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const rawText = await res.text();
+        throw new Error(
+          `Server returned HTTP ${res.status} non-JSON response: ${rawText.slice(0, 120)}`,
+        );
       }
 
-      if (!res.ok || orderData.error) {
-        setErrorMessage(orderData.error || "Could not initialize Razorpay payment.");
-        setIsProcessing(false);
-        return;
+      const orderData = (await res.json()) as any;
+
+      if (!res.ok || !orderData.success) {
+        throw new Error(
+          orderData.error || "Failed to initialize Razorpay payment session.",
+        );
       }
 
-      // Step 2: Open official Razorpay Checkout popup
-      const activeKey = orderData.keyId || razorpayKeyId;
-
-      if (!activeKey) {
-        setIsProcessing(false);
-        setShowConfigModal(true);
-        return;
-      }
-
+      // 2. Ensure Razorpay Checkout script is loaded
       if (typeof window === "undefined" || !(window as any).Razorpay) {
-        setErrorMessage("Razorpay payment gateway is loading. Please try again in a few seconds.");
-        setIsProcessing(false);
-        return;
+        throw new Error(
+          "Razorpay Checkout SDK is still loading. Please check your internet connection and retry.",
+        );
       }
 
+      // 3. Configure and open genuine Razorpay Checkout Modal
       const options: any = {
-        key: activeKey,
-        amount: orderData.amount || Math.round(totalPayable * 100),
+        key: orderData.keyId,
+        amount: orderData.amount, // in paise
         currency: orderData.currency || "INR",
         name: "HypeeeCart",
-        description: `Order by Manaswi Dhoj Swar (10% Discount Applied)`,
+        description: "Official Store by Manaswi Dhoj Swar (10% Discount Applied)",
         image: "/logo.png",
+        order_id: orderData.orderId,
         prefill: {
           name: name.trim(),
           contact: `+91${phone.replace(/[^0-9]/g, "").slice(-10)}`,
@@ -481,7 +493,7 @@ export default function CheckoutOnlinePage({
         handler: async function (response: any) {
           setIsProcessing(true);
           try {
-            // Step 3: Verify payment and create PAID order in Shopify
+            // 4. Send payment details to server for signature verification & Shopify sync
             const verifyRes = await fetch("/api/razorpay/verify-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -508,88 +520,47 @@ export default function CheckoutOnlinePage({
               }),
             });
 
-            const verifyData = await verifyRes.json();
-            if (verifyData.success && verifyData.redirectUrl) {
+            const verifyContentType = verifyRes.headers.get("content-type") || "";
+            if (!verifyContentType.includes("application/json")) {
+              const rawVerifyText = await verifyRes.text();
+              throw new Error(
+                `Server returned HTTP ${verifyRes.status} non-JSON response: ${rawVerifyText.slice(0, 120)}`,
+              );
+            }
+
+            const verifyData = (await verifyRes.json()) as any;
+            if (verifyRes.ok && verifyData.success && verifyData.redirectUrl) {
               window.location.href = verifyData.redirectUrl;
             } else {
               setErrorMessage(
                 verifyData.error ||
-                  "Payment succeeded, but Shopify order sync encountered an issue. Please contact support.",
+                  "Payment succeeded, but order verification failed. Please contact support.",
               );
               setIsProcessing(false);
             }
           } catch (err: any) {
-            setErrorMessage("Failed to verify payment with server. Please contact support.");
+            setErrorMessage(err.message || "Payment verification failed.");
             setIsProcessing(false);
           }
         },
         modal: {
           ondismiss: function () {
             setIsProcessing(false);
+            setErrorMessage("Payment was closed or cancelled. You can retry whenever you're ready.");
           },
         },
       };
 
-      if (orderData.orderId) {
-        options.order_id = orderData.orderId;
-      }
-
       const rzpInstance = new (window as any).Razorpay(options);
-      rzpInstance.on("payment.failed", function (failResponse: any) {
+      rzpInstance.on("payment.failed", function (resp: any) {
         setErrorMessage(
-          `Payment Failed: ${failResponse.error?.description || "Transaction was declined."}`,
+          `Payment failed: ${resp.error?.description || "Transaction was declined."}`,
         );
         setIsProcessing(false);
       });
       rzpInstance.open();
     } catch (err: any) {
-      setErrorMessage(err?.message || "An unexpected error occurred. Please try again.");
-      setIsProcessing(false);
-    }
-  };
-
-  // Fallback for instant test order creation when Razorpay keys are being set up
-  const handleCreateTestPaidOrder = async () => {
-    if (!validateForm()) return;
-    setIsProcessing(true);
-    setShowConfigModal(false);
-
-    const dummyPaymentId = `pay_test_${Date.now()}`;
-    try {
-      const verifyRes = await fetch("/api/razorpay/verify-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          razorpay_payment_id: dummyPaymentId,
-          razorpay_order_id: `order_test_${Date.now()}`,
-          razorpay_signature: "test_signature",
-          name: name.trim(),
-          phone: phone.trim(),
-          email: email.trim(),
-          address: address.trim(),
-          landmark: landmark.trim(),
-          pincode: pincode.trim(),
-          city: city.trim(),
-          state: state.trim(),
-          variantId: loaderData.variantId,
-          quantity,
-          totalAmount: totalPayable,
-          unitPrice: rawUnit,
-          discountAmount: totalSavings,
-          productTitle: title,
-          variantTitle: variantTitle || undefined,
-          productImage: image || undefined,
-        }),
-      });
-      const data = await verifyRes.json();
-      if (data.success && data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else {
-        setErrorMessage(data.error || "Could not create order in Shopify.");
-        setIsProcessing(false);
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || "Failed to create order.");
+      setErrorMessage(err?.message || "An unexpected error occurred.");
       setIsProcessing(false);
     }
   };
@@ -621,17 +592,17 @@ export default function CheckoutOnlinePage({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Delivery & Online Payment Form */}
+          {/* Left Column: Delivery Form */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-[#E4E7ED] p-6 sm:p-8 shadow-xs">
             <div className="border-b border-[#E4E7ED] pb-4 mb-6">
               <span className="text-[11px] font-bold text-[#2457D6] tracking-widest uppercase block mb-1">
-                STEP 1 OF 1 • FAST SECURE CHECKOUT
+                STEP 1 OF 1 • FAST CHECKOUT
               </span>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[#192A46] leading-tight">
                 Shipping &amp; Delivery Details
               </h1>
               <p className="text-xs text-[#64748B] mt-1">
-                Enter your shipping address. 10% instant prepaid discount is automatically applied to your order.
+                Enter your delivery address below. Pay online via Razorpay for an instant 10% discount, or pay cash upon doorstep arrival.
               </p>
             </div>
 
@@ -642,7 +613,21 @@ export default function CheckoutOnlinePage({
               </div>
             ) : null}
 
-            <form onSubmit={handlePayWithRazorpay} className="space-y-4">
+            {/* When COD is selected, use standard Form submission; when Prepaid is selected, use Razorpay handler */}
+            <form
+              method="post"
+              onSubmit={isPrepaid ? handleRazorpayPayment : undefined}
+              className="space-y-4"
+            >
+              <input type="hidden" name="variantId" value={loaderData.variantId} />
+              <input type="hidden" name="productTitle" value={title} />
+              <input type="hidden" name="variantTitle" value={variantTitle || ""} />
+              <input type="hidden" name="productImage" value={image} />
+              <input type="hidden" name="quantity" value={quantity} />
+              <input type="hidden" name="totalAmount" value={totalPayable} />
+              <input type="hidden" name="unitPrice" value={rawUnit} />
+              <input type="hidden" name="paymentMode" value={paymentMode} />
+
               {/* Full Name */}
               <div>
                 <label htmlFor="name" className="block text-xs font-bold text-[#192A46] mb-1.5">
@@ -660,7 +645,7 @@ export default function CheckoutOnlinePage({
                 />
               </div>
 
-              {/* Mobile Number */}
+              {/* Phone Number */}
               <div>
                 <label htmlFor="phone" className="block text-xs font-bold text-[#192A46] mb-1.5">
                   Mobile Number (for Courier &amp; WhatsApp Updates) <span className="text-red-600">*</span>
@@ -777,82 +762,133 @@ export default function CheckoutOnlinePage({
                 </div>
               </div>
 
-              {/* ── EXCLUSIVE PAYMENT METHOD: 100% SECURE ONLINE PAYMENT (RAZORPAY) ── */}
-              <div className="pt-3 border-t border-[#E4E7ED] space-y-3">
+              {/* Payment Method Selector */}
+              <div className="space-y-2 mt-4 pt-2 border-t border-[#E4E7ED]">
                 <label className="block text-xs font-bold text-[#192A46]">
-                  Payment Method
+                  Select Payment Method
                 </label>
-
-                {/* Pre-selected Online Payment Card */}
-                <div className="p-4 rounded-xl border-2 border-[#2457D6] bg-[#EAF0FC] ring-2 ring-[#2457D6]/20 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">⚡</span>
-                      <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
-                        Instant Online Payment (Razorpay)
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Option 1: Prepaid with 10% OFF */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode("prepaid")}
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                      isPrepaid
+                        ? "border-[#2457D6] bg-[#EAF0FC] ring-2 ring-[#2457D6]/20"
+                        : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5 font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        <span>⚡</span>
+                        <span>Prepaid / Online (Razorpay)</span>
+                      </div>
+                      <span className="text-[10px] font-black bg-[#2457D6] text-white px-2 py-0.5 rounded shadow-2xs">
+                        10% OFF
                       </span>
                     </div>
-                    <span className="text-[10px] font-black bg-[#2457D6] text-white px-2 py-0.5 rounded shadow-2xs uppercase">
-                      10% OFF ACTIVE
-                    </span>
-                  </div>
+                    <p className="text-[11px] text-[#475569]">
+                      UPI, Google Pay, PhonePe, Paytm, Cards
+                    </p>
+                  </button>
 
-                  <p className="text-[11px] text-[#475569] leading-relaxed">
-                    Pay securely using Google Pay, PhonePe, Paytm, BHIM UPI, Debit/Credit Cards, or NetBanking.
-                  </p>
-
-                  <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-[#192A46] font-semibold">
-                    <span className="bg-white px-2 py-1 rounded border border-[#2457D6]/20 shadow-2xs">
-                      🟢 GPay
-                    </span>
-                    <span className="bg-white px-2 py-1 rounded border border-[#2457D6]/20 shadow-2xs">
-                      🟣 PhonePe
-                    </span>
-                    <span className="bg-white px-2 py-1 rounded border border-[#2457D6]/20 shadow-2xs">
-                      🔵 Paytm
-                    </span>
-                    <span className="bg-white px-2 py-1 rounded border border-[#2457D6]/20 shadow-2xs">
-                      ⚡ Any UPI ID / QR
-                    </span>
-                    <span className="bg-white px-2 py-1 rounded border border-[#2457D6]/20 shadow-2xs">
-                      💳 Cards / NetBanking
-                    </span>
-                  </div>
-                </div>
-
-                {/* ── VERIFIED MERCHANT TRANSPARENCY NOTICE (PREVENT FRAUD SUSPICION) ── */}
-                <div className="p-3.5 sm:p-4 rounded-xl border border-[#2457D6]/25 bg-white text-[#192A46] space-y-2 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">🛡️</span>
-                      <h4 className="font-bold text-xs sm:text-sm text-[#192A46]">
-                        Official Verified Merchant Guarantee
-                      </h4>
+                  {/* Option 2: Cash on Delivery */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMode("cod")}
+                    className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                      !isPrepaid
+                        ? "border-[#192A46] bg-[#F8F7F3] ring-2 ring-[#192A46]/20"
+                        : "border-[#E4E7ED] bg-white hover:bg-[#F8F7F3]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5 font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        <span>💵</span>
+                        <span>Cash on Delivery</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-[#64748B] bg-gray-100 px-1.5 py-0.5 rounded">
+                        Standard
+                      </span>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                      ✓ Verified Account
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-[#334155] leading-relaxed">
-                    HypeeeCart is officially founded &amp; operated by <strong>Manaswi Dhoj Swar</strong> (Authorized Merchant).
-                  </p>
-
-                  <div className="bg-[#F8F7F3] p-3 rounded-lg border border-[#E4E7ED] text-[11px] text-[#334155] space-y-1">
-                    <p className="font-bold text-[#192A46] flex items-center gap-1">
-                      <span>ℹ️</span> Why does &ldquo;Manaswi Dhoj Swar&rdquo; appear on UPI / Bank statements?
+                    <p className="text-[11px] text-[#64748B]">
+                      Pay cash or UPI upon delivery
                     </p>
-                    <p className="text-[#64748B] leading-relaxed">
-                      For zero processing fees and instant dispatch, our Razorpay gateway is directly linked to our registered proprietor banking account under <strong>Manaswi Dhoj Swar</strong>. When paying via Google Pay, PhonePe, Paytm, or NetBanking, you will see <strong>&ldquo;Manaswi Dhoj Swar&rdquo;</strong> as the verified beneficiary. Rest assured, your payment is 100% secure, protected by Razorpay &amp; backed by our 5-day replacement policy.
-                    </p>
-                  </div>
+                  </button>
                 </div>
               </div>
 
-              {/* Submit CTA (Opens Razorpay) */}
+              {/* Payment Details Card */}
+              {isPrepaid ? (
+                <div className="space-y-3">
+                  <div className="p-4 rounded-xl border-2 border-[#2457D6] bg-[#EAF0FC]/60 space-y-2 mt-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">⚡</span>
+                        <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
+                          Prepaid Selected • 10% Discount Active
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-[#2457D6] bg-white px-2 py-0.5 rounded-full border border-[#2457D6]/20">
+                        Save ₹{prepaidSavings}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#475569] leading-relaxed">
+                      You save an extra <strong>₹{prepaidSavings}</strong>! You will pay securely via Razorpay (UPI, GPay, PhonePe, Paytm, or Cards) upon clicking below.
+                    </p>
+                  </div>
+
+                  {/* Verified Merchant Transparency Notice */}
+                  <div className="p-3.5 sm:p-4 rounded-xl border border-[#2457D6]/25 bg-white text-[#192A46] space-y-2 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🛡️</span>
+                        <h4 className="font-bold text-xs sm:text-sm text-[#192A46]">
+                          Official Verified Merchant Guarantee
+                        </h4>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        ✓ Verified Account
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-[#334155] leading-relaxed">
+                      HypeeeCart is officially founded &amp; operated by <strong>Manaswi Dhoj Swar</strong> (Authorized Merchant).
+                    </p>
+
+                    <div className="bg-[#F8F7F3] p-3 rounded-lg border border-[#E4E7ED] text-[11px] text-[#334155] space-y-1">
+                      <p className="font-bold text-[#192A46] flex items-center gap-1">
+                        <span>ℹ️</span> Why does &ldquo;Manaswi Dhoj Swar&rdquo; appear on UPI / Bank statements?
+                      </p>
+                      <p className="text-[#64748B] leading-relaxed">
+                        For zero processing fees and instant dispatch, our Razorpay gateway is directly linked to our registered proprietor banking account under <strong>Manaswi Dhoj Swar</strong>. When paying via Google Pay, PhonePe, Paytm, or NetBanking, you will see <strong>&ldquo;Manaswi Dhoj Swar&rdquo;</strong> as the verified beneficiary. Rest assured, your payment is 100% secure, protected by Razorpay &amp; backed by our 5-day replacement policy.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl border-2 border-[#192A46] bg-[#F8F7F3] space-y-2 mt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">💵</span>
+                      <span className="font-extrabold text-xs sm:text-sm text-[#192A46]">
+                        Cash on Delivery (COD) Selected
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      No Advance Payment
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#475569] leading-relaxed">
+                    Keep exact cash ready or scan courier UPI QR code (Google Pay, PhonePe, Paytm, BHIM) upon doorstep delivery.
+                  </p>
+                </div>
+              )}
+
+              {/* Submit CTA */}
               <button
                 type="submit"
-                disabled={isProcessing}
+                disabled={isProcessing || isSubmittingCod}
                 className="w-full py-4 px-6 rounded-xl text-sm sm:text-base font-extrabold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-[0.99] text-white bg-[#2457D6] hover:bg-[#1e47b0]"
               >
                 {isProcessing ? (
@@ -860,18 +896,30 @@ export default function CheckoutOnlinePage({
                     <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     <span>Opening Razorpay Secure Gateway…</span>
                   </>
-                ) : (
+                ) : isSubmittingCod ? (
+                  <>
+                    <span className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Confirming Cash on Delivery Order…</span>
+                  </>
+                ) : isPrepaid ? (
                   <>
                     <span>⚡</span>
                     <span>
-                      Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} via UPI / Card (10% OFF Applied)
+                      Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} via Razorpay (10% OFF Applied)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>🔒</span>
+                    <span>
+                      Confirm COD Order • Pay {formatPrice({ amount: totalPayable.toFixed(2), currencyCode: currency })} on Delivery
                     </span>
                   </>
                 )}
               </button>
 
               <p className="text-center text-[10px] sm:text-[11px] text-[#64748B] pt-1">
-                🔒 256-Bit Bank-Grade Encryption • Powered by Razorpay • Instant Order Confirmation
+                🔒 256-Bit Bank-Grade Encryption • {isPrepaid ? "Powered by Razorpay" : "Cash on Delivery Available Pan-India"}
               </p>
             </form>
           </div>
@@ -924,16 +972,17 @@ export default function CheckoutOnlinePage({
                 </div>
               ) : null}
 
-              {/* 10% Prepaid Discount is ALWAYS applied */}
-              <div className="flex justify-between items-center text-xs text-[#2457D6] font-bold bg-[#EAF0FC] px-2.5 py-1.5 rounded-lg border border-[#2457D6]/20">
-                <span className="flex items-center gap-1">
-                  <span>⚡</span>
-                  <span>Prepaid Discount (10% OFF):</span>
-                </span>
-                <span className="font-extrabold text-[#2457D6]">
-                  - {formatPrice({ amount: prepaidSavings.toFixed(2), currencyCode: currency })}
-                </span>
-              </div>
+              {isPrepaid && prepaidSavings > 0 ? (
+                <div className="flex justify-between items-center text-xs text-[#2457D6] font-bold bg-[#EAF0FC] px-2.5 py-1.5 rounded-lg border border-[#2457D6]/20">
+                  <span className="flex items-center gap-1">
+                    <span>⚡</span>
+                    <span>Prepaid Discount (10% OFF):</span>
+                  </span>
+                  <span className="font-extrabold text-[#2457D6]">
+                    - {formatPrice({ amount: prepaidSavings.toFixed(2), currencyCode: currency })}
+                  </span>
+                </div>
+              ) : null}
 
               <div className="flex justify-between">
                 <span>Pan-India Delivery:</span>
@@ -955,10 +1004,12 @@ export default function CheckoutOnlinePage({
 
             {/* Trust Assurances */}
             <div className="pt-3 border-t border-[#E4E7ED] space-y-2 text-xs text-[#475569]">
-              <div className="flex items-center gap-2">
-                <span className="text-emerald-700 font-bold">✓</span>
-                <span>10% Instant Prepaid Discount Applied</span>
-              </div>
+              {isPrepaid ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-700 font-bold">✓</span>
+                  <span>10% Instant Prepaid Discount Applied</span>
+                </div>
+              ) : null}
               <div className="flex items-center gap-2">
                 <span className="text-emerald-700 font-bold">✓</span>
                 <span>Dispatches within 24 hours with live SMS/WhatsApp tracking</span>
@@ -969,70 +1020,16 @@ export default function CheckoutOnlinePage({
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-700 font-bold">✓</span>
-                <span>100% Secure Payment via Razorpay (UPI, Cards, NetBanking)</span>
+                <span>
+                  {isPrepaid
+                    ? "100% Secure Payment via Razorpay (UPI, Cards, NetBanking)"
+                    : "Inspect package upon doorstep arrival before paying"}
+                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Razorpay Key Setup Guide / Test Modal */}
-      {showConfigModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl animate-in fade-in">
-            <div className="flex items-center justify-between border-b border-[#E4E7ED] pb-3">
-              <div className="flex items-center gap-2 text-[#2457D6] font-bold text-base">
-                <span>⚙️</span>
-                <span>Razorpay Gateway Configuration</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowConfigModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-lg font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs text-[#334155] leading-relaxed">
-              <p>
-                To launch the live/test Razorpay popup, please add your Razorpay API keys to your project&apos;s <code className="bg-gray-100 text-[#192A46] px-1.5 py-0.5 rounded font-mono font-bold">.env</code> file:
-              </p>
-              <div className="bg-[#192A46] text-[#EAF0FC] p-3.5 rounded-xl font-mono text-[11px] space-y-1">
-                <div>RAZORPAY_KEY_ID=rzp_test_... (or rzp_live_...)</div>
-                <div>RAZORPAY_KEY_SECRET=your_razorpay_secret</div>
-              </div>
-              <p className="text-[11px] text-[#64748B]">
-                You can obtain these keys in 1 click from your <strong>Razorpay Dashboard &gt; Settings &gt; API Keys</strong>.
-              </p>
-            </div>
-
-            <div className="bg-[#EAF0FC] p-3 rounded-xl border border-[#2457D6]/20 text-xs text-[#192A46]">
-              <strong>💡 Testing Without Keys Right Now?</strong>
-              <p className="text-[11px] text-[#475569] mt-0.5">
-                Click below to simulate a completed Razorpay payment. It will create a real <strong>PAID</strong> order with the <strong>10% discount</strong> in your Shopify dashboard!
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
-              <button
-                type="button"
-                onClick={handleCreateTestPaidOrder}
-                className="flex-1 bg-[#2457D6] hover:bg-[#1e47b0] text-white py-3 px-4 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                Simulate Paid Order in Shopify
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowConfigModal(false)}
-                className="bg-gray-100 hover:bg-gray-200 text-[#192A46] py-3 px-4 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
