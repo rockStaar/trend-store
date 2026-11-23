@@ -23,6 +23,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const product = url.searchParams.get("product") || "HypeeeCart Find";
   const qty = url.searchParams.get("qty") || "1";
   const image = url.searchParams.get("image") || "";
+  const isPaid = url.searchParams.get("paid") === "1" || url.searchParams.get("paid") === "true";
 
   return {
     orderNumber,
@@ -37,6 +38,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     product,
     qty,
     image,
+    isPaid,
   };
 }
 
@@ -54,6 +56,7 @@ export default function OrderConfirmedPage({ loaderData }: Route.ComponentProps)
     product,
     qty,
     image,
+    isPaid,
   } = loaderData;
 
   const totalAmount = parseFloat(total) || 0;
@@ -79,13 +82,17 @@ export default function OrderConfirmedPage({ loaderData }: Route.ComponentProps)
               ✓
             </div>
             <span className="text-[11px] font-bold text-[#2457D6] tracking-widest uppercase block">
-              ORDER CONFIRMED • CASH ON DELIVERY
+              {isPaid
+                ? "ORDER CONFIRMED • PAYMENT SUCCESSFUL (RAZORPAY)"
+                : "ORDER CONFIRMED • CASH ON DELIVERY"}
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#192A46] leading-tight">
               Thank You, {name}!
             </h1>
             <p className="text-xs sm:text-sm text-[#64748B] max-w-md mx-auto">
-              Your Cash on Delivery order has been successfully placed and forwarded to our packaging station.
+              {isPaid
+                ? "Your online payment has been securely confirmed via Razorpay, and your order has been prioritized for express dispatch."
+                : "Your Cash on Delivery order has been successfully placed and forwarded to our packaging station."}
             </p>
             <div className="inline-block bg-[#F8F7F3] border border-[#E4E7ED] px-4 py-1.5 rounded-xl text-xs font-bold text-[#192A46]">
               Shopify Order: <span className="text-[#2457D6]">{orderNumber || "Confirmed"}</span>
@@ -120,7 +127,7 @@ export default function OrderConfirmedPage({ loaderData }: Route.ComponentProps)
                   {formatPrice({ amount: totalAmount.toFixed(2), currencyCode: "INR" })}
                 </div>
                 <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                  Pay on Delivery
+                  {isPaid ? "Paid Online (10% Off)" : "Pay on Delivery"}
                 </span>
               </div>
             </div>
@@ -128,7 +135,11 @@ export default function OrderConfirmedPage({ loaderData }: Route.ComponentProps)
             <div className="space-y-2 text-xs text-[#64748B]">
               <div className="flex justify-between">
                 <span>Payment Method:</span>
-                <span className="font-bold text-[#192A46]">Cash or UPI QR upon Delivery</span>
+                <span className="font-bold text-[#192A46]">
+                  {isPaid
+                    ? "Razorpay (Online Prepaid • Manaswi Dhoj Swar)"
+                    : "Cash or UPI QR upon Delivery"}
+                </span>
               </div>
               {address ? (
                 <div className="flex justify-between">

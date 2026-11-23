@@ -14,6 +14,10 @@ export interface CodOrderInput {
   unitPrice?: number;
   deliveryFee: number;
   clientTotal: number;
+  discountAmount?: number;
+  paymentMethod?: "cod" | "prepaid" | "razorpay";
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
   firstName: string;
   lastName: string;
   phone: string; // 10 digits
@@ -318,13 +322,23 @@ export async function createShopifyCodOrder(
 
   // 4. Build Shopify Admin Order Payload (100% Free Shipping on All Orders)
   const shippingCharge = 0;
+  const isPrepaidOrder =
+    input.paymentMethod === "prepaid" ||
+    input.paymentMethod === "razorpay" ||
+    Boolean(input.razorpayPaymentId);
+
+  // Calculate unit price: if clientTotal is provided, ensure line item unit price matches the discounted total
+  const discountedUnitPrice =
+    input.quantity > 0 && input.clientTotal > 0
+      ? input.clientTotal / input.quantity
+      : input.unitPrice || 0;
 
   const lineItemObj: any = {
     variant_id: parsedVariantId,
     quantity: input.quantity,
   };
-  if (input.unitPrice && input.unitPrice > 0) {
-    lineItemObj.price = input.unitPrice.toFixed(2);
+  if (discountedUnitPrice > 0) {
+    lineItemObj.price = discountedUnitPrice.toFixed(2);
   }
 
   const shopifyOrderPayload = {
@@ -362,21 +376,55 @@ export async function createShopifyCodOrder(
       },
       shipping_lines: [
         {
-          title: "Free Pan-India Express Delivery",
+          title: "Free Express Delivery",
           price: "0.00",
           code: "FREE_DELIVERY",
         },
       ],
-      // Financial status for Cash on Delivery must remain pending until delivery & collection
-      financial_status: "pending",
-      payment_gateway_names: ["Cash on Delivery (COD)"],
-      note: input.landmark
-        ? `Landmark: ${input.landmark} | Ordered via HypeeeCart Direct Cash on Delivery Form`
-        : "Ordered via HypeeeCart Direct Cash on Delivery Form",
-      tags: "Cash on Delivery, COD, Direct Form, HypeeeCart",
+      // For prepaid orders via Razorpay, mark as PAID immediately so it shows PAID in Shopify Admin
+      financial_status: isPrepaidOrder ? "paid" : "pending",
+      payment_gateway_names: [isPrepaidOrder ? "Razorpay" : "Cash on Delivery (COD)"],
+      transactions: isPrepaidOrder
+        ? [
+            {
+              kind: "sale",
+              status: "success",
+              amount: input.clientTotal.toFixed(2),
+              gateway: "Razorpay",
+            },
+          ]
+        : undefined,
+      note: isPrepaidOrder
+        ? `Paid via Razorpay Online Payment (Payment ID: ${input.razorpayPaymentId || "Prepaid Verified"}) | Beneficiary Account: Manaswi Dhoj Swar | Customer: +91${input.phone}${input.landmark ? ` | Landmark: ${input.landmark}` : ""}`
+        : input.landmark
+          ? `Landmark: ${input.landmark} | Ordered via HypeeeCart Direct Cash on Delivery Form`
+          : "Ordered via HypeeeCart Direct Cash on Delivery Form",
+      tags: isPrepaidOrder
+        ? "Prepaid, Razorpay, Paid, 10% Discount Applied, HypeeeCart"
+        : "Cash on Delivery, COD, Direct Form, HypeeeCart",
       note_attributes: [
         { name: "idempotency_key", value: input.idempotencyKey },
-        { name: "payment_method", value: "Cash on Delivery" },
+        {
+          name: "payment_method",
+          value: isPrepaidOrder ? "Razorpay (Online Prepaid)" : "Cash on Delivery",
+        },
+        ...(isPrepaidOrder && input.razorpayPaymentId
+          ? [{ name: "razorpay_payment_id", value: input.razorpayPaymentId }]
+          : []),
+        ...(isPrepaidOrder && input.razorpayOrderId
+          ? [{ name: "razorpay_order_id", value: input.razorpayOrderId }]
+          : []),
+        ...(isPrepaidOrder && input.discountAmount
+          ? [
+              {
+                name: "discount_applied",
+                value: `10% Prepaid Discount (-Rs. ${input.discountAmount.toFixed(2)})`,
+              },
+            ]
+          : []),
+        ...(isPrepaidOrder
+          ? [{ name: "merchant_account", value: "Manaswi Dhoj Swar" }]
+          : []),
         { name: "channel", value: "Hydrogen Oxygen Storefront" },
       ],
       inventory_behaviour: "decrement_ignoring_policy",
@@ -454,8 +502,8 @@ export async function createShopifyCodOrder(
     quantity: input.quantity,
     totalAmount: confirmedTotal,
     deliveryFee: shippingCharge,
-    paymentMethod: "Cash on Delivery (COD)",
-    financialStatus: shopifyOrder.financial_status || "pending",
+    paymentMethod: isPrepaidOrder ? "Razorpay (Online Prepaid)" : "Cash on Delivery (COD)",
+    financialStatus: shopifyOrder.financial_status || (isPrepaidOrder ? "paid" : "pending"),
     createdAt: shopifyOrder.created_at || new Date().toISOString(),
   };
 

@@ -19,6 +19,10 @@ export type Env = {
   REVIEWS_ADMIN_SECRET?: string;
   REQUIRE_REVIEW_MODERATION?: string;
   JUDGEME_PUBLIC_TOKEN?: string;
+  // Razorpay Payment Gateway
+  RAZORPAY_KEY_ID?: string;
+  RAZORPAY_KEY_SECRET?: string;
+  PUBLIC_RAZORPAY_KEY_ID?: string;
 };
 
 export const envContext = createContext<Env>();
